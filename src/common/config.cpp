@@ -4,6 +4,7 @@
 #include <algorithm>
 #include "config.h"
 #include "log.h"
+#include "netaddress.h"
 
 namespace corpc {
 
