@@ -1,6 +1,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include "channel.h"
+#include "eventloop.h"
 
 namespace corpc {
 
@@ -87,7 +88,7 @@ void Channel::updateToEventLoop()
 void Channel::unregisterFromEventLoop()
 {
     if (!loop_) {
-        loop_ = corpc::EventLoop::GetEventLoop();
+        loop_ = corpc::EventLoop::getEventLoop();
     }
     loop_->delEvent(fd_);
     listenEvents_ = 0;

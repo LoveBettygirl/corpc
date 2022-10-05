@@ -33,7 +33,7 @@ EventLoop::EventLoop()
     tid_ = gettid();
 
     LOG_DEBUG << "thread[" << tid_ << "] succ create a reactor object";
-    t_reactor_ptr = this;
+    tLoopPtr = this;
 
     if ((epfd_ = epoll_create(1)) <= 0) {
         LOG_ERROR << "start server error. epoll_create error, sys error=" << strerror(errno);
@@ -121,7 +121,7 @@ void EventLoop::delEvent(int fd, bool isWakeup /*=true*/)
 // 唤醒：向eventfd写8个字节，对应的线程会因eventfd的读事件从epoll_wait中唤醒
 void EventLoop::wakeup()
 {
-    if (!isLooping) {
+    if (!isLooping_) {
         return;
     }
 
@@ -214,18 +214,18 @@ void EventLoop::loop()
         epoll_event reEvents[MAX_EVENTS + 1];
 
         if (firstCoroutine) {
-            corpc::Coroutine::Resume(firstCoroutine);
+            corpc::Coroutine::resume(firstCoroutine);
             firstCoroutine = nullptr;
         }
 
         // main reactor need't to resume coroutine in global CoroutineTaskQueue, only io thread do this work
-        if (loopType_ != MainEventLoop) {
+        if (loopType_ != MainLoop) {
             Channel *ptr = nullptr;
             while (true) {
-                ptr = CoroutineTaskQueue::GetCoroutineTaskQueue()->pop();
+                ptr = CoroutineTaskQueue::getCoroutineTaskQueue()->pop();
                 if (ptr) {
                     ptr->setEventLoop(this);
-                    corpc::Coroutine::Resume(ptr->getCoroutine());
+                    corpc::Coroutine::resume(ptr->getCoroutine());
                 }
                 else {
                     break;
@@ -244,7 +244,7 @@ void EventLoop::loop()
             }
         }
 
-        int rt = epoll_wait(epfd_, reEvents, MAX_EVENTS, t_max_epoll_timeout);
+        int rt = epoll_wait(epfd_, reEvents, MAX_EVENTS, tMaxEpollTimeout);
 
         if (rt < 0) {
             LOG_ERROR << "epoll_wait error, skip, errno=" << strerror(errno);
@@ -281,16 +281,16 @@ void EventLoop::loop()
                                     firstCoroutine = ptr->getCoroutine();
                                     continue;
                                 }
-                                if (loopType_ == SubEventLoop) {
+                                if (loopType_ == SubLoop) {
                                     delEventInLoopThread(fd);
                                     ptr->setEventLoop(nullptr);
-                                    CoroutineTaskQueue::GetCoroutineTaskQueue()->push(ptr);
+                                    CoroutineTaskQueue::getCoroutineTaskQueue()->push(ptr);
                                 }
                                 else
                                 {
                                     // main loop, just resume this coroutine. it is accept coroutine. and main loop only have this coroutine
                                     // main loop只负责接受连接，对应的协程只有一个accept协程
-                                    corpc::Coroutine::Resume(ptr->getCoroutine());
+                                    corpc::Coroutine::resume(ptr->getCoroutine());
                                     if (firstCoroutine) {
                                         firstCoroutine = nullptr;
                                     }
@@ -380,7 +380,7 @@ void EventLoop::addTask(std::vector<std::function<void()>> task, bool isWakeup /
 void EventLoop::addCoroutine(corpc::Coroutine::ptr cor, bool isWakeup /*=true*/)
 {
     auto func = [cor]() {
-        corpc::Coroutine::Resume(cor.get());
+        corpc::Coroutine::resume(cor.get());
     };
     addTask(func, isWakeup);
 }

@@ -74,7 +74,7 @@ ssize_t read_hook(int fd, void *buf, size_t count)
     toEpoll(channel, corpc::IOEvent::READ);
 
     LOG_DEBUG << "read func to yield";
-    corpc::Coroutine::Yield();
+    corpc::Coroutine::yield();
 
     channel->delListenEvents(corpc::IOEvent::READ);
     channel->clearCoroutine();
@@ -92,7 +92,7 @@ int accept_hook(int sockfd, struct sockaddr *addr, socklen_t *addrlen)
     }
     corpc::EventLoop::getEventLoop();
 
-    corpc::Channel::ptr channel = corpc::ChannelContainer::getFdContainer()->getChannel(sockfd);
+    corpc::Channel::ptr channel = corpc::ChannelContainer::getChannelContainer()->getChannel(sockfd);
     if (channel->getEventLoop() == nullptr) {
         channel->setEventLoop(corpc::EventLoop::getEventLoop());
     }
@@ -107,7 +107,7 @@ int accept_hook(int sockfd, struct sockaddr *addr, socklen_t *addrlen)
     toEpoll(channel, corpc::IOEvent::READ);
 
     LOG_DEBUG << "accept func to yield";
-    corpc::Coroutine::Yield();
+    corpc::Coroutine::yield();
 
     channel->delListenEvents(corpc::IOEvent::READ);
 
@@ -124,7 +124,7 @@ ssize_t write_hook(int fd, const void *buf, size_t count)
     }
     corpc::EventLoop::getEventLoop();
 
-    corpc::Channel::ptr channel = corpc::ChannelContainer::getFdContainer()->getChannel(fd);
+    corpc::Channel::ptr channel = corpc::ChannelContainer::getChannelContainer()->getChannel(fd);
     if (channel->getEventLoop() == nullptr) {
         channel->setEventLoop(corpc::EventLoop::getEventLoop());
     }
@@ -139,7 +139,7 @@ ssize_t write_hook(int fd, const void *buf, size_t count)
     toEpoll(channel, corpc::IOEvent::WRITE);
 
     LOG_DEBUG << "write func to yield";
-    corpc::Coroutine::Yield();
+    corpc::Coroutine::yield();
 
     channel->delListenEvents(corpc::IOEvent::WRITE);
     channel->clearCoroutine();
@@ -157,7 +157,7 @@ int connect_hook(int sockfd, const struct sockaddr *addr, socklen_t addrlen)
     }
     corpc::EventLoop *loop = corpc::EventLoop::getEventLoop();
 
-    corpc::Channel::ptr channel = corpc::ChannelContainer::getFdContainer()->getChannel(sockfd);
+    corpc::Channel::ptr channel = corpc::ChannelContainer::getChannelContainer()->getChannel(sockfd);
     if (channel->getEventLoop() == nullptr) {
         channel->setEventLoop(loop);
     }
@@ -184,15 +184,15 @@ int connect_hook(int sockfd, const struct sockaddr *addr, socklen_t addrlen)
     auto timeoutcb = [&isTimeout, curCor]() {
         // 设置超时标志，然后唤醒协程
         isTimeout = true;
-        corpc::Coroutine::Resume(curCor);
+        corpc::Coroutine::resume(curCor);
     };
 
-    corpc::TimerEvent::ptr event = std::make_shared<corpc::TimerEvent>(gConfig->maxConnectionTimeout_, false, timeoutcb);
+    corpc::TimerEvent::ptr event = std::make_shared<corpc::TimerEvent>(gConfig->maxConnectTimeout_, false, timeoutcb);
 
     corpc::Timer *timer = loop->getTimer();
     timer->addTimerEvent(event);
 
-    corpc::Coroutine::Yield();
+    corpc::Coroutine::yield();
 
     // write事件需要删除，因为连接成功后后面会重新监听该fd的写事件。
     channel->delListenEvents(corpc::IOEvent::WRITE);
@@ -231,7 +231,7 @@ unsigned int sleep_hook(unsigned int seconds)
         LOG_DEBUG << "onTime, now resume sleep cor";
         isTimeout = true;
         // 设置超时标志，然后唤醒协程
-        corpc::Coroutine::Resume(curCor);
+        corpc::Coroutine::resume(curCor);
     };
 
     corpc::TimerEvent::ptr event = std::make_shared<corpc::TimerEvent>(1000 * seconds, false, timeoutcb);
@@ -241,7 +241,7 @@ unsigned int sleep_hook(unsigned int seconds)
     LOG_DEBUG << "now to yield sleep";
     // beacuse read or write maybe resume this coroutine, so when this cor be resumed, must check is timeout, otherwise should yield again
     while (!isTimeout) {
-        corpc::Coroutine::Yield();
+        corpc::Coroutine::yield();
     }
 
     return 0;
