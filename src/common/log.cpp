@@ -14,7 +14,7 @@
 #include <atomic>
 #include <cassert>
 #include <functional>
-
+#include "timer.h"
 #include "log.h"
 #include "runtime.h"
 #include "coroutine.h"
@@ -249,9 +249,9 @@ void Logger::init(const std::string &fileName, const std::string &filePath, int 
 
 void Logger::start()
 {
-    // TODO: 实现定时任务，让线程间隔syncInteval写日志文件
-    TimerEvent::ptr event = std::make_shared<TimerEvent>(syncInteval, true, std::bind(&Logger::loopFunc, this));
-    Reactor::GetReactor()->getTimer()->addTimerEvent(event);
+    // 设置定时任务，让线程间隔syncInteval_写日志文件
+    TimerEvent::ptr event = std::make_shared<TimerEvent>(syncInterval_, true, std::bind(&Logger::loopFunc, this));
+    EventLoop::getEventLoop()->getTimer()->addTimerEvent(event);
 }
 
 void Logger::loopFunc()
