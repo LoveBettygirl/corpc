@@ -114,9 +114,9 @@ void Timer::resetArriveTime()
     ts.tv_nsec = (interval % 1000) * 1000000;
     newValue.it_value = ts;
 
-    int rt = timerfd_settime(fd_, 0, &newValue, nullptr);
+    int ret = timerfd_settime(fd_, 0, &newValue, nullptr);
 
-    if (rt != 0) {
+    if (ret != 0) {
         LOG_ERROR << "tiemr_settime error, interval=" << interval;
     }
 }

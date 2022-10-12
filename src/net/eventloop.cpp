@@ -244,13 +244,13 @@ void EventLoop::loop()
             }
         }
 
-        int rt = epoll_wait(epfd_, reEvents, MAX_EVENTS, tMaxEpollTimeout);
+        int ret = epoll_wait(epfd_, reEvents, MAX_EVENTS, tMaxEpollTimeout);
 
-        if (rt < 0) {
+        if (ret < 0) {
             LOG_ERROR << "epoll_wait error, skip, errno=" << strerror(errno);
         }
         else {
-            for (int i = 0; i < rt; ++i) {
+            for (int i = 0; i < ret; ++i) {
                 epoll_event oneEvent = reEvents[i];
 
                 // 如果是eventfd的读事件，那就是其他线程唤醒了当前线程
