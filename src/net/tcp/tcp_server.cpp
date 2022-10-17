@@ -9,6 +9,7 @@
 #include "coroutine_hook.h"
 #include "coroutine_pool.h"
 #include "config.h"
+#include "tcp_connection.h"
 
 namespace corpc {
 
@@ -21,36 +22,36 @@ TcpAcceptor::TcpAcceptor(NetAddress::ptr netAddr) : localAddr_(netAddr)
 
 void TcpAcceptor::init()
 {
-    fd_ = socket(localAddr_->getFamily(), SOCK_STREAM, 0);
-    if (fd_ < 0) {
+    listenfd_ = socket(localAddr_->getFamily(), SOCK_STREAM, 0);
+    if (listenfd_ < 0) {
         LOG_FATAL << "start server error. socket error, sys error=" << strerror(errno);
     }
-    LOG_DEBUG << "create listenfd succ, listenfd=" << fd_;
+    LOG_DEBUG << "create listenfd succ, listenfd=" << listenfd_;
 
     int val = 1;
-    if (setsockopt(fd_, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val)) < 0) {
+    if (setsockopt(listenfd_, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val)) < 0) {
         LOG_FATAL << "set REUSEADDR error";
     }
 
     socklen_t len = localAddr_->getSockLen();
-    int ret = bind(fd_, localAddr_->getSockAddr(), len);
+    int ret = bind(listenfd_, localAddr_->getSockAddr(), len);
     if (ret != 0) {
         LOG_FATAL << "start server error. bind error, errno=" << errno << ", error=" << strerror(errno);
     }
 
     LOG_DEBUG << "set REUSEADDR succ";
-    ret = listen(fd_, 10);
+    ret = listen(listenfd_, 10);
     if (ret != 0) {
-        LOG_FATAL << "start server error. listen error, fd= " << fd_ << ", errno=" << errno << ", error=" << strerror(errno);
+        LOG_FATAL << "start server error. listen error, fd= " << listenfd_ << ", errno=" << errno << ", error=" << strerror(errno);
     }
 }
 
 TcpAcceptor::~TcpAcceptor()
 {
-    Channel::ptr channel = ChannelContainer::getChannelContainer()->getChannel(fd_);
+    Channel::ptr channel = ChannelContainer::getChannelContainer()->getChannel(listenfd_);
     channel->unregisterFromEventLoop();
-    if (fd_ != -1) {
-        close(fd_);
+    if (listenfd_ != -1) {
+        close(listenfd_);
     }
 }
 
@@ -64,7 +65,7 @@ int TcpAcceptor::toAccept()
         memset(&cliAddr, 0, sizeof(cliAddr));
         len = sizeof(cliAddr);
         // call hook accept
-        ret = accept_hook(fd_, reinterpret_cast<sockaddr *>(&cliAddr), &len);
+        ret = accept_hook(listenfd_, reinterpret_cast<sockaddr *>(&cliAddr), &len);
         if (ret == -1) {
             LOG_DEBUG << "error, no new client coming, errno=" << errno << "error=" << strerror(errno);
             return -1;
@@ -77,7 +78,7 @@ int TcpAcceptor::toAccept()
         len = sizeof(cliAddr);
         memset(&cliAddr, 0, sizeof(cliAddr));
         // call hook accept
-        ret = accept_hook(fd_, reinterpret_cast<sockaddr *>(&cliAddr), &len);
+        ret = accept_hook(listenfd_, reinterpret_cast<sockaddr *>(&cliAddr), &len);
         if (ret == -1) {
             LOG_DEBUG << "error, no new client coming, errno=" << errno << "error=" << strerror(errno);
             return -1;
@@ -108,12 +109,15 @@ TcpServer::TcpServer(NetAddress::ptr addr, ProtocalType type /*= TinyPb_Protocal
         m_protocal_type = TinyPb_Protocal;
     }
 
+    // main loop对应主线程
     mainLoop_ = corpc::EventLoop::getEventLoop();
     mainLoop_->setEventLoopType(MainLoop);
 
+    // 创建时间轮对象，添加定时事件到main loop的epoll，用于定时关闭非活跃连接
     timeWheel_ = std::make_shared<TcpTimeWheel>(mainLoop_, gConfig->timewheelBucketNum_, gConfig->timewheelInterval_);
 
-    clearClientTimerEvent_ = std::make_shared<TimerEvent>(10000, true, std::bind(&TcpServer::ClearClientTimerFunc, this));
+    // 定时清理维护的所有客户端clients_中已关闭的连接，减少资源占用
+    clearClientTimerEvent_ = std::make_shared<TimerEvent>(10000, true, std::bind(&TcpServer::clearClientTimerFunc, this));
     mainLoop_->getTimer()->addTimerEvent(clearClientTimerEvent_);
 
     LOG_INFO << "TcpServer setup on [" << addr_->toString() << "]";
@@ -123,8 +127,9 @@ void TcpServer::start()
 {
     acceptor_.reset(new TcpAcceptor(addr_));
     acceptor_->init();
-    acceptCor_ = getCoroutinePool()->getCoroutineInstanse();
-    acceptCor_->setCallBack(std::bind(&TcpServer::MainAcceptCorFunc, this));
+    // 调用getCoroutinePool()会自动设置主线程的主协程
+    acceptCor_ = getCoroutinePool()->getCoroutineInstanse(); // acceptCor_：主线程的子协程，主线程只有这一个子协程，用于接受新连接
+    acceptCor_->setCallBack(std::bind(&TcpServer::mainAcceptCorFunc, this));
 
     LOG_INFO << "resume accept coroutine";
     corpc::Coroutine::resume(acceptCor_.get());
@@ -139,7 +144,7 @@ TcpServer::~TcpServer()
     LOG_DEBUG << "~TcpServer";
 }
 
-void TcpServer::MainAcceptCorFunc()
+void TcpServer::mainAcceptCorFunc()
 {
     while (!isStopAccept_) {
         int fd = acceptor_->toAccept();
@@ -148,11 +153,15 @@ void TcpServer::MainAcceptCorFunc()
             Coroutine::yield();
             continue;
         }
-        IOThread *ioThread = ioPool_->getIOThread();
+        IOThread *ioThread = ioPool_->getIOThread(); // 为新连接选择一个io线程，轮询方式
+        // 将新连接的fd生成新的tcp连接对象，并加入已连接的客户端列表中
+        // 生成新的tcp连接对象的过程中，要将fd封装成channel对象，为channel对象设置好对应的事件循环，初始化缓冲区长度，为tcp连接分配新的子协程，设置状态为已连接（Connected）
         TcpConnection::ptr conn = addClient(ioThread, fd);
+        // 为刚才给tcp连接分配的新（子）协程，设置子协程执行的主函数（主函数中需要读连接的数据，处理读到的数据，生成要写的数据，将数据发送出去）
         conn->initServer();
         LOG_DEBUG << "tcpconnection address is " << conn.get() << ", and fd is" << fd;
 
+        // 先在分配的io线程对应loop中开始执行子协程的主函数（如果这个io线程未唤醒，需要先唤醒再执行子协程），以执行到read_hook或write_hook
         ioThread->getEventLoop()->addCoroutine(conn->getCoroutine());
         tcpCounts_++;
         LOG_DEBUG << "current tcp connection count is [" << tcpCounts_ << "]";
@@ -235,7 +244,7 @@ void TcpServer::freshTcpConnection(TcpTimeWheel::TcpConnectionSlot::ptr slot)
     mainLoop_->addTask(cb);
 }
 
-void TcpServer::ClearClientTimerFunc()
+void TcpServer::clearClientTimerFunc()
 {
     // delete Closed TcpConnection per loop
     // for free memory

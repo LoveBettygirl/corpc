@@ -21,7 +21,7 @@ CoroutinePool *getCoroutinePool()
 CoroutinePool::CoroutinePool(int poolSize, int stackSize /*= 1024 * 128 B*/) : poolSize_(poolSize), stackSize_(stackSize)
 {
     // set main coroutine first
-    Coroutine::getCurrentCoroutine();
+    Coroutine::getCurrentCoroutine(); // 如果主协程未设置，先设置主协程
     memoryPool_.push_back(std::make_shared<Memory>(stackSize, poolSize));
     Memory::ptr temp = memoryPool_[0];
 

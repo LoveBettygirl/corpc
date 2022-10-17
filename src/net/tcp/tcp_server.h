@@ -26,7 +26,7 @@ public:
 
 private:
     int family_{-1};
-    int fd_{-1};
+    int listenfd_{-1};
 
     NetAddress::ptr localAddr_{nullptr};
     NetAddress::ptr peerAddr_{nullptr};
@@ -54,8 +54,8 @@ public:
     TcpTimeWheel::ptr getTimeWheel();
 
 private:
-    void MainAcceptCorFunc();
-    void ClearClientTimerFunc();
+    void mainAcceptCorFunc();
+    void clearClientTimerFunc();
 
 private:
     NetAddress::ptr addr_;

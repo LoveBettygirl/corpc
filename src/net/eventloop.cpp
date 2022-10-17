@@ -17,11 +17,11 @@ extern write_fun_ptr_t g_sys_write_fun; // sys write func
 
 namespace corpc {
 
-static thread_local EventLoop *tLoopPtr = nullptr;
+static thread_local EventLoop *tLoopPtr = nullptr; // 当前线程对应的事件循环
 static thread_local int tMaxEpollTimeout = 10000; // ms
 
-// 全局协程队列，让其他线程也能执行当前线程中的协程（mn模型）
-// 不采用mn模型，本质上跟muduo 的one loop per thread模式一样，还多了协程切换的代价
+// 全局协程队列，让其他线程也能执行当前线程中的协程（n-m模型，n个线程执行m个协程）
+// 不采用n-m模型，本质上跟muduo 的one loop per thread模式一样（如果改成协程的实现就是n-1模型），还多了协程切换的代价
 static CoroutineTaskQueue *tCouroutineTaskQueue = nullptr;
 
 EventLoop::EventLoop()
@@ -286,10 +286,9 @@ void EventLoop::loop()
                                     ptr->setEventLoop(nullptr);
                                     CoroutineTaskQueue::getCoroutineTaskQueue()->push(ptr);
                                 }
-                                else
-                                {
+                                else {
                                     // main loop, just resume this coroutine. it is accept coroutine. and main loop only have this coroutine
-                                    // main loop只负责接受连接，对应的协程只有一个accept协程
+                                    // main loop只负责接受连接，对应的子协程只有一个accept协程
                                     corpc::Coroutine::resume(ptr->getCoroutine());
                                     if (firstCoroutine) {
                                         firstCoroutine = nullptr;

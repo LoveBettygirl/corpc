@@ -2,7 +2,6 @@
 #define TCP_CLIENT_H
 
 #include <memory>
-#include <google/protobuf/service.h>
 #include "coroutine.h"
 #include "coroutine_hook.h"
 #include "netaddress.h"
@@ -11,7 +10,7 @@
 
 namespace corpc {
 
-// You should use TcpClient in a coroutine(not main coroutine)
+// You should use TcpClient in a coroutine (not main coroutine)
 class TcpClient {
 public:
     typedef std::shared_ptr<TcpClient> ptr;

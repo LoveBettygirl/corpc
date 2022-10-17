@@ -9,6 +9,7 @@
 #include "coroutine.h"
 #include "config.h"
 #include "coroutine_pool.h"
+#include "tcp_connection.h"
 
 namespace corpc {
 
@@ -86,7 +87,7 @@ void IOThread::mainFunc()
     loop_->setEventLoopType(SubLoop);
     tid_ = gettid();
 
-    Coroutine::getCurrentCoroutine();
+    Coroutine::getCurrentCoroutine(); // io线程的主协程
 
     LOG_DEBUG << "finish iothread init, now post semaphore";
     sem_post(&initSemaphore_);

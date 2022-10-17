@@ -8,12 +8,12 @@
 namespace corpc {
 
 // main coroutine, every io thread have a main_coroutine
-static thread_local Coroutine *mainCoroutine = nullptr;
+static thread_local Coroutine *tMainCoroutine = nullptr;
 
 // current thread is runing which coroutine
-static thread_local Coroutine *currCoroutine = nullptr;
+static thread_local Coroutine *tCurrCoroutine = nullptr;
 
-static thread_local RunTime *currRuntime = nullptr;
+static thread_local RunTime *tCurrRuntime = nullptr;
 
 static std::atomic<int> coroutineCount{0};
 static std::atomic<int> currCoroutineId{1};
@@ -25,12 +25,12 @@ int getCoroutineIndex()
 
 RunTime* getCurrentRunTime()
 {
-    return currRuntime;
+    return tCurrRuntime;
 }
 
 void setCurrentRunTime(RunTime* v)
 {
-    currRuntime = v;
+    tCurrRuntime = v;
 }
 
 void CoFunction(Coroutine *co)
@@ -55,15 +55,15 @@ Coroutine::Coroutine()
     corId_ = 0;
     coroutineCount++;
     memset(&coctx_, 0, sizeof(coctx_));
-    currCoroutine = this;
+    tCurrCoroutine = this;
 }
 
 Coroutine::Coroutine(int size, char *stack_ptr) : stackSize_(size), stackSp_(stack_ptr)
 {
     assert(stackSp_);
 
-    if (!mainCoroutine) {
-        mainCoroutine = new Coroutine();
+    if (!tMainCoroutine) {
+        tMainCoroutine = new Coroutine();
     }
 
     corId_ = currCoroutineId++;
@@ -75,8 +75,8 @@ Coroutine::Coroutine(int size, char *stack_ptr, std::function<void()> cb)
 {
     assert(stackSp_);
 
-    if (!mainCoroutine) {
-        mainCoroutine = new Coroutine();
+    if (!tMainCoroutine) {
+        tMainCoroutine = new Coroutine();
     }
 
     setCallBack(cb);
@@ -86,7 +86,7 @@ Coroutine::Coroutine(int size, char *stack_ptr, std::function<void()> cb)
 
 bool Coroutine::setCallBack(std::function<void()> cb)
 {
-    if (this == mainCoroutine) {
+    if (this == tMainCoroutine) {
         LOG_ERROR << "main coroutine can't set callback";
         return false;
     }
@@ -120,53 +120,55 @@ Coroutine::~Coroutine()
 
 Coroutine *Coroutine::getCurrentCoroutine()
 {
-    if (currCoroutine == nullptr) {
-        mainCoroutine = new Coroutine();
-        currCoroutine = mainCoroutine;
+    if (tCurrCoroutine == nullptr) {
+        tMainCoroutine = new Coroutine();
+        tCurrCoroutine = tMainCoroutine;
     }
-    return currCoroutine;
+    return tCurrCoroutine;
 }
 
 Coroutine *Coroutine::getMainCoroutine()
 {
-    if (mainCoroutine) {
-        return mainCoroutine;
+    if (tMainCoroutine) {
+        return tMainCoroutine;
     }
-    mainCoroutine = new Coroutine();
-    return mainCoroutine;
+    tMainCoroutine = new Coroutine();
+    return tMainCoroutine;
 }
 
 bool Coroutine::isMainCoroutine()
 {
-    return mainCoroutine == nullptr || currCoroutine == mainCoroutine;
+    return tMainCoroutine == nullptr || tCurrCoroutine == tMainCoroutine;
 }
 
+// 从子协程切换到主协程，并设置协程上下文
 void Coroutine::yield()
 {
-    if (mainCoroutine == nullptr) {
+    if (tMainCoroutine == nullptr) {
         LOG_ERROR << "main coroutine is nullptr";
         return;
     }
 
-    if (currCoroutine == mainCoroutine) {
+    if (tCurrCoroutine == tMainCoroutine) {
         LOG_ERROR << "current coroutine is main coroutine";
         return;
     }
 
-    Coroutine *co = currCoroutine;
-    currCoroutine = mainCoroutine;
-    currCoroutine = nullptr;
-    coctx_swap(&(co->coctx_), &(mainCoroutine->coctx_));
+    Coroutine *co = tCurrCoroutine;
+    tCurrCoroutine = tMainCoroutine;
+    tCurrCoroutine = nullptr;
+    coctx_swap(&(co->coctx_), &(tMainCoroutine->coctx_));
 }
 
+// 从主协程切换到子协程，并设置协程上下文
 void Coroutine::resume(Coroutine *co)
 {
-    if (currCoroutine != mainCoroutine) {
+    if (tCurrCoroutine != tMainCoroutine) {
         LOG_ERROR << "swap error, current coroutine must be main coroutine";
         return;
     }
 
-    if (!mainCoroutine) {
+    if (!tMainCoroutine) {
         LOG_ERROR << "main coroutine is nullptr";
         return;
     }
@@ -176,15 +178,15 @@ void Coroutine::resume(Coroutine *co)
         return;
     }
 
-    if (currCoroutine == co) {
+    if (tCurrCoroutine == co) {
         LOG_ERROR << "current coroutine is pending cor, need't swap";
         return;
     }
 
-    currCoroutine = co;
-    currRuntime = co->getRunTime();
+    tCurrCoroutine = co;
+    tCurrRuntime = co->getRunTime();
 
-    coctx_swap(&(mainCoroutine->coctx_), &(co->coctx_));
+    coctx_swap(&(tMainCoroutine->coctx_), &(co->coctx_));
 }
 
 }

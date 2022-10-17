@@ -5,6 +5,7 @@
 #include "config.h"
 #include "log.h"
 #include "netaddress.h"
+#include "tcp_server.h"
 
 namespace corpc {
 

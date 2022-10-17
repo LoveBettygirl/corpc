@@ -45,6 +45,7 @@ void TcpConnection::initServer()
 {
     loopCor_->setCallBack(std::bind(&TcpConnection::mainServerLoopCorFunc, this));
 }
+
 void TcpConnection::setUpServer()
 {
     loop_->addCoroutine(loopCor_);

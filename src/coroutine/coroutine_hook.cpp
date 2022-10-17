@@ -30,9 +30,10 @@ void setHook(bool value)
     gHook = value;
 }
 
+// 为channel（也就是fd）关联当前子协程，将读/写事件加入到事件循环对应的epoll中管理
 void toEpoll(corpc::Channel::ptr channel, int events)
 {
-    corpc::Coroutine *curCor = corpc::Coroutine::getCurrentCoroutine();
+    corpc::Coroutine *curCor = corpc::Coroutine::getCurrentCoroutine(); // 获取到的一定是子协程
     if (events & corpc::IOEvent::READ) {
         LOG_DEBUG << "fd:[" << channel->getFd() << "], register read event to epoll";
         channel->setCoroutine(curCor);
@@ -83,6 +84,7 @@ ssize_t read_hook(int fd, void *buf, size_t count)
     return g_sys_read_fun(fd, buf, count);
 }
 
+// sockfd: listenfd
 int accept_hook(int sockfd, struct sockaddr *addr, socklen_t *addrlen)
 {
     LOG_DEBUG << "this is hook accept";
@@ -90,7 +92,7 @@ int accept_hook(int sockfd, struct sockaddr *addr, socklen_t *addrlen)
         LOG_DEBUG << "hook disable, call sys accept func";
         return g_sys_accept_fun(sockfd, addr, addrlen);
     }
-    corpc::EventLoop::getEventLoop();
+    corpc::EventLoop::getEventLoop(); // 一定是main loop
 
     corpc::Channel::ptr channel = corpc::ChannelContainer::getChannelContainer()->getChannel(sockfd);
     if (channel->getEventLoop() == nullptr) {
