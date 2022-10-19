@@ -16,7 +16,7 @@ TcpConnection::TcpConnection(corpc::TcpServer *tcpServer, corpc::IOThread *ioThr
 
     tcpServer_ = tcpServer;
 
-    m_codec = tcpServer_->getCodec();
+    codec_ = tcpServer_->getCodec();
     channel_ = ChannelContainer::getChannelContainer()->getChannel(fd);
     channel_->setEventLoop(loop_);
     initBuffer(buffSize);
@@ -32,7 +32,7 @@ TcpConnection::TcpConnection(corpc::TcpClient *tcpCli, corpc::EventLoop *loop, i
 
     tcpClient_ = tcpCli;
 
-    m_codec = tcpClient_->getCodeC();
+    codec_ = tcpClient_->getCodeC();
 
     channel_ = ChannelContainer::getChannelContainer()->getChannel(fd);
     channel_->setEventLoop(loop_);
@@ -176,30 +176,29 @@ void TcpConnection::execute()
     // it only server do this
     while (readBuffer_->readAble() > 0) {
         std::shared_ptr<AbstractData> data;
-        if (m_codec->getProtocalType() == TinyPb_Protocal) {
-            data = std::make_shared<TinyPbStruct>();
+        if (codec_->getProtocolType() == Pb_Protocol) {
+            data = std::make_shared<PbStruct>();
         }
         else {
             data = std::make_shared<HttpRequest>();
         }
 
-        m_codec->decode(readBuffer_.get(), data.get());
-        // LOG_DEBUG << "parse service_name=" << pb_struct.service_full_name;
+        codec_->decode(readBuffer_.get(), data.get());
+
         if (!data->decode_succ) {
             LOG_ERROR << "it parse request error of fd " << fd_;
             break;
         }
-        // LOG_DEBUG << "it parse request success";
+
         if (connectionType_ == ServerConnection) {
-            // LOG_DEBUG << "to dispatch this package";
+            LOG_DEBUG << "to dispatch this package";
             tcpServer_->getDispatcher()->dispatch(data.get(), this);
-            // LOG_DEBUG << "contine parse next package";
+            LOG_DEBUG << "continue parse next package";
         }
         else if (connectionType_ == ClientConnection) {
-            // TODO:
-            std::shared_ptr<TinyPbStruct> tmp = std::dynamic_pointer_cast<TinyPbStruct>(data);
-            if (tmp) {
-                m_reply_datas.insert(std::make_pair(tmp->msg_req, tmp));
+            std::shared_ptr<PbStruct> temp = std::dynamic_pointer_cast<PbStruct>(data);
+            if (temp) {
+                replyDatas_.insert(std::make_pair(temp->msgReq, temp));
             }
         }
     }
@@ -289,23 +288,22 @@ TcpBuffer *TcpConnection::getOutBuffer()
     return writeBuffer_.get();
 }
 
-bool TcpConnection::getResPackageData(const std::string &msg_req, TinyPbStruct::pb_ptr &pb_struct)
+bool TcpConnection::getResPackageData(const std::string &msgReq, PbStruct::pb_ptr &pbStruct)
 {
-    auto it = m_reply_datas.find(msg_req);
-    if (it != m_reply_datas.end())
-    {
+    auto it = replyDatas_.find(msgReq);
+    if (it != replyDatas_.end()) {
         LOG_DEBUG << "return a resdata";
-        pb_struct = it->second;
-        m_reply_datas.erase(it);
+        pbStruct = it->second;
+        replyDatas_.erase(it);
         return true;
     }
-    LOG_DEBUG << msg_req << "|reply data not exist";
+    LOG_DEBUG << msgReq << "|reply data not exist";
     return false;
 }
 
 AbstractCodeC::ptr TcpConnection::getCodec() const
 {
-    return m_codec;
+    return codec_;
 }
 
 TcpConnectionState TcpConnection::getState()

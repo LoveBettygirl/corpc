@@ -9,6 +9,8 @@
 #include "netaddress.h"
 #include "iothread.h"
 #include "timewheel.h"
+#include "abstract_codec.h"
+#include "abstract_dispatcher.h"
 
 namespace corpc {
 
@@ -36,12 +38,12 @@ class TcpServer {
 public:
     typedef std::shared_ptr<TcpServer> ptr;
 
-    TcpServer(NetAddress::ptr addr, ProtocalType type = TinyPb_Protocal);
+    TcpServer(NetAddress::ptr addr, ProtocolType type = Pb_Protocol);
     ~TcpServer();
     void start();
     void addCoroutine(corpc::Coroutine::ptr cor);
     bool registerService(std::shared_ptr<google::protobuf::Service> service);
-    bool registerHttpServlet(const std::string &url_path, HttpServlet::ptr servlet);
+    bool registerHttpServlet(const std::string &urlPath, HttpServlet::ptr servlet);
     TcpConnection::ptr addClient(IOThread *ioThread, int fd);
     void freshTcpConnection(TcpTimeWheel::TcpConnectionSlot::ptr slot);
 
@@ -67,7 +69,7 @@ private:
     AbstractDispatcher::ptr dispatcher_;
     AbstractCodeC::ptr codec_;
     IOThreadPool::ptr ioPool_;
-    ProtocalType protocalType_{TinyPb_Protocal};
+    ProtocolType protocolType_{Pb_Protocol};
     TcpTimeWheel::ptr timeWheel_;
     std::map<int, std::shared_ptr<TcpConnection>> clients_;
     TimerEvent::ptr clearClientTimerEvent_{nullptr};

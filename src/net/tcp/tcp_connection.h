@@ -14,6 +14,7 @@
 #include "abstractslot.h"
 #include "netaddress.h"
 #include "mutex.h"
+#include "abstract_codec.h"
 
 namespace corpc {
 
@@ -54,7 +55,7 @@ public:
     TcpBuffer *getInBuffer();
     TcpBuffer *getOutBuffer();
     AbstractCodeC::ptr getCodec() const;
-    bool getResPackageData(const std::string &msg_req, TinyPbStruct::pb_ptr &pb_struct);
+    bool getResPackageData(const std::string &msgReq, PbStruct::pb_ptr &pbStruct);
     void registerToTimeWheel();
     Coroutine::ptr getCoroutine();
 
@@ -87,14 +88,14 @@ private:
 
     Coroutine::ptr loopCor_;
 
-    AbstractCodeC::ptr m_codec;
+    AbstractCodeC::ptr codec_;
 
     Channel::ptr channel_;
 
     bool stop_{false};
     bool isOverTime_{false};
 
-    std::map<std::string, std::shared_ptr<TinyPbStruct>> m_reply_datas;
+    std::map<std::string, std::shared_ptr<PbStruct>> replyDatas_;
 
     std::weak_ptr<AbstractSlot<TcpConnection>> weakSlot_;
 

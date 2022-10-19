@@ -95,18 +95,18 @@ int TcpAcceptor::toAccept()
     return ret;
 }
 
-TcpServer::TcpServer(NetAddress::ptr addr, ProtocalType type /*= TinyPb_Protocal*/) : addr_(addr)
+TcpServer::TcpServer(NetAddress::ptr addr, ProtocolType type /*= Pb_Protocol*/) : addr_(addr)
 {
     ioPool_ = std::make_shared<IOThreadPool>(gConfig->iothreadNum_);
-    if (type == Http_Protocal) {
-        m_dispatcher = std::make_shared<HttpDispacther>();
-        m_codec = std::make_shared<HttpCodeC>();
-        m_protocal_type = Http_Protocal;
+    if (type == Http_Protocol) {
+        dispatcher_ = std::make_shared<HttpDispacther>();
+        codec_ = std::make_shared<HttpCodeC>();
+        protocolType_ = Http_Protocol;
     }
-    else {
-        m_dispatcher = std::make_shared<TinyPbRpcDispacther>();
-        m_codec = std::make_shared<TinyPbCodeC>();
-        m_protocal_type = TinyPb_Protocal;
+    else if (type == Pb_Protocol) {
+        dispatcher_ = std::make_shared<PbRpcDispacther>();
+        codec_ = std::make_shared<PbCodeC>();
+        protocolType_ = Pb_Protocol;
     }
 
     // main loop对应主线程
@@ -175,43 +175,35 @@ void TcpServer::addCoroutine(Coroutine::ptr cor)
 
 bool TcpServer::registerService(std::shared_ptr<google::protobuf::Service> service)
 {
-    if (m_protocal_type == TinyPb_Protocal)
-    {
-        if (service)
-        {
-            dynamic_cast<TinyPbRpcDispacther *>(m_dispatcher.get())->registerService(service);
+    if (protocolType_ == Pb_Protocol) {
+        if (service) {
+            dynamic_cast<PbRpcDispacther *>(dispatcher_.get())->registerService(service);
         }
-        else
-        {
-            ErrorLog << "register service error, service ptr is nullptr";
+        else {
+            LOG_ERROR << "register service error, service ptr is nullptr";
             return false;
         }
     }
-    else
-    {
-        ErrorLog << "register service error. Just TinyPB protocal server need to resgister Service";
+    else {
+        LOG_ERROR << "register service error. Just PB protocol server need to register Service";
         return false;
     }
     return true;
 }
 
-bool TcpServer::registerHttpServlet(const std::string &url_path, HttpServlet::ptr servlet)
+bool TcpServer::registerHttpServlet(const std::string &urlPath, HttpServlet::ptr servlet)
 {
-    if (m_protocal_type == Http_Protocal)
-    {
-        if (servlet)
-        {
-            dynamic_cast<HttpDispacther *>(m_dispatcher.get())->registerServlet(url_path, servlet);
+    if (protocolType_ == Http_Protocol) {
+        if (servlet) {
+            dynamic_cast<HttpDispacther *>(dispatcher_.get())->registerServlet(urlPath, servlet);
         }
-        else
-        {
-            ErrorLog << "register http servlet error, servlet ptr is nullptr";
+        else {
+            LOG_ERROR << "register http servlet error, servlet ptr is nullptr";
             return false;
         }
     }
-    else
-    {
-        ErrorLog << "register http servlet error. Just Http protocal server need to resgister HttpServlet";
+    else {
+        LOG_ERROR << "register http servlet error. Just Http protocol server need to resgister HttpServlet";
         return false;
     }
     return true;
@@ -279,12 +271,12 @@ IOThreadPool::ptr TcpServer::getIOThreadPool()
 
 AbstractDispatcher::ptr TcpServer::getDispatcher()
 {
-    return m_dispatcher;
+    return dispatcher_;
 }
 
 AbstractCodeC::ptr TcpServer::getCodec()
 {
-    return m_codec;
+    return codec_;
 }
 
 }

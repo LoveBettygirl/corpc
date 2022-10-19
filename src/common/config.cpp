@@ -165,8 +165,8 @@ void Config::readConf()
     if (protocol == "HTTP") {
         gTcpServer = std::make_shared<TcpServer>(addr, Http_Protocol);
     }
-    else {
-        gTcpServer = std::make_shared<TcpServer>(addr, TinyPb_Protocol);
+    else if (protocol == "PB") {
+        gTcpServer = std::make_shared<TcpServer>(addr, Pb_Protocol);
     }
 
     char buff[512] = {0};

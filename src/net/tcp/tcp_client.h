@@ -15,11 +15,11 @@ class TcpClient {
 public:
     typedef std::shared_ptr<TcpClient> ptr;
 
-    TcpClient(NetAddress::ptr addr, ProtocalType type = TinyPb_Protocal);
+    TcpClient(NetAddress::ptr addr, ProtocolType type = Pb_Protocol);
     ~TcpClient();
 
     void resetFd();
-    int sendAndRecvTinyPb(const std::string &msg_no, TinyPbStruct::pb_ptr &res);
+    int sendAndRecvPb(const std::string &msgNo, PbStruct::pb_ptr &res);
     void stop();
 
     TcpConnection *getConnection();
@@ -30,7 +30,7 @@ public:
     const std::string &getErrInfo() { return errInfo_; }
     NetAddress::ptr getPeerAddr() const { return peerAddr_; }
     NetAddress::ptr getLocalAddr() const { return localAddr_; }
-    AbstractCodeC::ptr getCodeC() { return m_codec; }
+    AbstractCodeC::ptr getCodeC() { return codec_; }
 
 private:
     int family_{0};
@@ -45,7 +45,7 @@ private:
     EventLoop *loop_{nullptr};
     TcpConnection::ptr connection_{nullptr};
 
-    AbstractCodeC::ptr m_codec{nullptr};
+    AbstractCodeC::ptr codec_{nullptr};
 
     bool connectSucc_{false};
 };

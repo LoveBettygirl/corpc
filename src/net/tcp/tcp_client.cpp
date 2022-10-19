@@ -11,7 +11,7 @@
 
 namespace corpc {
 
-TcpClient::TcpClient(NetAddress::ptr addr, ProtocalType type /*= TinyPb_Protocal*/) : peerAddr_(addr)
+TcpClient::TcpClient(NetAddress::ptr addr, ProtocolType type /*= Pb_Protocol*/) : peerAddr_(addr)
 {
     family_ = peerAddr_->getFamily();
     fd_ = socket(AF_INET, SOCK_STREAM, 0);
@@ -22,11 +22,11 @@ TcpClient::TcpClient(NetAddress::ptr addr, ProtocalType type /*= TinyPb_Protocal
     localAddr_ = std::make_shared<corpc::IPAddress>("127.0.0.1", 0);
     loop_ = EventLoop::getEventLoop();
 
-    if (type == Http_Protocal) {
-        m_codec = std::make_shared<HttpCodeC>();
+    if (type == Http_Protocol) {
+        codec_ = std::make_shared<HttpCodeC>();
     }
-    else {
-        m_codec = std::make_shared<TinyPbCodeC>();
+    else if (type == Pb_Protocol) {
+        codec_ = std::make_shared<PbCodeC>();
     }
 
     connection_ = std::make_shared<TcpConnection>(this, loop_, fd_, 128, peerAddr_);
@@ -60,7 +60,7 @@ void TcpClient::resetFd()
     }
 }
 
-int TcpClient::sendAndRecvTinyPb(const std::string &msg_no, TinyPbStruct::pb_ptr &res)
+int TcpClient::sendAndRecvPb(const std::string &msgNo, PbStruct::pb_ptr &res)
 {
     bool isTimeout = false;
     corpc::Coroutine *curCor = corpc::Coroutine::getCurrentCoroutine();
@@ -127,7 +127,7 @@ int TcpClient::sendAndRecvTinyPb(const std::string &msg_no, TinyPbStruct::pb_ptr
         goto ERR_DEAL;
     }
 
-    while (!connection_->getResPackageData(msg_no, res)) {
+    while (!connection_->getResPackageData(msgNo, res)) {
         LOG_DEBUG << "redo getResPackageData";
         connection_->input();
 

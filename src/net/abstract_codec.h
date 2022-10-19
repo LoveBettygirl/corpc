@@ -8,9 +8,9 @@
 
 namespace corpc {
 
-enum ProtocalType {
-    Http_Protocal = 1,
-    Pb_Protocal = 2,
+enum ProtocolType {
+    Http_Protocol = 1,
+    Pb_Protocol = 2,
 };
 
 class AbstractCodeC {
@@ -22,7 +22,7 @@ public:
 
     virtual void encode(TcpBuffer *buf, AbstractData *data) = 0;
     virtual void decode(TcpBuffer *buf, AbstractData *data) = 0;
-    virtual ProtocalType getProtocalType() = 0;
+    virtual ProtocolType getProtocolType() = 0;
 };
 
 }
