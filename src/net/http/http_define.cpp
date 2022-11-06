@@ -42,7 +42,7 @@ int HttpHeaderComm::getHeaderTotalLength()
 {
     int len = 0;
     for (auto it : maps_) {
-        len += it.first.length() + 1 + it.second.length() + 2;
+        len += it.first.size() + 1 + it.second.size() + 2;
     }
     return len;
 }

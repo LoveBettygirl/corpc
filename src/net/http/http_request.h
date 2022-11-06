@@ -19,6 +19,7 @@ public:
     std::string requestPath_;
     std::string requestQuery_;
     std::string requestVersion_;
+    HttpRequestHeader requestHeader_;
     std::string requestBody_;
 
     std::map<std::string, std::string> queryMaps_;

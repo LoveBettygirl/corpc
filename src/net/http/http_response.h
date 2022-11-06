@@ -18,6 +18,7 @@ public:
     std::string responseVersion_;
     int responseCode_;
     std::string responseInfo_;
+    HttpResponseHeader responseHeader_;
     std::string responseBody_;
 };
 

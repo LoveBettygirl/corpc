@@ -379,7 +379,7 @@ void AsyncLogger::execute()
 
         for (auto i : temp) {
             if (!i.empty()) {
-                fwrite(i.c_str(), 1, i.length(), fileHandle_);
+                fwrite(i.c_str(), 1, i.size(), fileHandle_);
             }
         }
         temp.clear();

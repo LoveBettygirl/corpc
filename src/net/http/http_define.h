@@ -41,6 +41,10 @@ public:
     std::map<std::string, std::string> maps_;
 };
 
+class HttpRequestHeader : public HttpHeaderComm {};
+
+class HttpResponseHeader : public HttpHeaderComm {};
+
 }
 
 #endif
