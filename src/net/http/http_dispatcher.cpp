@@ -1,4 +1,3 @@
-#include <google/protobuf/service.h>
 #include <memory>
 #include "http_dispatcher.h"
 #include "http_request.h"

@@ -28,7 +28,7 @@ public:
     sem_t *getStartSemaphore();
 
 public:
-    static IOThread *GetCurrentIOThread();
+    static IOThread *getCurrentIOThread();
 
 private:
     void mainFunc();

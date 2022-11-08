@@ -47,7 +47,7 @@ IOThread::~IOThread()
     }
 }
 
-IOThread *IOThread::GetCurrentIOThread()
+IOThread *IOThread::getCurrentIOThread()
 {
     return tCurrIoThread;
 }

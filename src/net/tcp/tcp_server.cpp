@@ -10,6 +10,7 @@
 #include "coroutine_pool.h"
 #include "config.h"
 #include "tcp_connection.h"
+#include "http_codec.h"
 
 namespace corpc {
 

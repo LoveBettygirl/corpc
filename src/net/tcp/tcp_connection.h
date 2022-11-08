@@ -15,6 +15,7 @@
 #include "netaddress.h"
 #include "mutex.h"
 #include "abstract_codec.h"
+#include "http_request.h"
 
 namespace corpc {
 

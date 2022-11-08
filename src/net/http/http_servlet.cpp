@@ -30,7 +30,6 @@ void HttpServlet::handleNotFound(HttpRequest *req, HttpResponse *res)
     sprintf(buf, defaultHtmlTemplate, std::to_string(HTTP_NOTFOUND).c_str(), httpCodeToString(HTTP_NOTFOUND));
     setHttpContentType(res, contentTypeText);
     setHttpBody(res, std::string(buf));
-    setCommParam(req, res);
 }
 
 void HttpServlet::setHttpCode(HttpResponse *res, const int code)

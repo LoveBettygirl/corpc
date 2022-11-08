@@ -11,6 +11,8 @@
 #include "timewheel.h"
 #include "abstract_codec.h"
 #include "abstract_dispatcher.h"
+#include "http_dispatcher.h"
+#include "http_servlet.h"
 
 namespace corpc {
 

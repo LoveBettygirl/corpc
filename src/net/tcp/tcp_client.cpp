@@ -8,6 +8,7 @@
 #include "error_code.h"
 #include "timer.h"
 #include "channel.h"
+#include "http_codec.h"
 
 namespace corpc {
 
