@@ -61,7 +61,7 @@ void TcpClient::resetFd()
     }
 }
 
-int TcpClient::sendAndRecvPb(const std::string &msgNo, PbStruct::pb_ptr &res)
+int TcpClient::sendAndRecvPb(const std::string &msgNo, PbStruct::ptr &res)
 {
     bool isTimeout = false;
     corpc::Coroutine *curCor = corpc::Coroutine::getCurrentCoroutine();

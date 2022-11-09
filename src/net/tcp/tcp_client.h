@@ -19,7 +19,7 @@ public:
     ~TcpClient();
 
     void resetFd();
-    int sendAndRecvPb(const std::string &msgNo, PbStruct::pb_ptr &res);
+    int sendAndRecvPb(const std::string &msgNo, PbStruct::ptr &res);
     void stop();
 
     TcpConnection *getConnection();

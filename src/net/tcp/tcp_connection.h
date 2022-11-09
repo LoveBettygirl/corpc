@@ -56,7 +56,7 @@ public:
     TcpBuffer *getInBuffer();
     TcpBuffer *getOutBuffer();
     AbstractCodeC::ptr getCodec() const;
-    bool getResPackageData(const std::string &msgReq, PbStruct::pb_ptr &pbStruct);
+    bool getResPackageData(const std::string &msgReq, PbStruct::ptr &pbStruct);
     void registerToTimeWheel();
     Coroutine::ptr getCoroutine();
 

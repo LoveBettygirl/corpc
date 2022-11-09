@@ -185,7 +185,7 @@ void TcpConnection::execute()
 
         codec_->decode(readBuffer_.get(), data.get());
 
-        if (!data->decode_succ) {
+        if (!data->decodeSucc_) {
             LOG_ERROR << "it parse request error of fd " << fd_;
             break;
         }
@@ -288,7 +288,7 @@ TcpBuffer *TcpConnection::getOutBuffer()
     return writeBuffer_.get();
 }
 
-bool TcpConnection::getResPackageData(const std::string &msgReq, PbStruct::pb_ptr &pbStruct)
+bool TcpConnection::getResPackageData(const std::string &msgReq, PbStruct::ptr &pbStruct)
 {
     auto it = replyDatas_.find(msgReq);
     if (it != replyDatas_.end()) {
