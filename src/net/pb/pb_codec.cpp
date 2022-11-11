@@ -14,7 +14,7 @@ namespace corpc {
 
 static const char PB_START = 0x02; // start char
 static const char PB_END = 0x03;   // end char
-static const int MSG_REQ_LEN = 20; // default length of msg_req
+static const int MSG_REQ_LEN = 20; // default length of msgReq
 
 PbCodeC::PbCodeC()
 {
@@ -55,18 +55,18 @@ void PbCodeC::encode(TcpBuffer *buf, AbstractData *data)
 
 const char *PbCodeC::encodePbData(PbStruct *data, int &len)
 {
-    if (data->service_full_name.empty()) {
-        LOG_ERROR << "parse error, service_full_name is empty";
+    if (data->serviceFullName.empty()) {
+        LOG_ERROR << "parse error, serviceFullName is empty";
         data->encodeSucc_ = false;
         return nullptr;
     }
-    if (data->msg_req.empty()) {
-        data->msg_req = MsgReqUtil::genMsgNumber();
-        data->msg_req_len = data->msg_req.size();
-        LOG_DEBUG << "generate msgno = " << data->msg_req;
+    if (data->msgReq.empty()) {
+        data->msgReq = MsgReqUtil::genMsgNumber();
+        data->msgReqLen = data->msgReq.size();
+        LOG_DEBUG << "generate msgno = " << data->msgReq;
     }
 
-    int32_t pkLen = 2 * sizeof(char) + 6 * sizeof(int32_t) + data->pb_data.size() + data->service_full_name.size() + data->msg_req.size() + data->err_info.size();
+    int32_t pkLen = 2 * sizeof(char) + 6 * sizeof(int32_t) + data->pbData.size() + data->serviceFullName.size() + data->msgReq.size() + data->errInfo.size();
 
     LOG_DEBUG << "encode pkLen = " << pkLen;
     char *buf = reinterpret_cast<char *>(malloc(pkLen));
@@ -78,48 +78,48 @@ const char *PbCodeC::encodePbData(PbStruct *data, int &len)
     memcpy(temp, &pkLenNet, sizeof(int32_t));
     temp += sizeof(int32_t);
 
-    int32_t msgReqLen = data->msg_req.size();
+    int32_t msgReqLen = data->msgReq.size();
     LOG_DEBUG << "msgReqLen= " << msgReqLen;
     int32_t msgReqLenNet = htonl(msgReqLen);
     memcpy(temp, &msgReqLenNet, sizeof(int32_t));
     temp += sizeof(int32_t);
 
     if (msgReqLen != 0) {
-        memcpy(temp, &(data->msg_req[0]), msgReqLen);
+        memcpy(temp, &(data->msgReq[0]), msgReqLen);
         temp += msgReqLen;
     }
 
-    int32_t serviceFullNameLen = data->service_full_name.size();
+    int32_t serviceFullNameLen = data->serviceFullName.size();
     LOG_DEBUG << "src serviceFullNameLen = " << serviceFullNameLen;
     int32_t serviceFullNameLenNet = htonl(serviceFullNameLen);
     memcpy(temp, &serviceFullNameLenNet, sizeof(int32_t));
     temp += sizeof(int32_t);
 
     if (serviceFullNameLen != 0) {
-        memcpy(temp, &(data->service_full_name[0]), serviceFullNameLen);
+        memcpy(temp, &(data->serviceFullName[0]), serviceFullNameLen);
         temp += serviceFullNameLen;
     }
 
-    int32_t errCode = data->err_code;
+    int32_t errCode = data->errCode;
     LOG_DEBUG << "errCode= " << errCode;
     int32_t errCodeNet = htonl(errCode);
     memcpy(temp, &errCodeNet, sizeof(int32_t));
     temp += sizeof(int32_t);
 
-    int32_t errInfoLen = data->err_info.size();
+    int32_t errInfoLen = data->errInfo.size();
     LOG_DEBUG << "errInfoLen= " << errInfoLen;
     int32_t errInfoLenNet = htonl(errInfoLen);
     memcpy(temp, &errInfoLenNet, sizeof(int32_t));
     temp += sizeof(int32_t);
 
     if (errInfoLen != 0) {
-        memcpy(temp, &(data->err_info[0]), errInfoLen);
+        memcpy(temp, &(data->errInfo[0]), errInfoLen);
         temp += errInfoLen;
     }
 
-    memcpy(temp, &(data->pb_data[0]), data->pb_data.size());
-    temp += data->pb_data.size();
-    LOG_DEBUG << "pb_data_len= " << data->pb_data.size();
+    memcpy(temp, &(data->pbData[0]), data->pbData.size());
+    temp += data->pbData.size();
+    LOG_DEBUG << "pbData_len= " << data->pbData.size();
 
     int32_t checksum = 1;
     int32_t checksumNet = htonl(checksum);
@@ -128,13 +128,13 @@ const char *PbCodeC::encodePbData(PbStruct *data, int &len)
 
     *temp = PB_END;
 
-    data->pk_len = pkLen;
-    data->msg_req_len = msgReqLen;
-    data->service_name_len = serviceFullNameLen;
-    data->err_info_len = errInfoLen;
+    data->pkLen = pkLen;
+    data->msgReqLen = msgReqLen;
+    data->serviceNameLen = serviceFullNameLen;
+    data->errInfoLen = errInfoLen;
 
     // checksum has not been implemented yet, directly skip chcksum
-    data->check_num = checksum;
+    data->checksum = checksum;
     data->encodeSucc_ = true;
 
     len = pkLen;
@@ -192,7 +192,7 @@ void PbCodeC::decode(TcpBuffer *buf, AbstractData *data)
     LOG_DEBUG << "buf size=" << buf->getBufferVector().size() << " rd=" << buf->readIndex() << " wd=" << buf->writeIndex();
 
     PbStruct *pbStruct = dynamic_cast<PbStruct *>(data);
-    pbStruct->pk_len = pkLen;
+    pbStruct->pkLen = pkLen;
     pbStruct->decodeSucc_ = false;
 
     int msgReqLenIndex = startIndex + sizeof(char) + sizeof(int32_t);
@@ -202,23 +202,23 @@ void PbCodeC::decode(TcpBuffer *buf, AbstractData *data)
         return;
     }
 
-    pbStruct->msg_req_len = getInt32FromNetByte(&temp[msgReqLenIndex]);
-    if (pbStruct->msg_req_len == 0) {
-        LOG_ERROR << "prase error, msg_req emptr";
+    pbStruct->msgReqLen = getInt32FromNetByte(&temp[msgReqLenIndex]);
+    if (pbStruct->msgReqLen == 0) {
+        LOG_ERROR << "prase error, msgReq emptr";
         return;
     }
 
-    LOG_DEBUG << "msg_req_len= " << pbStruct->msg_req_len;
+    LOG_DEBUG << "msgReqLen= " << pbStruct->msgReqLen;
     int msgReqIndex = msgReqLenIndex + sizeof(int32_t);
     LOG_DEBUG << "msgReqIndex= " << msgReqIndex;
 
     char msgReq[50] = {0};
 
-    memcpy(&msgReq[0], &temp[msgReqIndex], pbStruct->msg_req_len);
-    pbStruct->msg_req = std::string(msgReq);
-    LOG_DEBUG << "msgReq= " << pbStruct->msg_req;
+    memcpy(&msgReq[0], &temp[msgReqIndex], pbStruct->msgReqLen);
+    pbStruct->msgReq = std::string(msgReq);
+    LOG_DEBUG << "msgReq= " << pbStruct->msgReq;
 
-    int serviceNameLenIndex = msgReqIndex + pbStruct->msg_req_len;
+    int serviceNameLenIndex = msgReqIndex + pbStruct->msgReqLen;
     if (serviceNameLenIndex >= endIndex) {
         LOG_ERROR << "parse error, serviceNameLenIndex[" << serviceNameLenIndex << "] >= endIndex[" << endIndex << "]";
         // drop this error package
@@ -233,22 +233,22 @@ void PbCodeC::decode(TcpBuffer *buf, AbstractData *data)
         return;
     }
 
-    pbStruct->service_name_len = getInt32FromNetByte(&temp[serviceNameLenIndex]);
+    pbStruct->serviceNameLen = getInt32FromNetByte(&temp[serviceNameLenIndex]);
 
-    if (pbStruct->service_name_len > pkLen) {
-        LOG_ERROR << "parse error, service_name_len[" << pbStruct->service_name_len << "] >= pkLen [" << pkLen << "]";
+    if (pbStruct->serviceNameLen > pkLen) {
+        LOG_ERROR << "parse error, serviceNameLen[" << pbStruct->serviceNameLen << "] >= pkLen [" << pkLen << "]";
         return;
     }
-    LOG_DEBUG << "service_name_len = " << pbStruct->service_name_len;
+    LOG_DEBUG << "serviceNameLen = " << pbStruct->serviceNameLen;
 
     char serviceName[512] = {0};
 
-    memcpy(&serviceName[0], &temp[serviceNameIndex], pbStruct->service_name_len);
-    pbStruct->service_full_name = std::string(serviceName);
-    LOG_DEBUG << "serviceName = " << pbStruct->service_full_name;
+    memcpy(&serviceName[0], &temp[serviceNameIndex], pbStruct->serviceNameLen);
+    pbStruct->serviceFullName = std::string(serviceName);
+    LOG_DEBUG << "serviceName = " << pbStruct->serviceFullName;
 
-    int errCodeIndex = serviceNameIndex + pbStruct->service_name_len;
-    pbStruct->err_code = getInt32FromNetByte(&temp[errCodeIndex]);
+    int errCodeIndex = serviceNameIndex + pbStruct->serviceNameLen;
+    pbStruct->errCode = getInt32FromNetByte(&temp[errCodeIndex]);
 
     int errInfoLenIndex = errCodeIndex + sizeof(int32_t);
 
@@ -257,18 +257,18 @@ void PbCodeC::decode(TcpBuffer *buf, AbstractData *data)
         // drop this error package
         return;
     }
-    pbStruct->err_info_len = getInt32FromNetByte(&temp[errInfoLenIndex]);
-    LOG_DEBUG << "errInfoLen = " << pbStruct->err_info_len;
+    pbStruct->errInfoLen = getInt32FromNetByte(&temp[errInfoLenIndex]);
+    LOG_DEBUG << "errInfoLen = " << pbStruct->errInfoLen;
     int errInfoIndex = errInfoLenIndex + sizeof(int32_t);
 
     char errInfo[512] = {0};
 
-    memcpy(&errInfo[0], &temp[errInfoIndex], pbStruct->err_info_len);
-    pbStruct->err_info = std::string(errInfo);
+    memcpy(&errInfo[0], &temp[errInfoIndex], pbStruct->errInfoLen);
+    pbStruct->errInfo = std::string(errInfo);
 
-    int pbDataLen = pbStruct->pk_len - pbStruct->service_name_len - pbStruct->msg_req_len - pbStruct->err_info_len - 2 * sizeof(char) - 6 * sizeof(int32_t);
+    int pbDataLen = pbStruct->pkLen - pbStruct->serviceNameLen - pbStruct->msgReqLen - pbStruct->errInfoLen - 2 * sizeof(char) - 6 * sizeof(int32_t);
 
-    int pbDataIndex = errInfoIndex + pbStruct->err_info_len;
+    int pbDataIndex = errInfoIndex + pbStruct->errInfoLen;
     LOG_DEBUG << "pbDataLen= " << pbDataLen << ", pbIndex = " << pbDataIndex;
 
     if (pbDataIndex >= endIndex) {
@@ -278,9 +278,9 @@ void PbCodeC::decode(TcpBuffer *buf, AbstractData *data)
     LOG_DEBUG << "pbDataIndex = " << pbDataIndex << ", pbData.length = " << pbDataLen;
 
     std::string pbDataStr(&temp[pbDataIndex], pbDataLen);
-    pbStruct->pb_data = pbDataStr;
+    pbStruct->pbData = pbDataStr;
 
-    LOG_DEBUG << "decode succ, pkLen = " << pkLen << ", serviceName = " << pbStruct->service_full_name;
+    LOG_DEBUG << "decode succ, pkLen = " << pkLen << ", serviceName = " << pbStruct->serviceFullName;
 
     pbStruct->decodeSucc_ = true;
     data = pbStruct;
