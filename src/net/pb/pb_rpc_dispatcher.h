@@ -26,7 +26,7 @@ public:
 public:
     // all services should be registerd on there before progress start
     // key: service_name
-    std::map<std::string, servicePtr> serviceMap;
+    std::map<std::string, servicePtr> serviceMap_;
 };
 
 }

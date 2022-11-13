@@ -9,6 +9,7 @@
 #include "timer.h"
 #include "channel.h"
 #include "http_codec.h"
+#include "pb_codec.h"
 
 namespace corpc {
 
@@ -82,7 +83,7 @@ int TcpClient::sendAndRecvPb(const std::string &msgNo, PbStruct::ptr &res)
             int ret = connect_hook(fd_, reinterpret_cast<sockaddr *>(peerAddr_->getSockAddr()), peerAddr_->getSockLen());
             if (ret == 0) {
                 LOG_DEBUG << "connect [" << peerAddr_->toString() << "] succ!";
-                connection_->setUpClient();
+                connection_->setUpClient(); // 设置状态为已连接
                 break;
             }
             resetFd();
@@ -121,16 +122,18 @@ int TcpClient::sendAndRecvPb(const std::string &msgNo, PbStruct::ptr &res)
     }
 
     connection_->setUpClient();
-    connection_->output();
-    if (connection_->getOverTimerFlag()) {
+    connection_->output(); // 发送请求
+    if (connection_->getOverTimerFlag()) { // 数据发送超时
         LOG_INFO << "send data over time";
         isTimeout = true;
         goto ERR_DEAL;
     }
 
+    // 接收服务端响应
+    // 然后根据消息序列号，找到对应的响应
     while (!connection_->getResPackageData(msgNo, res)) {
         LOG_DEBUG << "redo getResPackageData";
-        connection_->input();
+        connection_->input(); // 接收响应
 
         if (connection_->getOverTimerFlag()) {
             LOG_INFO << "read data over time";
@@ -142,7 +145,7 @@ int TcpClient::sendAndRecvPb(const std::string &msgNo, PbStruct::ptr &res)
             goto ERR_DEAL;
         }
 
-        connection_->execute();
+        connection_->execute(); // 解码缓冲区中服务端响应，并将序列号和解码后的响应保存起来，避免乱序
     }
 
     loop_->getTimer()->delTimerEvent(event);

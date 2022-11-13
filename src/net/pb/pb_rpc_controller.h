@@ -3,7 +3,7 @@
 
 #include <google/protobuf/service.h>
 #include <google/protobuf/stubs/callback.h>
-#include <stdio.h>
+#include <cstdio>
 #include <memory>
 #include "netaddress.h"
 
@@ -34,7 +34,7 @@ public:
     int errorCode() const;
     void setErrorCode(const int errorCode);
     const std::string &msgSeq() const;
-    void setMsgReq(const std::string &msgReq);
+    void setMsgSeq(const std::string &msgSeq);
     void setError(const int errCode, const std::string &errInfo);
     void setPeerAddr(NetAddress::ptr addr);
     void setLocalAddr(NetAddress::ptr addr);
@@ -54,9 +54,9 @@ public:
 private:
     int errorCode_{0};      // errorCode, identify one specific error
     std::string errorInfo_; // errorInfo, details description of error
-    std::string msgReq_;    // msgReq, identify once rpc request and response
+    std::string msgSeq_;    // msgSeq, identify once rpc request and response
     bool isFailed_{false};
-    bool isCanceled{false};
+    bool isCanceled_{false};
     NetAddress::ptr peerAddr_;
     NetAddress::ptr localAddr_;
 

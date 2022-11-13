@@ -1,11 +1,10 @@
 #ifndef PB_DATA_H
 #define PB_DATA_H
 
-#include <stdint.h>
+#include <cstdint>
 #include <vector>
 #include <string>
 #include "abstract_data.h"
-#include "log.h"
 
 namespace corpc {
 
@@ -25,8 +24,8 @@ public:
 
     // char start;                      // indentify start of protocal data
     int32_t pkLen{0};             // len of all package (include start char and end char)
-    int32_t msgReqLen{0};        // len of msgReq
-    std::string msgReq;           // identify a request
+    int32_t msgSeqLen{0};        // len of msgSeq
+    std::string msgSeq;           // identify a request
     int32_t serviceNameLen{0};   // len of service full name
     std::string serviceFullName; // service full name, like QueryService.queryName
     int32_t errCode{0};           // errCode, 0 -- call rpc success, otherwise -- call rpc failed. it only be seted by RpcController

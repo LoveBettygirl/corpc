@@ -3,7 +3,6 @@
 
 #include <memory>
 #include "abstract_data.h"
-#include "tcp_connection.h"
 
 namespace corpc {
 

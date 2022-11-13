@@ -3,15 +3,16 @@
 #include "http_request.h"
 #include "http_servlet.h"
 #include "log.h"
-#include "msg_req.h"
+#include "msg_seq.h"
+#include "tcp_connection.h"
 
 namespace corpc {
 
 void HttpDispacther::dispatch(AbstractData *data, TcpConnection *conn)
 {
-    HttpRequest *resquest = dynamic_cast<HttpRequest *>(data);
+    HttpRequest *request = dynamic_cast<HttpRequest *>(data);
     HttpResponse response;
-    Coroutine::getCurrentCoroutine()->getRunTime()->msgNo_ = MsgReqUtil::genMsgNumber();
+    Coroutine::getCurrentCoroutine()->getRunTime()->msgNo_ = MsgSeqUtil::genMsgNumber();
     setCurrentRunTime(Coroutine::getCurrentCoroutine()->getRunTime());
 
     LOG_INFO << "begin to dispatch client http request, msgno=" << Coroutine::getCurrentCoroutine()->getRunTime()->msgNo_;
@@ -23,13 +24,13 @@ void HttpDispacther::dispatch(AbstractData *data, TcpConnection *conn)
             LOG_ERROR << "404, url path{ " << urlPath_ << "}, msgno=" << Coroutine::getCurrentCoroutine()->getRunTime()->msgNo_;
             NotFoundHttpServlet servlet;
             Coroutine::getCurrentCoroutine()->getRunTime()->interfaceName_ = servlet.getServletName();
-            servlet.setCommParam(resquest, &response);
-            servlet.handle(resquest, &response);
+            servlet.setCommParam(request, &response);
+            servlet.handle(request, &response);
         }
         else {
             Coroutine::getCurrentCoroutine()->getRunTime()->interfaceName_ = it->second->getServletName();
-            it->second->setCommParam(resquest, &response);
-            it->second->handle(resquest, &response);
+            it->second->setCommParam(request, &response);
+            it->second->handle(request, &response);
         }
     }
 

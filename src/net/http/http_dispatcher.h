@@ -13,7 +13,7 @@ public:
     HttpDispacther() = default;
     ~HttpDispacther() = default;
 
-    void dispatch(AbstractData *data, TcpConnection *conn);
+    void dispatch(AbstractData *data, TcpConnection *conn) override;
     void registerServlet(const std::string &path, HttpServlet::ptr servlet);
 
 public:

@@ -45,12 +45,12 @@ int PbRpcController::errorCode() const
 
 const std::string &PbRpcController::msgSeq() const
 {
-    return msgReq_;
+    return msgSeq_;
 }
 
-void PbRpcController::setMsgReq(const std::string &msgReq)
+void PbRpcController::setMsgSeq(const std::string &msgSeq)
 {
-    msgReq_ = msgReq;
+    msgSeq_ = msgSeq;
 }
 
 void PbRpcController::setError(const int errCode, const std::string &errInfo)

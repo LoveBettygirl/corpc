@@ -11,6 +11,8 @@
 #include "config.h"
 #include "tcp_connection.h"
 #include "http_codec.h"
+#include "pb_rpc_dispatcher.h"
+#include "pb_codec.h"
 
 namespace corpc {
 

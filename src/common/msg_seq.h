@@ -5,7 +5,7 @@
 
 namespace corpc {
 
-class MsgReqUtil {
+class MsgSeqUtil {
 public:
     static std::string genMsgNumber();
 };

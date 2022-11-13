@@ -6,7 +6,10 @@
 #include "pb_data.h"
 #include "pb_rpc_dispatcher.h"
 #include "pb_codec.h"
-#include "msg_req.h"
+#include "msg_seq.h"
+#include "tcp_connection.h"
+#include "pb_rpc_controller.h"
+#include "pb_rpc_closure.h"
 
 namespace corpc {
 
@@ -20,23 +23,23 @@ void PbRpcDispacther::dispatch(AbstractData *data, TcpConnection *conn)
         LOG_ERROR << "dynamic_cast error";
         return;
     }
-    Coroutine::getCurrentCoroutine()->getRunTime()->msgNo_ = temp->msgReq;
+    Coroutine::getCurrentCoroutine()->getRunTime()->msgNo_ = temp->msgSeq;
     setCurrentRunTime(Coroutine::getCurrentCoroutine()->getRunTime());
 
-    LOG_INFO << "begin to dispatch client tinypb request, msgno=" << temp->msgReq;
+    LOG_INFO << "begin to dispatch client tinypb request, msgno=" << temp->msgSeq;
 
     std::string serviceName;
     std::string methodName;
 
     PbStruct replyPk;
     replyPk.serviceFullName = temp->serviceFullName;
-    replyPk.msgReq = temp->msgReq;
-    if (replyPk.msgReq.empty()) {
-        replyPk.msgReq = MsgReqUtil::genMsgNumber();
+    replyPk.msgSeq = temp->msgSeq;
+    if (replyPk.msgSeq.empty()) {
+        replyPk.msgSeq = MsgSeqUtil::genMsgNumber();
     }
 
     if (!parseServiceFullName(temp->serviceFullName, serviceName, methodName)) {
-        LOG_ERROR << replyPk.msgReq << "|parse service full name " << temp->serviceFullName << "error";
+        LOG_ERROR << replyPk.msgSeq << "|parse service full name " << temp->serviceFullName << "error";
 
         replyPk.errCode = ERROR_PARSE_SERVICE_FULL_NAME;
         std::stringstream ss;
@@ -47,17 +50,17 @@ void PbRpcDispacther::dispatch(AbstractData *data, TcpConnection *conn)
     }
 
     Coroutine::getCurrentCoroutine()->getRunTime()->interfaceName_ = temp->serviceFullName;
-    auto it = serviceMap.find(serviceName);
-    if (it == serviceMap.end() || !(it->second)) {
+    auto it = serviceMap_.find(serviceName);
+    if (it == serviceMap_.end() || !(it->second)) {
         replyPk.errCode = ERROR_SERVICE_NOT_FOUND;
         std::stringstream ss;
         ss << "not found service name:[" << serviceName << "]";
-        LOG_ERROR << replyPk.msgReq << "|" << ss.str();
+        LOG_ERROR << replyPk.msgSeq << "|" << ss.str();
         replyPk.errInfo = ss.str();
 
         conn->getCodec()->encode(conn->getOutBuffer(), dynamic_cast<AbstractData *>(&replyPk));
 
-        LOG_INFO << "end dispatch client pb request, msgno=" << temp->msgReq;
+        LOG_INFO << "end dispatch client pb request, msgno=" << temp->msgSeq;
         return;
     }
 
@@ -68,38 +71,38 @@ void PbRpcDispacther::dispatch(AbstractData *data, TcpConnection *conn)
         replyPk.errCode = ERROR_METHOD_NOT_FOUND;
         std::stringstream ss;
         ss << "not found method name:[" << methodName << "]";
-        LOG_ERROR << replyPk.msgReq << "|" << ss.str();
+        LOG_ERROR << replyPk.msgSeq << "|" << ss.str();
         replyPk.errInfo = ss.str();
         conn->getCodec()->encode(conn->getOutBuffer(), dynamic_cast<AbstractData *>(&replyPk));
         return;
     }
 
     google::protobuf::Message *request = service->GetRequestPrototype(method).New();
-    LOG_DEBUG << replyPk.msgReq << "|request.name = " << request->GetDescriptor()->full_name();
+    LOG_DEBUG << replyPk.msgSeq << "|request.name = " << request->GetDescriptor()->full_name();
 
     if (!request->ParseFromString(temp->pbData)) {
         replyPk.errCode = ERROR_FAILED_SERIALIZE;
         std::stringstream ss;
         ss << "faild to parse request data, request.name:[" << request->GetDescriptor()->full_name() << "]";
         replyPk.errInfo = ss.str();
-        LOG_ERROR << replyPk.msgReq << "|" << ss.str();
+        LOG_ERROR << replyPk.msgSeq << "|" << ss.str();
         delete request;
         conn->getCodec()->encode(conn->getOutBuffer(), dynamic_cast<AbstractData *>(&replyPk));
         return;
     }
 
     LOG_INFO << "============================================================";
-    LOG_INFO << replyPk.msgReq << "|Get client request data:" << request->ShortDebugString();
+    LOG_INFO << replyPk.msgSeq << "|Get client request data:" << request->ShortDebugString();
     LOG_INFO << "============================================================";
 
     google::protobuf::Message *response = service->GetResponsePrototype(method).New();
 
-    LOG_DEBUG << replyPk.msgReq << "|response.name = " << response->GetDescriptor()->full_name();
+    LOG_DEBUG << replyPk.msgSeq << "|response.name = " << response->GetDescriptor()->full_name();
 
     PbRpcController rpcController;
-    rpcController.SetMsgReq(replyPk.msgReq);
-    rpcController.SetMethodName(methodName);
-    rpcController.SetMethodFullName(temp->serviceFullName);
+    rpcController.setMsgSeq(replyPk.msgSeq);
+    rpcController.setMethodName(methodName);
+    rpcController.setMethodFullName(temp->serviceFullName);
 
     std::function<void()> replyPackageFunc = []() {};
 
@@ -110,13 +113,13 @@ void PbRpcDispacther::dispatch(AbstractData *data, TcpConnection *conn)
 
     if (!(response->SerializeToString(&(replyPk.pbData)))) {
         replyPk.pbData = "";
-        LOG_ERROR << replyPk.msgReq << "|reply error! encode reply package error";
+        LOG_ERROR << replyPk.msgSeq << "|reply error! encode reply package error";
         replyPk.errCode = ERROR_FAILED_SERIALIZE;
         replyPk.errInfo = "failed to serilize relpy data";
     }
     else {
         LOG_INFO << "============================================================";
-        LOG_INFO << replyPk.msgReq << "|Set server response data:" << response->ShortDebugString();
+        LOG_INFO << replyPk.msgSeq << "|Set server response data:" << response->ShortDebugString();
         LOG_INFO << "============================================================";
     }
 

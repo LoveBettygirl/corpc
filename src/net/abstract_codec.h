@@ -3,7 +3,7 @@
 
 #include <string>
 #include <memory>
-#include "tcp/tcp_buffer.h"
+#include "tcp_buffer.h"
 #include "abstract_data.h"
 
 namespace corpc {

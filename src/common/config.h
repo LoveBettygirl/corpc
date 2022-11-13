@@ -36,7 +36,7 @@ public:
     int corStackSize_{0};
     int corPoolSize_{0};
 
-    int msgReqLen_{0};
+    int msgSeqLen_{0};
 
     int maxConnectTimeout_{0}; // ms
     int iothreadNum_{0};

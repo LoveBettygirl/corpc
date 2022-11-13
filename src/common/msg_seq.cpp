@@ -6,27 +6,27 @@
 #include <random>
 #include "log.h"
 #include "config.h"
-#include "msg_req.h"
+#include "msg_seq.h"
 
 namespace corpc {
 
 extern corpc::Config::ptr gConfig;
 
-static thread_local std::string tMsgReqNum;
-static thread_local std::string tMaxMsgReqNum;
+static thread_local std::string tMsgSeqNum;
+static thread_local std::string tMaxMsgSeqNum;
 
 static int gRandomfd = -1;
 
-std::string MsgReqUtil::genMsgNumber()
+std::string MsgSeqUtil::genMsgNumber()
 {
-    int msgReqLen = 20;
+    int msgSeqLen = 20;
     if (gConfig) {
-        msgReqLen = gConfig->msgReqLen_;
+        msgSeqLen = gConfig->msgSeqLen_;
     }
 
-    // 如果当前消息序列号tMsgReqNum是空的，或者已达到最大值tMaxMsgReqNum
-    // 需要重新生成一个随机数作为下一个消息的序列号tMsgReqNum
-    if (tMsgReqNum.empty() || tMsgReqNum == tMaxMsgReqNum) {
+    // 如果当前消息序列号tMsgSeqNum是空的，或者已达到最大值tMaxMsgSeqNum
+    // 需要重新生成一个随机数作为下一个消息的序列号tMsgSeqNum
+    if (tMsgSeqNum.empty() || tMsgSeqNum == tMaxMsgSeqNum) {
         // 用srand/rand产生随机数，其实这种随机性并不好，容易遭受攻击（很多时候，也满足不了需求）。
         // /dev/random和/dev/urandom是Linux系统中提供的随机伪设备，这两个设备的任务，是提供永不为空的随机字节数据流。
         // 这两个设备的差异在于：
@@ -37,33 +37,33 @@ std::string MsgReqUtil::genMsgNumber()
         if (gRandomfd == -1) {
             gRandomfd = open("/dev/urandom", O_RDONLY);
         }
-        std::string res(msgReqLen, 0); // 读出来的字符串长度应和msgReqLen一致
-        if ((read(gRandomfd, &res[0], msgReqLen)) != msgReqLen) {
-            LOG_ERROR << "read /dev/urandom data less " << msgReqLen << " bytes";
+        std::string res(msgSeqLen, 0); // 读出来的字符串长度应和msgSeqLen一致
+        if ((read(gRandomfd, &res[0], msgSeqLen)) != msgSeqLen) {
+            LOG_ERROR << "read /dev/urandom data less " << msgSeqLen << " bytes";
             return "";
         }
-        tMaxMsgReqNum = "";
-        for (int i = 0; i < msgReqLen; ++i) {
+        tMaxMsgSeqNum = "";
+        for (int i = 0; i < msgSeqLen; ++i) {
             uint8_t x = ((uint8_t)(res[i])) % 10;
             res[i] = x + '0';
-            tMaxMsgReqNum += "9";
+            tMaxMsgSeqNum += "9";
         }
-        tMsgReqNum = res;
+        tMsgSeqNum = res;
     }
     else {
-        // 将消息序列号tMsgReqNum进行+1的操作
-        int i = tMsgReqNum.size() - 1;
-        while (tMsgReqNum[i] == '9' && i >= 0) {
+        // 将消息序列号tMsgSeqNum进行+1的操作
+        int i = tMsgSeqNum.size() - 1;
+        while (tMsgSeqNum[i] == '9' && i >= 0) {
             i--;
         }
         if (i >= 0) {
-            tMsgReqNum[i] += 1;
-            for (size_t j = i + 1; j < tMsgReqNum.size(); ++j) {
-                tMsgReqNum[j] = '0';
+            tMsgSeqNum[i] += 1;
+            for (size_t j = i + 1; j < tMsgSeqNum.size(); ++j) {
+                tMsgSeqNum[j] = '0';
             }
         }
     }
-    return tMsgReqNum;
+    return tMsgSeqNum;
 }
 
 }

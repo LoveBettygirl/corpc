@@ -14,7 +14,7 @@ public:
 
     ~PbRpcClosure() = default;
 
-    void run() {
+    void Run() override {
         if (cb_) {
             cb_();
         }

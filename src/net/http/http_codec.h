@@ -14,10 +14,9 @@ public:
     HttpCodeC();
     ~HttpCodeC();
 
-    void encode(TcpBuffer *buf, AbstractData *data);
-    void decode(TcpBuffer *buf, AbstractData *data);
-
-    ProtocolType getProtocolType();
+    void encode(TcpBuffer *buf, AbstractData *data) override;
+    void decode(TcpBuffer *buf, AbstractData *data) override;
+    ProtocolType getProtocolType() override;
 
 private:
     bool parseHttpRequestLine(HttpRequest *requset, const std::string &temp);

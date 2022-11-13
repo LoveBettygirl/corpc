@@ -6,6 +6,8 @@
 #include "coroutine_hook.h"
 #include "coroutine_pool.h"
 #include "timer.h"
+#include "tcp_client.h"
+#include "pb_codec.h"
 
 namespace corpc {
 
@@ -196,9 +198,12 @@ void TcpConnection::execute()
             LOG_DEBUG << "continue parse next package";
         }
         else if (connectionType_ == ClientConnection) {
+            // shared_ptr<基类>和shared_ptr<派生类>并不是基类和派生类的关系
+            // 需要用dynamic_pointer_cast，而不是dynamic_cast
+            // 下面的逻辑是，如果是pb协议的，就将序列号和响应内容保存起来，避免乱序
             std::shared_ptr<PbStruct> temp = std::dynamic_pointer_cast<PbStruct>(data);
             if (temp) {
-                replyDatas_.insert(std::make_pair(temp->msgReq, temp));
+                replyDatas_.insert(std::make_pair(temp->msgSeq, temp));
             }
         }
     }
@@ -288,16 +293,16 @@ TcpBuffer *TcpConnection::getOutBuffer()
     return writeBuffer_.get();
 }
 
-bool TcpConnection::getResPackageData(const std::string &msgReq, PbStruct::ptr &pbStruct)
+bool TcpConnection::getResPackageData(const std::string &msgSeq, PbStruct::ptr &pbStruct)
 {
-    auto it = replyDatas_.find(msgReq);
+    auto it = replyDatas_.find(msgSeq);
     if (it != replyDatas_.end()) {
         LOG_DEBUG << "return a resdata";
         pbStruct = it->second;
         replyDatas_.erase(it);
         return true;
     }
-    LOG_DEBUG << msgReq << "|reply data not exist";
+    LOG_DEBUG << msgSeq << "|reply data not exist";
     return false;
 }
 

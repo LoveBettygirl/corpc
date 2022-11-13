@@ -1,7 +1,7 @@
 #ifndef PB_CODEC_H
 #define PB_CODEC_H
 
-#include <stdint.h>
+#include <cstdint>
 #include "abstract_codec.h"
 #include "abstract_data.h"
 #include "pb_data.h"
@@ -22,3 +22,5 @@ public:
 };
 
 }
+
+#endif
