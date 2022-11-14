@@ -36,8 +36,7 @@ EventLoop::EventLoop()
     tLoopPtr = this;
 
     if ((epfd_ = epoll_create(1)) <= 0) {
-        LOG_ERROR << "start server error. epoll_create error, sys error=" << strerror(errno);
-        Exit(0);
+        LOG_FATAL << "start server error. epoll_create error, sys error=" << strerror(errno);
     }
     else {
         LOG_DEBUG << "epfd_ = " << epfd_;
@@ -45,8 +44,7 @@ EventLoop::EventLoop()
     // assert(epfd_ > 0);
 
     if ((wakefd_ = eventfd(0, EFD_NONBLOCK)) <= 0) {
-        LOG_ERROR << "start server error. event_fd error, sys error=" << strerror(errno);
-        Exit(0);
+        LOG_FATAL << "start server error. event_fd error, sys error=" << strerror(errno);
     }
     LOG_DEBUG << "wakefd = " << wakefd_;
     // assert(wakefd_ > 0);

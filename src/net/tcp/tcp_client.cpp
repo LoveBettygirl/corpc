@@ -65,7 +65,7 @@ void TcpClient::resetFd()
 int TcpClient::sendAndRecvPb(const std::string &msgNo, PbStruct::ptr &res)
 {
     bool isTimeout = false;
-    corpc::Coroutine *curCor = corpc::Coroutine::getCurrentCoroutine();
+    corpc::Coroutine *curCor = corpc::Coroutine::getCurrentCoroutine(); // 子协程
     auto timercb = [this, &isTimeout, curCor]() {
         LOG_INFO << "TcpClient timer out event occur";
         isTimeout = true;
