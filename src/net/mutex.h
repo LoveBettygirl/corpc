@@ -4,6 +4,7 @@
 #include <pthread.h>
 #include <memory>
 #include <queue>
+#include <mutex>
 
 // this file copy form sylar
 
@@ -144,6 +145,21 @@ public:
 
 private:
     pthread_rwlock_t lock_;
+};
+
+class CoroutineMutex {
+public:
+    typedef ScopedLockImpl<CoroutineMutex> Lock;
+
+    CoroutineMutex();
+    ~CoroutineMutex();
+
+    void lock();
+    void unlock();
+private:
+    bool lock_{false};
+    std::mutex mutex_;
+    std::queue<Coroutine*> sleepCors_;
 };
 
 }
