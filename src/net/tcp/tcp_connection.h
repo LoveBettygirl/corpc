@@ -16,6 +16,7 @@
 #include "mutex.h"
 #include "abstract_codec.h"
 #include "http_request.h"
+#include "pb_codec.h"
 
 namespace corpc {
 

@@ -45,8 +45,7 @@ private:
 };
 
 template <class T>
-struct ReadScopedLockImpl
-{
+struct ReadScopedLockImpl {
 public:
     ReadScopedLockImpl(T &mutex)
         : mutex_(mutex) {
@@ -83,8 +82,7 @@ private:
  * @brief 局部写锁模板实现
  */
 template <class T>
-struct WriteScopedLockImpl
-{
+struct WriteScopedLockImpl {
 public:
     WriteScopedLockImpl(T &mutex)
         : mutex_(mutex) {
@@ -146,6 +144,8 @@ public:
 private:
     pthread_rwlock_t lock_;
 };
+
+class Coroutine;
 
 class CoroutineMutex {
 public:

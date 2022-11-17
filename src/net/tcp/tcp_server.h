@@ -13,6 +13,7 @@
 #include "abstract_dispatcher.h"
 #include "http_dispatcher.h"
 #include "http_servlet.h"
+#include "tcp_connection.h"
 
 namespace corpc {
 
