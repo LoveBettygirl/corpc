@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <sstream>
 #include <memory>
-#include <string.h>
+#include <cstring>
 #include "pb_codec.h"
 #include "byte_util.h"
 #include "log.h"

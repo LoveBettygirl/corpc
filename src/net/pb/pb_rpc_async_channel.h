@@ -6,7 +6,7 @@
 #include "pb_data.h"
 #include "pb_rpc_channel.h"
 #include "pb_rpc_controller.h"
-#include "netaddress.h"
+#include "net_address.h"
 #include "tcp_client.h"
 #include "coroutine.h"
 

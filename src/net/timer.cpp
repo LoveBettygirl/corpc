@@ -1,7 +1,6 @@
 #include <sys/timerfd.h>
-#include <assert.h>
-#include <time.h>
-#include <string.h>
+#include <cassert>
+#include <cstring>
 #include <vector>
 #include <sys/time.h>
 #include <functional>

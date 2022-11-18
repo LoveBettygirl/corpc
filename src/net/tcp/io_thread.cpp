@@ -3,8 +3,8 @@
 #include <time.h>
 #include <stdlib.h>
 #include <semaphore.h>
-#include "eventloop.h"
-#include "iothread.h"
+#include "event_loop.h"
+#include "io_thread.h"
 #include "timewheel.h"
 #include "coroutine.h"
 #include "config.h"

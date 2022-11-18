@@ -1,5 +1,5 @@
-#ifndef ABSTRACTSLOT_H
-#define ABSTRACTSLOT_H
+#ifndef ABSTRACT_SLOT_H
+#define ABSTRACT_SLOT_H
 
 #include <memory>
 #include <functional>

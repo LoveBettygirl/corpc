@@ -1,9 +1,9 @@
 #include <sys/socket.h>
-#include <assert.h>
+#include <cassert>
 #include <fcntl.h>
-#include <string.h>
+#include <cstring>
 #include "tcp_server.h"
-#include "iothread.h"
+#include "io_thread.h"
 #include "timewheel.h"
 #include "coroutine.h"
 #include "coroutine_hook.h"

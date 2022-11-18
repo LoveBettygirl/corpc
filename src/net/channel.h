@@ -7,7 +7,6 @@
 #include <sys/epoll.h>
 #include <cassert>
 #include <mutex>
-// #include "loop.h"
 #include "log.h"
 #include "coroutine.h"
 #include "mutex.h"

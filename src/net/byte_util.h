@@ -1,8 +1,8 @@
 #ifndef BYTE_UTIL_H
 #define BYTE_UTIL_H
 
-#include <stdint.h>
-#include <string.h>
+#include <cstdint>
+#include <cstring>
 #include <arpa/inet.h>
 
 namespace corpc {

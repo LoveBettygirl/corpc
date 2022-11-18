@@ -1,12 +1,12 @@
 #ifndef TIMER_H
 #define TIMER_H
 
-#include <time.h>
+#include <ctime>
 #include <memory>
 #include <map>
 #include <functional>
 #include "mutex.h"
-#include "eventloop.h"
+#include "event_loop.h"
 #include "channel.h"
 #include "log.h"
 

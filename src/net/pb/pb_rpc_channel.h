@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <google/protobuf/service.h>
-#include "netaddress.h"
+#include "net_address.h"
 #include "tcp_client.h"
 
 namespace corpc {

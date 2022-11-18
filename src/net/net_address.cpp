@@ -4,9 +4,9 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <unistd.h>
-#include <string.h>
+#include <cstring>
 #include <sstream>
-#include "netaddress.h"
+#include "net_address.h"
 #include "log.h"
 
 namespace corpc {

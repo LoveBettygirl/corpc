@@ -3,8 +3,8 @@
 #include <google/protobuf/service.h>
 #include <google/protobuf/message.h>
 #include <google/protobuf/descriptor.h>
-#include "netaddress.h"
-#include "iothread.h"
+#include "net_address.h"
+#include "io_thread.h"
 #include "error_code.h"
 #include "tcp_client.h"
 #include "pb_rpc_async_channel.h"

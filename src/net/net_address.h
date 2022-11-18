@@ -1,5 +1,5 @@
-#ifndef NETADDRESS_H
-#define NETADDRESS_H
+#ifndef NET_ADDRESS_H
+#define NET_ADDRESS_H
 
 #include <sys/types.h>
 #include <sys/socket.h>

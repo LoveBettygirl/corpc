@@ -4,8 +4,8 @@
 #include <memory>
 #include "coroutine.h"
 #include "coroutine_hook.h"
-#include "netaddress.h"
-#include "eventloop.h"
+#include "net_address.h"
+#include "event_loop.h"
 #include "tcp_connection.h"
 
 namespace corpc {

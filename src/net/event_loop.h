@@ -1,5 +1,5 @@
-#ifndef EVENTLOOP_H
-#define EVENTLOOP_H
+#ifndef EVENT_LOOP_H
+#define EVENT_LOOP_H
 
 #include <sys/socket.h>
 #include <sys/types.h>

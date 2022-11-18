@@ -2,7 +2,7 @@
 #include <google/protobuf/service.h>
 #include <google/protobuf/message.h>
 #include <google/protobuf/descriptor.h>
-#include "netaddress.h"
+#include "net_address.h"
 #include "error_code.h"
 #include "tcp_client.h"
 #include "pb_rpc_channel.h"

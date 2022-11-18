@@ -1,5 +1,5 @@
 #include <unistd.h>
-#include <string.h>
+#include <cstring>
 #include <sys/socket.h>
 #include "tcp_connection.h"
 #include "tcp_server.h"

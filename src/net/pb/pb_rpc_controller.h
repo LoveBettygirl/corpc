@@ -5,7 +5,7 @@
 #include <google/protobuf/stubs/callback.h>
 #include <cstdio>
 #include <memory>
-#include "netaddress.h"
+#include "net_address.h"
 
 namespace corpc {
 
