@@ -1,5 +1,5 @@
-#ifndef MUTEX_H
-#define MUTEX_H
+#ifndef CORPC_NET_MUTEX_H
+#define CORPC_NET_MUTEX_H
 
 #include <pthread.h>
 #include <memory>

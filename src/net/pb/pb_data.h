@@ -1,5 +1,5 @@
-#ifndef PB_DATA_H
-#define PB_DATA_H
+#ifndef CORPC_NET_PB_PB_DATA_H
+#define CORPC_NET_PB_PB_DATA_H
 
 #include <cstdint>
 #include <vector>

@@ -1,5 +1,5 @@
-#ifndef PB_RPC_DISPATCHER_H
-#define PB_RPC_DISPATCHER_H
+#ifndef CORPC_NET_PB_PB_RPC_DISPATCHER_H
+#define CORPC_NET_PB_PB_RPC_DISPATCHER_H
 
 #include <google/protobuf/message.h>
 #include <google/protobuf/service.h>

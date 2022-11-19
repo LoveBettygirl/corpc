@@ -1,5 +1,5 @@
-#ifndef PB_CODEC_H
-#define PB_CODEC_H
+#ifndef CORPC_NET_PB_PB_CODEC_H
+#define CORPC_NET_PB_PB_CODEC_H
 
 #include <cstdint>
 #include "abstract_codec.h"

@@ -1,5 +1,5 @@
-#ifndef COUROUTINE_HOOK_H
-#define COUROUTINE_HOOK_H
+#ifndef CORPC_COROUTINE_COUROUTINE_HOOK_H
+#define CORPC_COROUTINE_COUROUTINE_HOOK_H
 
 #include <unistd.h>
 #include <sys/socket.h>

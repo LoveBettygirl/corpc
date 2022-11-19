@@ -1,5 +1,5 @@
-#ifndef EVENT_LOOP_H
-#define EVENT_LOOP_H
+#ifndef CORPC_NET_EVENT_LOOP_H
+#define CORPC_NET_EVENT_LOOP_H
 
 #include <sys/socket.h>
 #include <sys/types.h>

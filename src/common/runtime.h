@@ -1,5 +1,5 @@
-#ifndef RUNTIME_H
-#define RUNTIME_H
+#ifndef CORPC_COMMOM_RUNTIME_H
+#define CORPC_COMMOM_RUNTIME_H
 
 #include <string>
 

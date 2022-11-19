@@ -1,5 +1,5 @@
-#ifndef HTTP_CODEC_H
-#define HTTP_CODEC_H
+#ifndef CORPC_NET_HTTP_HTTP_CODEC_H
+#define CORPC_NET_HTTP_HTTP_CODEC_H
 
 #include <map>
 #include <string>

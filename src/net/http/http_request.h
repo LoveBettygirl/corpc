@@ -1,5 +1,5 @@
-#ifndef HTTP_REQUEST_H
-#define HTTP_REQUEST_H
+#ifndef CORPC_NET_HTTP_HTTP_REQUEST_H
+#define CORPC_NET_HTTP_HTTP_REQUEST_H
 
 #include <string>
 #include <memory>

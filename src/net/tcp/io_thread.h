@@ -1,5 +1,5 @@
-#ifndef IO_THREAD_H
-#define IO_THREAD_H
+#ifndef CORPC_NET_TCP_IO_THREAD_H
+#define CORPC_NET_TCP_IO_THREAD_H
 
 #include <memory>
 #include <map>

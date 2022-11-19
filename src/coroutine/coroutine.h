@@ -1,5 +1,5 @@
-#ifndef COROUTINE_H
-#define COROUTINE_H
+#ifndef CORPC_COROUTINE_COROUTINE_H
+#define CORPC_COROUTINE_COROUTINE_H
 
 #include <memory>
 #include <functional>

@@ -1,5 +1,5 @@
-#ifndef PB_RPC_CLOSURE_H
-#define PB_RPC_CLOSURE_H
+#ifndef CORPC_NET_PB_PB_RPC_CLOSURE_H
+#define CORPC_NET_PB_PB_RPC_CLOSURE_H
 
 #include <google/protobuf/stubs/callback.h>
 #include <functional>

@@ -1,5 +1,5 @@
-#ifndef TCP_SERVER_H
-#define TCP_SERVER_H
+#ifndef CORPC_NET_TCP_TCP_SERVER_H
+#define CORPC_NET_TCP_TCP_SERVER_H
 
 #include <map>
 #include <google/protobuf/service.h>

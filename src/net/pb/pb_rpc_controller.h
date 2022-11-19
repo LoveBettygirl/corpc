@@ -1,5 +1,5 @@
-#ifndef PB_RPC_CONRTOLLER_H
-#define PB_RPC_CONRTOLLER_H
+#ifndef CORPC_NET_PB_PB_RPC_CONRTOLLER_H
+#define CORPC_NET_PB_PB_RPC_CONRTOLLER_H
 
 #include <google/protobuf/service.h>
 #include <google/protobuf/stubs/callback.h>

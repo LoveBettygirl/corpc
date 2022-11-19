@@ -1,5 +1,5 @@
-#ifndef ABSTRACT_DISPATCHER_H
-#define ABSTRACT_DISPATCHER_H
+#ifndef CORPC_NET_ABSTRACT_DISPATCHER_H
+#define CORPC_NET_ABSTRACT_DISPATCHER_H
 
 #include <memory>
 #include "abstract_data.h"

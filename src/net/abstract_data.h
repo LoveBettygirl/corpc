@@ -1,5 +1,5 @@
-#ifndef ABSTRACT_DATA_H
-#define ABSTRACT_DATA_H
+#ifndef CORPC_NET_ABSTRACT_DATA_H
+#define CORPC_NET_ABSTRACT_DATA_H
 
 namespace corpc {
 

@@ -1,5 +1,5 @@
-#ifndef ERROR_CODE_H
-#define ERROR_CODE_H
+#ifndef CORPC_COMMOM_ERROR_CODE_H
+#define CORPC_COMMOM_ERROR_CODE_H
 
 namespace corpc {
 

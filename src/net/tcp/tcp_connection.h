@@ -1,5 +1,5 @@
-#ifndef TCP_CONNECTION_H
-#define TCP_CONNECTION_H
+#ifndef CORPC_NET_TCP_TCP_CONNECTION_H
+#define CORPC_NET_TCP_TCP_CONNECTION_H
 
 #include <memory>
 #include <vector>

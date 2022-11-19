@@ -1,5 +1,5 @@
-#ifndef MEMORY_H
-#define MEMORY_H
+#ifndef CORPC_COROUTINE_MEMORY_H
+#define CORPC_COROUTINE_MEMORY_H
 
 #include <memory>
 #include <atomic>

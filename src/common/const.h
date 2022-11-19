@@ -1,5 +1,5 @@
-#ifndef CONST_H
-#define CONST_H
+#ifndef CORPC_COMMOM_CONST_H
+#define CORPC_COMMOM_CONST_H
 
 namespace corpc {
 

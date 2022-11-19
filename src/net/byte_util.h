@@ -1,5 +1,5 @@
-#ifndef BYTE_UTIL_H
-#define BYTE_UTIL_H
+#ifndef CORPC_NET_BYTE_UTIL_H
+#define CORPC_NET_BYTE_UTIL_H
 
 #include <cstdint>
 #include <cstring>

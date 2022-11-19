@@ -1,5 +1,5 @@
-#ifndef TIMER_H
-#define TIMER_H
+#ifndef CORPC_NET_TIMER_H
+#define CORPC_NET_TIMER_H
 
 #include <ctime>
 #include <memory>

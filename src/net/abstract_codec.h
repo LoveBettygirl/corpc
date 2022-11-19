@@ -1,5 +1,5 @@
-#ifndef ABSTRACT_CODEC_H
-#define ABSTRACT_CODEC_H
+#ifndef CORPC_NET_ABSTRACT_CODEC_H
+#define CORPC_NET_ABSTRACT_CODEC_H
 
 #include <string>
 #include <memory>

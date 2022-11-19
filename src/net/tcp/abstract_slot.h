@@ -1,5 +1,5 @@
-#ifndef ABSTRACT_SLOT_H
-#define ABSTRACT_SLOT_H
+#ifndef CORPC_NET_TCP_ABSTRACT_SLOT_H
+#define CORPC_NET_TCP_ABSTRACT_SLOT_H
 
 #include <memory>
 #include <functional>

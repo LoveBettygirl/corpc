@@ -1,5 +1,5 @@
-#ifndef PB_RPC_ASYNC_CHANNEL_H
-#define PB_RPC_ASYNC_CHANNEL_H
+#ifndef CORPC_NET_PB_PB_RPC_ASYNC_CHANNEL_H
+#define CORPC_NET_PB_PB_RPC_ASYNC_CHANNEL_H
 
 #include <google/protobuf/service.h>
 #include <future>

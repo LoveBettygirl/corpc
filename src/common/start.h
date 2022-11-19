@@ -1,9 +1,9 @@
-#ifndef START_H
-#define START_H
+#ifndef CORPC_COMMOM_START_H
+#define CORPC_COMMOM_START_H
 
 #include <google/protobuf/service.h>
 #include <memory>
-#include <stdio.h>
+#include <cstdio>
 #include <functional>
 #include "log.h"
 #include "tcp_server.h"

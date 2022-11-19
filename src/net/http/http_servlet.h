@@ -1,5 +1,5 @@
-#ifndef HTTP_SERVLET_H
-#define HTTP_SERVLET_H
+#ifndef CORPC_NET_HTTP_HTTP_SERVLET_H
+#define CORPC_NET_HTTP_HTTP_SERVLET_H
 
 #include <memory>
 #include "http_request.h"

@@ -1,5 +1,5 @@
-#ifndef LOG_H
-#define LOG_H
+#ifndef CORPC_COMMOM_LOG_H
+#define CORPC_COMMOM_LOG_H
 
 #include <sstream>
 #include <ctime>

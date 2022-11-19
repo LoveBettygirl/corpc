@@ -1,5 +1,5 @@
-#ifndef HTTP_DISPATCHER_H
-#define HTTP_DISPATCHER_H
+#ifndef CORPC_NET_HTTP_HTTP_DISPATCHER_H
+#define CORPC_NET_HTTP_HTTP_DISPATCHER_H
 
 #include <map>
 #include <memory>

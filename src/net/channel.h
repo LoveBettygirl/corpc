@@ -1,5 +1,5 @@
-#ifndef CHANNEL_H
-#define CHANNEL_H
+#ifndef CORPC_NET_CHANNEL_H
+#define CORPC_NET_CHANNEL_H
 
 #include <functional>
 #include <memory>

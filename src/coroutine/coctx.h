@@ -1,5 +1,5 @@
-#ifndef COCTX_H
-#define COCTX_H
+#ifndef CORPC_COROUTINE_COCTX_H
+#define CORPC_COROUTINE_COCTX_H
 
 namespace corpc {
 

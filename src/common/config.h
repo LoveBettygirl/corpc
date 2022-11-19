@@ -1,5 +1,5 @@
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifndef CORPC_COMMOM_CONFIG_H
+#define CORPC_COMMOM_CONFIG_H
 
 #include <yaml-cpp/yaml.h>
 #include <string>

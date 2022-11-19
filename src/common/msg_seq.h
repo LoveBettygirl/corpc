@@ -1,5 +1,5 @@
-#ifndef MSG_REQ_H
-#define MSG_REQ_H
+#ifndef CORPC_COMMOM_MSG_REQ_H
+#define CORPC_COMMOM_MSG_REQ_H
 
 #include <string>
 

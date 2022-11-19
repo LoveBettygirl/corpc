@@ -1,5 +1,5 @@
-#ifndef HTTP_RESPONSE_H
-#define HTTP_RESPONSE_H
+#ifndef CORPC_NET_HTTP_HTTP_RESPONSE_H
+#define CORPC_NET_HTTP_HTTP_RESPONSE_H
 
 #include <string>
 #include <memory>

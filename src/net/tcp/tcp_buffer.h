@@ -1,5 +1,5 @@
-#ifndef TCP_BUFFER_H
-#define TCP_BUFFER_H
+#ifndef CORPC_NET_TCP_TCP_BUFFER_H
+#define CORPC_NET_TCP_TCP_BUFFER_H
 
 #include <vector>
 #include <memory>
