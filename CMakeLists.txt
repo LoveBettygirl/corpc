@@ -12,14 +12,15 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 
 # 设置项目编译头文件搜索路径 -I
-include_directories(${PROJECT_SOURCE_DIR}/src)
-include_directories(${PROJECT_SOURCE_DIR}/src/common)
-include_directories(${PROJECT_SOURCE_DIR}/src/coroutine)
-include_directories(${PROJECT_SOURCE_DIR}/src/net)
-include_directories(${PROJECT_SOURCE_DIR}/src/net/http)
-include_directories(${PROJECT_SOURCE_DIR}/src/net/pb)
-include_directories(${PROJECT_SOURCE_DIR}/src/net/tcp)
+include_directories(${PROJECT_SOURCE_DIR})
+# include_directories(${PROJECT_SOURCE_DIR}/corpc)
+# include_directories(${PROJECT_SOURCE_DIR}/corpc/common)
+# include_directories(${PROJECT_SOURCE_DIR}/corpc/coroutine)
+# include_directories(${PROJECT_SOURCE_DIR}/corpc/net)
+# include_directories(${PROJECT_SOURCE_DIR}/corpc/net/http)
+# include_directories(${PROJECT_SOURCE_DIR}/corpc/net/pb)
+# include_directories(${PROJECT_SOURCE_DIR}/corpc/net/tcp)
 # 设置项目库文件搜索路径 -L
 link_directories(${PROJECT_SOURCE_DIR}/lib)
 
-add_subdirectory(src)
+add_subdirectory(corpc)

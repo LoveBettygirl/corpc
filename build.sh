@@ -1,6 +1,6 @@
 #!/bin/bash
 
-src_root="src"
+src_root="corpc"
 
 function copy_header() {
     for file in `ls $src_root$1`
