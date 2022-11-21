@@ -1,0 +1,35 @@
+log:
+  # identify path of log file
+  log_path: ./
+  log_prefix: test_http_server
+  # identify max size of single log file, MB
+  log_max_file_size: 5
+  # log level: DEBUG < INFO < WARN < ERROR < NONE (don't print log)
+  log_level: DEBUG
+  user_log_level: DEBUG
+  # interval that put log info to async logger, ms
+  log_sync_interval: 500
+
+coroutine:
+  # coroutine stack size (KB)
+  coroutine_stack_size: 256
+  # default coroutine pool size
+  coroutine_pool_size: 1000
+
+msg_seq_len: 20
+
+# max time when call connect, s
+max_connect_timeout: 75
+
+# count of io threads, at least 1
+iothread_num: 1
+
+time_wheel:
+  bucket_num: 3
+  # interval that destroy bad TcpConnection, s
+  interval: 10
+
+server:
+  ip: 127.0.0.1
+  port: 10000
+  protocol: HTTP
