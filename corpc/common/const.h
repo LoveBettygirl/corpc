@@ -9,12 +9,12 @@ enum LogType {
 };
 
 enum LogLevel {
-    NONE = 0, // don't print log
-    DEBUG = 1,
-    INFO = 2,
-    WARN = 3,
-    ERROR = 4,
-    FATAL = 5
+    DEBUG = 0,
+    INFO = 1,
+    WARN = 2,
+    ERROR = 3,
+    FATAL = 4,
+    NONE = 100, // don't print log
 };
 
 }

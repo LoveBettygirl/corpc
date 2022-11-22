@@ -73,7 +73,7 @@ int TcpAcceptor::toAccept()
             LOG_DEBUG << "error, no new client coming, errno=" << errno << "error=" << strerror(errno);
             return -1;
         }
-        LOG_INFO << "New client accepted succ! port:[" << cliAddr.sin_port;
+        LOG_INFO << "New client accepted succ! port:[" << ntohs(cliAddr.sin_port) << "]";
         peerAddr_ = std::make_shared<IPAddress>(cliAddr);
     }
     else if (family_ == AF_UNIX) {
@@ -94,7 +94,7 @@ int TcpAcceptor::toAccept()
         return -1;
     }
 
-    LOG_INFO << "New client accepted succ! fd:[" << ret << ", addr:[" << peerAddr_->toString() << "]";
+    LOG_INFO << "New client accepted succ! fd:[" << ret << "], addr:[" << peerAddr_->toString() << "]";
     return ret;
 }
 

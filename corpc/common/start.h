@@ -13,7 +13,7 @@ namespace corpc {
 
 #define REGISTER_HTTP_SERVLET(path, servlet)                                                                                       \
     do {                                                                                                                           \
-        if (!corpc::GetServer()->registerHttpServlet(path, std::make_shared<servlet>())) {                                       \
+        if (!corpc::getServer()->registerHttpServlet(path, std::make_shared<servlet>())) {                                       \
             printf("Start corpc server error, because register http servelt error, please look up rpc log get more details!\n"); \
             corpc::Exit(0);                                                                                                      \
         }                                                                                                                          \
@@ -21,7 +21,7 @@ namespace corpc {
 
 #define REGISTER_SERVICE(service)                                                                                                      \
     do {                                                                                                                                \
-        if (!corpc::GetServer()->registerService(std::make_shared<service>())) {                                                      \
+        if (!corpc::getServer()->registerService(std::make_shared<service>())) {                                                      \
             printf("Start corpc server error, because register protobuf service error, please look up rpc log get more details!\n"); \
             corpc::Exit(0);                                                                                                          \
         }                                                                                                                              \

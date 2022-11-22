@@ -156,7 +156,7 @@ void Coroutine::yield()
 
     Coroutine *co = tCurrCoroutine;
     tCurrCoroutine = tMainCoroutine;
-    tCurrCoroutine = nullptr;
+    tCurrRuntime = nullptr;
     coctx_swap(&(co->coctx_), &(tMainCoroutine->coctx_));
 }
 

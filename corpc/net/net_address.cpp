@@ -42,9 +42,9 @@ IPAddress::IPAddress(const std::string &ip, uint16_t port)
 
 IPAddress::IPAddress(sockaddr_in addr) : addr_(addr)
 {
-    LOG_DEBUG << "ip[" << ip_ << "], port[" << addr.sin_port;
     ip_ = std::string(inet_ntoa(addr_.sin_addr));
     port_ = ntohs(addr_.sin_port);
+    LOG_DEBUG << "ip[" << ip_ << "], port[" << port_ << "]";
 }
 
 IPAddress::IPAddress(const std::string &addr)

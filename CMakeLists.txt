@@ -11,6 +11,9 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 # 设置项目库文件输出的路径
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 
+enable_language(ASM)
+set(CMAKE_ASM_COMPILER ${CMAKE_CXX_COMPILER})
+
 # 设置项目编译头文件搜索路径 -I
 include_directories(${PROJECT_SOURCE_DIR})
 # include_directories(${PROJECT_SOURCE_DIR}/corpc)
@@ -24,3 +27,4 @@ include_directories(${PROJECT_SOURCE_DIR})
 link_directories(${PROJECT_SOURCE_DIR}/lib)
 
 add_subdirectory(corpc)
+add_subdirectory(test)

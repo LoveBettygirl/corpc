@@ -27,12 +27,12 @@ static CoroutineTaskQueue *tCouroutineTaskQueue = nullptr;
 EventLoop::EventLoop()
 {
     if (tLoopPtr != nullptr) {
-        LOG_FATAL << "this thread has already create a reactor";
+        LOG_FATAL << "this thread has already create a loop";
     }
 
     tid_ = gettid();
 
-    LOG_DEBUG << "thread[" << tid_ << "] succ create a reactor object";
+    LOG_DEBUG << "thread[" << tid_ << "] succ create a loop object";
     tLoopPtr = this;
 
     if ((epfd_ = epoll_create(1)) <= 0) {
@@ -196,7 +196,7 @@ void EventLoop::loop()
 {
     assert(isLoopThread());
     if (isLooping_) {
-        LOG_DEBUG << "this reactor is looping!";
+        LOG_DEBUG << "this loop is looping!";
         return;
     }
 
@@ -216,7 +216,7 @@ void EventLoop::loop()
             firstCoroutine = nullptr;
         }
 
-        // main reactor need't to resume coroutine in global CoroutineTaskQueue, only io thread do this work
+        // main loop need't to resume coroutine in global CoroutineTaskQueue, only io thread do this work
         if (loopType_ != MainLoop) {
             Channel *ptr = nullptr;
             while (true) {

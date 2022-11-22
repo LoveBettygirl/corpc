@@ -9,7 +9,7 @@ namespace corpc {
 
 corpc::Config::ptr gConfig;
 corpc::Logger::ptr gLogger;
-corpc::TcpServer::ptr gServer;
+corpc::TcpServer::ptr gTcpServer;
 
 static int gInitConfig = 0;
 
@@ -27,18 +27,18 @@ void initConfig(const char *file)
 
 TcpServer::ptr getServer()
 {
-    return gServer;
+    return gTcpServer;
 }
 
 void startRpcServer()
 {
     gLogger->start();
-    gServer->start();
+    gTcpServer->start();
 }
 
 int getIOThreadPoolSize()
 {
-    return gServer->getIOThreadPool()->getIOThreadPoolSize();
+    return gTcpServer->getIOThreadPool()->getIOThreadPoolSize();
 }
 
 Config::ptr getConfig()

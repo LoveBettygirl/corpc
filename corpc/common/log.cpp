@@ -74,9 +74,6 @@ std::string levelToString(LogLevel level)
 {
     std::string re = "DEBUG";
     switch (level) {
-    case NONE:
-        re = "NONE";
-        return re;
     case DEBUG:
         re = "DEBUG";
         return re;
@@ -92,6 +89,9 @@ std::string levelToString(LogLevel level)
     case FATAL:
         re = "FATAL";
         return re;
+    case NONE:
+        re = "NONE";
+        return re;
     default:
         return re;
     }
@@ -99,9 +99,6 @@ std::string levelToString(LogLevel level)
 
 LogLevel stringToLevel(const std::string &str)
 {
-    if (str == "NONE")
-        return LogLevel::NONE;
-
     if (str == "DEBUG")
         return LogLevel::DEBUG;
 
@@ -116,6 +113,9 @@ LogLevel stringToLevel(const std::string &str)
 
     if (str == "FATAL")
         return LogLevel::FATAL;
+
+    if (str == "NONE")
+        return LogLevel::NONE;
 
     return LogLevel::DEBUG;
 }
@@ -143,10 +143,10 @@ std::stringstream &LogEvent::getStringStream()
     char buf[128] = {0};
     strftime(buf, sizeof(buf), format, &time);
 
-    ss_ << "[" << buf << "." << timeval_.tv_usec << "]\t";
+    ss_ << "[" << buf << "." << timeval_.tv_usec << "] ";
 
     std::string levelStr = levelToString(level_);
-    ss_ << "[" << levelStr << "]\t";
+    ss_ << "[" << levelStr << "] ";
 
     if (g_pid == 0) {
         g_pid = getpid();
@@ -160,22 +160,22 @@ std::stringstream &LogEvent::getStringStream()
 
     corId_ = Coroutine::getCurrentCoroutine()->getCorId();
 
-    ss_ << "[" << pid_ << "]\t"
-        << "[" << tid_ << "]\t"
-        << "[" << corId_ << "]\t"
-        << "[" << fileName_ << ":" << line_ << "]\t"
-        << "[" << funcName_ << "]\t";
+    ss_ << "[" << pid_ << "] "
+        << "[" << tid_ << "] "
+        << "[" << corId_ << "] "
+        << "[" << fileName_ << ":" << line_ << "] "
+        << "[" << funcName_ << "] ";
 
     RunTime *runtime = getCurrentRunTime();
     if (runtime) {
         std::string msgNo = runtime->msgNo_;
         if (!msgNo.empty()) {
-            ss_ << "[" << msgNo << "]\t";
+            ss_ << "[" << msgNo << "] ";
         }
 
         std::string interfaceName = runtime->interfaceName_;
         if (!interfaceName.empty()) {
-            ss_ << "[" << interfaceName << "]\t";
+            ss_ << "[" << interfaceName << "] ";
         }
     }
     return ss_;
@@ -431,6 +431,7 @@ void Exit(int code)
 
 void Abort()
 {
+    printf("It's sorry to said we start corpc server error, look up log file to get more details!\n");
     gLogger->flush();
     gLogger->getAsyncLogger()->thread_->join();
     gLogger->getAsyncUserLogger()->thread_->join();

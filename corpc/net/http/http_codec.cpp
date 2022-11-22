@@ -104,7 +104,11 @@ void HttpCodeC::decode(TcpBuffer *buf, AbstractData *data)
 
         // 解析请求体
         if (!isParseRequestContent) {
-            int contentLen = std::stoi(request->requestHeader_.maps_["Content-Length"]);
+            auto it = request->requestHeader_.maps_.find("Content-Length");
+            int contentLen = 0;
+            if (it != request->requestHeader_.maps_.end()) {
+                contentLen = std::stoi(it->second);
+            }
             // 请求体内容还没完全读到应用层缓冲区中
             if ((int)strs.size() - readSize < contentLen) {
                 LOG_DEBUG << "need to read more data";
