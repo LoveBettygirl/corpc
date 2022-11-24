@@ -38,6 +38,7 @@ public:
     Timer *getTimer();
     pid_t getTid();
     void setEventLoopType(EventLoopType type);
+    bool isLooping() const { return isLooping_; }
 
 public:
     static EventLoop *getEventLoop();

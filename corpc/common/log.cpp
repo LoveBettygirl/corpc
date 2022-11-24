@@ -14,6 +14,7 @@
 #include <atomic>
 #include <cassert>
 #include <functional>
+#include <cstring>
 #include "corpc/net/timer.h"
 #include "corpc/common/log.h"
 #include "corpc/common/runtime.h"
@@ -224,6 +225,13 @@ Logger::~Logger()
 
 void Logger::init(const std::string &fileName, const std::string &filePath, int maxSize, int syncInterval)
 {
+    std::string newPath = filePath;
+    if (newPath.empty()) {
+        newPath = ".";
+    }
+    if (newPath.back() != '/') {
+        newPath.push_back('/');
+    }
     if (!isInit_) {
         syncInterval_ = syncInterval;
         for (int i = 0; i < 1000000; ++i) {
@@ -231,8 +239,16 @@ void Logger::init(const std::string &fileName, const std::string &filePath, int 
             userBuffer_.push_back("");
         }
 
-        asyncLogger_ = std::make_shared<AsyncLogger>(fileName, filePath, maxSize, INTER_LOG);
-        asyncUserLogger_ = std::make_shared<AsyncLogger>(fileName, filePath, maxSize, USER_LOG);
+        struct stat pathStat;   
+        if (stat(newPath.c_str(), &pathStat) != 0) {
+            int isCreate = mkdir(newPath.c_str(), S_IRUSR | S_IWUSR | S_IXUSR | S_IRWXG | S_IRWXO);
+            if (isCreate != 0) {
+                printf("create path failed! error: %s\n", strerror(errno));
+            }
+        }
+
+        asyncLogger_ = std::make_shared<AsyncLogger>(fileName, newPath, maxSize, INTER_LOG);
+        asyncUserLogger_ = std::make_shared<AsyncLogger>(fileName, newPath, maxSize, USER_LOG);
 
         signal(SIGSEGV, coredumpHandler);
         signal(SIGABRT, coredumpHandler);
@@ -319,6 +335,9 @@ void AsyncLogger::execute()
         std::unique_lock<std::mutex> lock(mutex_);
         while (tasks_.empty() && !stop_) {
             cond_.wait(lock);
+        }
+        if (tasks_.empty() && stop_) {
+            break;
         }
         std::vector<std::string> temp;
         temp.swap(tasks_.front());

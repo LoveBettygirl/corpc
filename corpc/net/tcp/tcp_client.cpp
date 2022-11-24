@@ -159,14 +159,14 @@ ERR_DEAL:
     fd_ = socket(AF_INET, SOCK_STREAM, 0);
     std::stringstream ss;
     if (isTimeout) {
-        ss << "call rpc falied, over " << maxTimeout_ << " ms";
+        ss << "call rpc failed, over " << maxTimeout_ << " ms";
         errInfo_ = ss.str();
 
         connection_->setOverTimeFlag(false);
         return ERROR_RPC_CALL_TIMEOUT;
     }
     else {
-        ss << "call rpc falied, peer closed [" << peerAddr_->toString() << "]";
+        ss << "call rpc failed, peer closed [" << peerAddr_->toString() << "]";
         errInfo_ = ss.str();
         return ERROR_PEER_CLOSED;
     }

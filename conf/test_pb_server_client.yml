@@ -1,7 +1,7 @@
 log:
   # identify path of log file
   log_path: ./log/
-  log_prefix: test_http_server
+  log_prefix: test_pb_server_client
   # identify max size of single log file, MB
   log_max_file_size: 5
   # log level: DEBUG < INFO < WARN < ERROR < NONE (don't print log)
@@ -22,14 +22,14 @@ msg_seq_len: 20
 max_connect_timeout: 75
 
 # count of io threads, at least 1
-iothread_num: 1
+iothread_num: 0
 
 time_wheel:
-  bucket_num: 3
+  bucket_num: 6
   # interval that destroy bad TcpConnection, s
   interval: 10
 
 server:
   ip: 127.0.0.1
-  port: 10000
-  protocol: HTTP
+  port: 20001
+  protocol: PB

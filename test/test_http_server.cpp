@@ -69,14 +69,12 @@ public:
         setHttpBody(res, std::string(buf));
     }
 
-    std::string getServletName()
-    {
+    std::string getServletName() {
         return "BlockCallHttpServlet";
     }
 };
 
-class NonBlockCallHttpServlet : public corpc::HttpServlet
-{
+class NonBlockCallHttpServlet : public corpc::HttpServlet {
 public:
     NonBlockCallHttpServlet() = default;
     ~NonBlockCallHttpServlet() = default;

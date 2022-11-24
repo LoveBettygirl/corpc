@@ -25,11 +25,13 @@ void PbRpcChannel::CallMethod(const google::protobuf::MethodDescriptor *method,
                                 google::protobuf::Message *response,
                                 google::protobuf::Closure *done)
 {
-
     PbStruct pbStruct;
     PbRpcController *rpcController = dynamic_cast<PbRpcController *>(controller);
     if (!rpcController) {
         LOG_ERROR << "call failed. falid to dynamic cast PbRpcController";
+        if (done) {
+            done->Run();
+        }
         return;
     }
 
@@ -41,6 +43,9 @@ void PbRpcChannel::CallMethod(const google::protobuf::MethodDescriptor *method,
     LOG_DEBUG << "call service full name = " << pbStruct.serviceFullName;
     if (!request->SerializeToString(&(pbStruct.pbData))) {
         LOG_ERROR << "serialize send package error";
+        if (done) {
+            done->Run();
+        }
         return;
     }
 
@@ -65,6 +70,9 @@ void PbRpcChannel::CallMethod(const google::protobuf::MethodDescriptor *method,
     codec->encode(client->getConnection()->getOutBuffer(), &pbStruct);
     if (!pbStruct.encodeSucc_) {
         rpcController->setError(ERROR_FAILED_ENCODE, "encode pb data error");
+        if (done) {
+            done->Run();
+        }
         return;
     }
 
@@ -80,17 +88,26 @@ void PbRpcChannel::CallMethod(const google::protobuf::MethodDescriptor *method,
         rpcController->setError(ret, client->getErrInfo());
         LOG_ERROR << pbStruct.msgSeq << "|call rpc occur client error, serviceFullName=" << pbStruct.serviceFullName << ", error_code="
                     << ret << ", errorInfo = " << client->getErrInfo();
+        if (done) {
+            done->Run();
+        }
         return;
     }
 
     if (!response->ParseFromString(resData->pbData)) {
         rpcController->setError(ERROR_FAILED_DESERIALIZE, "failed to deserialize data from server");
         LOG_ERROR << pbStruct.msgSeq << "|failed to deserialize data";
+        if (done) {
+            done->Run();
+        }
         return;
     }
     if (resData->errCode != 0) {
         LOG_ERROR << pbStruct.msgSeq << "|server reply error_code=" << resData->errCode << ", errInfo=" << resData->errInfo;
         rpcController->setError(resData->errCode, resData->errInfo);
+        if (done) {
+            done->Run();
+        }
         return;
     }
 

@@ -143,7 +143,9 @@ void TcpServer::start()
 
 TcpServer::~TcpServer()
 {
-    getCoroutinePool()->returnCoroutine(acceptCor_);
+    if (acceptCor_) {
+        getCoroutinePool()->returnCoroutine(acceptCor_);
+    }
     LOG_DEBUG << "~TcpServer";
 }
 
