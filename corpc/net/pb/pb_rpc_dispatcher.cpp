@@ -100,9 +100,9 @@ void PbRpcDispacther::dispatch(AbstractData *data, TcpConnection *conn)
     LOG_DEBUG << replyPk.msgSeq << "|response.name = " << response->GetDescriptor()->full_name();
 
     PbRpcController rpcController;
-    rpcController.setMsgSeq(replyPk.msgSeq);
-    rpcController.setMethodName(methodName);
-    rpcController.setMethodFullName(temp->serviceFullName);
+    rpcController.SetMsgSeq(replyPk.msgSeq);
+    rpcController.SetMethodName(methodName);
+    rpcController.SetMethodFullName(temp->serviceFullName);
 
     std::function<void()> replyPackageFunc = []() {};
 

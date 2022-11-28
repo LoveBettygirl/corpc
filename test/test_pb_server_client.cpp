@@ -19,7 +19,7 @@ void testClient()
     QueryService_Stub stub(&channel);
 
     corpc::PbRpcController rpcControllerName;
-    rpcControllerName.setTimeout(15000);
+    rpcControllerName.SetTimeout(15000);
 
     queryNameReq nameReq;
     queryNameRes nameRes;
@@ -31,9 +31,9 @@ void testClient()
     std::cout << "call query_name corpc server " << gAddr->toString() << ", req = " << nameReq.ShortDebugString() << std::endl;
     stub.query_name(&rpcControllerName, &nameReq, &nameRes, nullptr);
 
-    if (rpcControllerName.errorCode() != 0) {
-        std::cout << "Failed to call corpc server query_name request, error code: " << rpcControllerName.errorCode() << ", error info: " << rpcControllerName.ErrorText() << std::endl;
-        USER_LOG_DEBUG << "Failed to call corpc server query_name request, error code: " << rpcControllerName.errorCode() << ", error info: " << rpcControllerName.ErrorText();
+    if (rpcControllerName.ErrorCode() != 0) {
+        std::cout << "Failed to call corpc server query_name request, error code: " << rpcControllerName.ErrorCode() << ", error info: " << rpcControllerName.ErrorText() << std::endl;
+        USER_LOG_DEBUG << "Failed to call corpc server query_name request, error code: " << rpcControllerName.ErrorCode() << ", error info: " << rpcControllerName.ErrorText();
         return;
     }
 
@@ -46,7 +46,7 @@ void testClient()
     std::cout << "Success get query_name response from corpc server " << gAddr->toString() << ", res = " << nameRes.ShortDebugString() << std::endl;
 
     corpc::PbRpcController rpcControllerAge;
-    rpcControllerAge.setTimeout(15000);
+    rpcControllerAge.SetTimeout(15000);
     
     queryAgeReq ageReq;
     queryAgeRes ageRes;
@@ -57,9 +57,9 @@ void testClient()
     std::cout << "call query_age corpc server " << gAddr->toString() << ", req = " << ageReq.ShortDebugString() << std::endl;
     stub.query_age(&rpcControllerAge, &ageReq, &ageRes, nullptr);
 
-    if (rpcControllerAge.errorCode() != 0) {
-        std::cout << "Failed to call corpc server query_age request, error code: " << rpcControllerAge.errorCode() << ", error info: " << rpcControllerAge.ErrorText() << std::endl;
-        USER_LOG_DEBUG << "Failed to call corpc server query_age request, error code: " << rpcControllerAge.errorCode() << ", error info: " << rpcControllerAge.ErrorText();
+    if (rpcControllerAge.ErrorCode() != 0) {
+        std::cout << "Failed to call corpc server query_age request, error code: " << rpcControllerAge.ErrorCode() << ", error info: " << rpcControllerAge.ErrorText() << std::endl;
+        USER_LOG_DEBUG << "Failed to call corpc server query_age request, error code: " << rpcControllerAge.ErrorCode() << ", error info: " << rpcControllerAge.ErrorText();
         return;
     }
 
@@ -78,7 +78,7 @@ void testBlockClient()
     QueryService_Stub stub(&channel);
 
     corpc::PbRpcController rpcControllerName;
-    rpcControllerName.setTimeout(15000);
+    rpcControllerName.SetTimeout(15000);
 
     queryNameReq nameReq;
     queryNameRes nameRes;
@@ -90,9 +90,9 @@ void testBlockClient()
     std::cout << "call query_name corpc server " << gAddr->toString() << ", req = " << nameReq.ShortDebugString() << std::endl;
     stub.query_name(&rpcControllerName, &nameReq, &nameRes, nullptr);
 
-    if (rpcControllerName.errorCode() != 0) {
-        std::cout << "Failed to call corpc server query_name request, error code: " << rpcControllerName.errorCode() << ", error info: " << rpcControllerName.ErrorText() << std::endl;
-        USER_LOG_DEBUG << "Failed to call corpc server query_name request, error code: " << rpcControllerName.errorCode() << ", error info: " << rpcControllerName.ErrorText();
+    if (rpcControllerName.ErrorCode() != 0) {
+        std::cout << "Failed to call corpc server query_name request, error code: " << rpcControllerName.ErrorCode() << ", error info: " << rpcControllerName.ErrorText() << std::endl;
+        USER_LOG_DEBUG << "Failed to call corpc server query_name request, error code: " << rpcControllerName.ErrorCode() << ", error info: " << rpcControllerName.ErrorText();
         return;
     }
 
@@ -105,7 +105,7 @@ void testBlockClient()
     std::cout << "Success get query_name response from corpc server " << gAddr->toString() << ", res = " << nameRes.ShortDebugString() << std::endl;
 
     corpc::PbRpcController rpcControllerAge;
-    rpcControllerAge.setTimeout(15000);
+    rpcControllerAge.SetTimeout(15000);
     
     queryAgeReq ageReq;
     queryAgeRes ageRes;
@@ -116,9 +116,9 @@ void testBlockClient()
     std::cout << "call query_age corpc server " << gAddr->toString() << ", req = " << ageReq.ShortDebugString() << std::endl;
     stub.query_age(&rpcControllerAge, &ageReq, &ageRes, nullptr);
 
-    if (rpcControllerAge.errorCode() != 0) {
-        std::cout << "Failed to call corpc server query_age request, error code: " << rpcControllerAge.errorCode() << ", error info: " << rpcControllerAge.ErrorText() << std::endl;
-        USER_LOG_DEBUG << "Failed to call corpc server query_age request, error code: " << rpcControllerAge.errorCode() << ", error info: " << rpcControllerAge.ErrorText();
+    if (rpcControllerAge.ErrorCode() != 0) {
+        std::cout << "Failed to call corpc server query_age request, error code: " << rpcControllerAge.ErrorCode() << ", error info: " << rpcControllerAge.ErrorText() << std::endl;
+        USER_LOG_DEBUG << "Failed to call corpc server query_age request, error code: " << rpcControllerAge.ErrorCode() << ", error info: " << rpcControllerAge.ErrorText();
         return;
     }
 
@@ -137,7 +137,7 @@ void testNonBlockClient()
     QueryService_Stub stub(channel.get());
 
     std::shared_ptr<corpc::PbRpcController> rpcControllerAge = std::make_shared<corpc::PbRpcController>();
-    rpcControllerAge->setTimeout(15000);
+    rpcControllerAge->SetTimeout(15000);
     
     std::shared_ptr<queryAgeReq> ageReq = std::make_shared<queryAgeReq>();
     std::shared_ptr<queryAgeRes> ageRes = std::make_shared<queryAgeRes>();
@@ -146,9 +146,9 @@ void testNonBlockClient()
     ageReq->set_id(22);
 
     auto cbAge = [ageRes, rpcControllerAge]() {
-        if (rpcControllerAge->errorCode() != 0) {
-            std::cout << "Failed to nonblock call corpc server query_age request, error code: " << rpcControllerAge->errorCode() << ", error info: " << rpcControllerAge->ErrorText() << std::endl;
-            USER_LOG_DEBUG << "Failed to nonblock call corpc server query_age request, error code: " << rpcControllerAge->errorCode() << ", error info: " << rpcControllerAge->ErrorText();
+        if (rpcControllerAge->ErrorCode() != 0) {
+            std::cout << "Failed to nonblock call corpc server query_age request, error code: " << rpcControllerAge->ErrorCode() << ", error info: " << rpcControllerAge->ErrorText() << std::endl;
+            USER_LOG_DEBUG << "Failed to nonblock call corpc server query_age request, error code: " << rpcControllerAge->ErrorCode() << ", error info: " << rpcControllerAge->ErrorText();
             return;
         }
 
@@ -175,7 +175,7 @@ void testClientAsync()
     QueryService_Stub stub(channel.get());
 
     std::shared_ptr<corpc::PbRpcController> rpcControllerAge = std::make_shared<corpc::PbRpcController>();
-    rpcControllerAge->setTimeout(15000);
+    rpcControllerAge->SetTimeout(15000);
     
     std::shared_ptr<queryAgeReq> ageReq = std::make_shared<queryAgeReq>();
     std::shared_ptr<queryAgeRes> ageRes = std::make_shared<queryAgeRes>();
@@ -184,9 +184,9 @@ void testClientAsync()
     ageReq->set_id(22);
 
     auto cbAge = [ageRes, rpcControllerAge]() {
-        if (rpcControllerAge->errorCode() != 0) {
-            std::cout << "Failed to async call corpc server query_age request, error code: " << rpcControllerAge->errorCode() << ", error info: " << rpcControllerAge->ErrorText() << std::endl;
-            USER_LOG_DEBUG << "Failed to async call corpc server query_age request, error code: " << rpcControllerAge->errorCode() << ", error info: " << rpcControllerAge->ErrorText();
+        if (rpcControllerAge->ErrorCode() != 0) {
+            std::cout << "Failed to async call corpc server query_age request, error code: " << rpcControllerAge->ErrorCode() << ", error info: " << rpcControllerAge->ErrorText() << std::endl;
+            USER_LOG_DEBUG << "Failed to async call corpc server query_age request, error code: " << rpcControllerAge->ErrorCode() << ", error info: " << rpcControllerAge->ErrorText();
             return;
         }
 

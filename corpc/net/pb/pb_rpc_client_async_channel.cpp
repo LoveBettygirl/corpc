@@ -67,7 +67,7 @@ void PbRpcClientAsyncChannel::CallMethod(const google::protobuf::MethodDescripto
     if (!isPreSet_) {
         LOG_ERROR << "Error! must call [saveCallee()] function before [CallMethod()]";
         PbRpcController *rpcController = dynamic_cast<PbRpcController *>(controller);
-        rpcController->setError(ERROR_NOT_SET_ASYNC_PRE_CALL, "Error! must call [saveCallee()] function before [CallMethod()];");
+        rpcController->SetError(ERROR_NOT_SET_ASYNC_PRE_CALL, "Error! must call [saveCallee()] function before [CallMethod()];");
         isFinished_ = true;
         return;
     }
@@ -86,12 +86,12 @@ void PbRpcClientAsyncChannel::callMethod(const google::protobuf::MethodDescripto
     PbRpcController *rpcController = dynamic_cast<PbRpcController *>(controller);
     RunTime *runtime = getCurrentRunTime();
     if (runtime) {
-        rpcController->setMsgSeq(runtime->msgNo_);
+        rpcController->SetMsgSeq(runtime->msgNo_);
         LOG_INFO << "get from RunTime succ, msgno=" << runtime->msgNo_;
     }
     else {
-        rpcController->setMsgSeq(MsgSeqUtil::genMsgNumber());
-        LOG_INFO << "get from RunTime error, generate new msgno=" << rpcController->msgSeq();
+        rpcController->SetMsgSeq(MsgSeqUtil::genMsgNumber());
+        LOG_INFO << "get from RunTime error, generate new msgno=" << rpcController->MsgSeq();
     }
 
     std::shared_ptr<PbRpcClientAsyncChannel> sPtr = shared_from_this();

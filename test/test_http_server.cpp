@@ -37,13 +37,13 @@ public:
         QueryService_Stub stub(&channel);
 
         corpc::PbRpcController rpcController;
-        rpcController.setTimeout(5000);
+        rpcController.SetTimeout(5000);
 
         USER_LOG_DEBUG << "BlockCallHttpServlet end to call RPC";
         stub.query_age(&rpcController, &rpcReq, &rpcRes, NULL);
         USER_LOG_DEBUG << "BlockCallHttpServlet end to call RPC";
 
-        if (rpcController.errorCode() != 0) {
+        if (rpcController.ErrorCode() != 0) {
             USER_LOG_DEBUG << "failed to call QueryServer rpc server";
             char buf[512] = {0};
             sprintf(buf, html, "failed to call QueryServer rpc server");
@@ -91,7 +91,7 @@ public:
         rpcReq->set_id(std::atoi(req->queryMaps_["id"].c_str()));
 
         std::shared_ptr<corpc::PbRpcController> rpcController = std::make_shared<corpc::PbRpcController>();
-        rpcController->setTimeout(10000);
+        rpcController->SetTimeout(10000);
 
         USER_LOG_DEBUG << "NonBlockCallHttpServlet begin to call RPC async";
 
@@ -114,7 +114,7 @@ public:
         asyncChannel->wait();
         USER_LOG_DEBUG << "wait() back, now to check is rpc call succ";
 
-        if (rpcController->errorCode() != 0) {
+        if (rpcController->ErrorCode() != 0) {
             USER_LOG_DEBUG << "failed to call QueryServer rpc server";
             char buf[512] = {0};
             sprintf(buf, html, "failed to call QueryServer rpc server");

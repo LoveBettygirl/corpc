@@ -36,8 +36,8 @@ void PbRpcChannel::CallMethod(const google::protobuf::MethodDescriptor *method,
     }
 
     TcpClient::ptr client = std::make_shared<TcpClient>(addr_);
-    rpcController->setLocalAddr(client->getLocalAddr());
-    rpcController->setPeerAddr(client->getPeerAddr());
+    rpcController->SetLocalAddr(client->getLocalAddr());
+    rpcController->SetPeerAddr(client->getPeerAddr());
 
     pbStruct.serviceFullName = method->full_name();
     LOG_DEBUG << "call service full name = " << pbStruct.serviceFullName;
@@ -49,8 +49,8 @@ void PbRpcChannel::CallMethod(const google::protobuf::MethodDescriptor *method,
         return;
     }
 
-    if (!rpcController->msgSeq().empty()) {
-        pbStruct.msgSeq = rpcController->msgSeq();
+    if (!rpcController->MsgSeq().empty()) {
+        pbStruct.msgSeq = rpcController->MsgSeq();
     }
     else {
         // get current coroutine's msgno to set this request
@@ -63,13 +63,13 @@ void PbRpcChannel::CallMethod(const google::protobuf::MethodDescriptor *method,
             pbStruct.msgSeq = MsgSeqUtil::genMsgNumber();
             LOG_DEBUG << "get from RunTime error, generate new msgno = " << pbStruct.msgSeq;
         }
-        rpcController->setMsgSeq(pbStruct.msgSeq);
+        rpcController->SetMsgSeq(pbStruct.msgSeq);
     }
 
     AbstractCodeC::ptr codec = client->getConnection()->getCodec();
     codec->encode(client->getConnection()->getOutBuffer(), &pbStruct);
     if (!pbStruct.encodeSucc_) {
-        rpcController->setError(ERROR_FAILED_ENCODE, "encode pb data error");
+        rpcController->SetError(ERROR_FAILED_ENCODE, "encode pb data error");
         if (done) {
             done->Run();
         }
@@ -77,15 +77,15 @@ void PbRpcChannel::CallMethod(const google::protobuf::MethodDescriptor *method,
     }
 
     LOG_INFO << "============================================================";
-    LOG_INFO << pbStruct.msgSeq << "|" << rpcController->peerAddr()->toString()
+    LOG_INFO << pbStruct.msgSeq << "|" << rpcController->PeerAddr()->toString()
             << "|. Set client send request data:" << request->ShortDebugString();
     LOG_INFO << "============================================================";
-    client->setTimeout(rpcController->timeout());
+    client->setTimeout(rpcController->Timeout());
 
     PbStruct::ptr resData;
     int ret = client->sendAndRecvPb(pbStruct.msgSeq, resData); // 接收并解码服务端响应
     if (ret != 0) {
-        rpcController->setError(ret, client->getErrInfo());
+        rpcController->SetError(ret, client->getErrInfo());
         LOG_ERROR << pbStruct.msgSeq << "|call rpc occur client error, serviceFullName=" << pbStruct.serviceFullName << ", error_code="
                     << ret << ", errorInfo = " << client->getErrInfo();
         if (done) {
@@ -95,7 +95,7 @@ void PbRpcChannel::CallMethod(const google::protobuf::MethodDescriptor *method,
     }
 
     if (!response->ParseFromString(resData->pbData)) {
-        rpcController->setError(ERROR_FAILED_DESERIALIZE, "failed to deserialize data from server");
+        rpcController->SetError(ERROR_FAILED_DESERIALIZE, "failed to deserialize data from server");
         LOG_ERROR << pbStruct.msgSeq << "|failed to deserialize data";
         if (done) {
             done->Run();
@@ -104,7 +104,7 @@ void PbRpcChannel::CallMethod(const google::protobuf::MethodDescriptor *method,
     }
     if (resData->errCode != 0) {
         LOG_ERROR << pbStruct.msgSeq << "|server reply error_code=" << resData->errCode << ", errInfo=" << resData->errInfo;
-        rpcController->setError(resData->errCode, resData->errInfo);
+        rpcController->SetError(resData->errCode, resData->errInfo);
         if (done) {
             done->Run();
         }
@@ -112,7 +112,7 @@ void PbRpcChannel::CallMethod(const google::protobuf::MethodDescriptor *method,
     }
 
     LOG_INFO << "============================================================";
-    LOG_INFO << pbStruct.msgSeq << "|" << rpcController->peerAddr()->toString()
+    LOG_INFO << pbStruct.msgSeq << "|" << rpcController->PeerAddr()->toString()
             << "|call rpc server [" << pbStruct.serviceFullName << "] succ"
             << ". Get server reply response data:" << response->ShortDebugString();
     LOG_INFO << "============================================================";

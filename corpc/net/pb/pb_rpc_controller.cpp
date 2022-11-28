@@ -33,78 +33,78 @@ void PbRpcController::NotifyOnCancel(google::protobuf::Closure *callback)
 {
 }
 
-void PbRpcController::setErrorCode(const int error_code)
+void PbRpcController::SetErrorCode(const int error_code)
 {
     errorCode_ = error_code;
 }
 
-int PbRpcController::errorCode() const
+int PbRpcController::ErrorCode() const
 {
     return errorCode_;
 }
 
-const std::string &PbRpcController::msgSeq() const
+const std::string &PbRpcController::MsgSeq() const
 {
     return msgSeq_;
 }
 
-void PbRpcController::setMsgSeq(const std::string &msgSeq)
+void PbRpcController::SetMsgSeq(const std::string &msgSeq)
 {
     msgSeq_ = msgSeq;
 }
 
-void PbRpcController::setError(const int errCode, const std::string &errInfo)
+void PbRpcController::SetError(const int errCode, const std::string &errInfo)
 {
     SetFailed(errInfo);
-    setErrorCode(errCode);
+    SetErrorCode(errCode);
 }
 
-void PbRpcController::setPeerAddr(NetAddress::ptr addr)
+void PbRpcController::SetPeerAddr(NetAddress::ptr addr)
 {
     peerAddr_ = addr;
 }
 
-void PbRpcController::setLocalAddr(NetAddress::ptr addr)
+void PbRpcController::SetLocalAddr(NetAddress::ptr addr)
 {
     localAddr_ = addr;
 }
 
-NetAddress::ptr PbRpcController::peerAddr()
+NetAddress::ptr PbRpcController::PeerAddr()
 {
     return peerAddr_;
 }
 
-NetAddress::ptr PbRpcController::localAddr()
+NetAddress::ptr PbRpcController::LocalAddr()
 {
     return localAddr_;
 }
 
-void PbRpcController::setTimeout(const int timeout)
+void PbRpcController::SetTimeout(const int timeout)
 {
     timeout_ = timeout;
 }
 
-int PbRpcController::timeout() const
+int PbRpcController::Timeout() const
 {
     return timeout_;
 }
 
-void PbRpcController::setMethodName(const std::string &name)
+void PbRpcController::SetMethodName(const std::string &name)
 {
     methodName_ = name;
 }
 
-std::string PbRpcController::getMethodName()
+std::string PbRpcController::GetMethodName()
 {
     return methodName_;
 }
 
-void PbRpcController::setMethodFullName(const std::string &name)
+void PbRpcController::SetMethodFullName(const std::string &name)
 {
     fullName_ = name;
 }
 
-std::string PbRpcController::getMethodFullName()
+std::string PbRpcController::GetMethodFullName()
 {
     return fullName_;
 }

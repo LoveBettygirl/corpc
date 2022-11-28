@@ -31,25 +31,25 @@ public:
 
     // common methods
 
-    int errorCode() const;
-    void setErrorCode(const int errorCode);
-    const std::string &msgSeq() const;
-    void setMsgSeq(const std::string &msgSeq);
-    void setError(const int errCode, const std::string &errInfo);
-    void setPeerAddr(NetAddress::ptr addr);
-    void setLocalAddr(NetAddress::ptr addr);
+    int ErrorCode() const;
+    void SetErrorCode(const int errorCode);
+    const std::string &MsgSeq() const;
+    void SetMsgSeq(const std::string &msgSeq);
+    void SetError(const int errCode, const std::string &errInfo);
+    void SetPeerAddr(NetAddress::ptr addr);
+    void SetLocalAddr(NetAddress::ptr addr);
 
-    NetAddress::ptr peerAddr();
-    NetAddress::ptr localAddr();
+    NetAddress::ptr PeerAddr();
+    NetAddress::ptr LocalAddr();
 
-    void setTimeout(const int timeout);
-    int timeout() const;
+    void SetTimeout(const int timeout);
+    int Timeout() const;
 
-    void setMethodName(const std::string &name);
-    std::string getMethodName();
+    void SetMethodName(const std::string &name);
+    std::string GetMethodName();
 
-    void setMethodFullName(const std::string &name);
-    std::string getMethodFullName();
+    void SetMethodFullName(const std::string &name);
+    std::string GetMethodFullName();
 
 private:
     int errorCode_{0};      // errorCode, identify one specific error
