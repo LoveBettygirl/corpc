@@ -13,6 +13,7 @@ out_project_path = './'
 project_name = ''
 proto_file = ''
 src_path = ''
+src_pb_path = ''
 proj_path = ''
 conf_path = ''
 bin_path = ''
@@ -372,7 +373,7 @@ def gen_cmake_file():
     next_content = content[i1 + 9: ]
     for each in interface_list:
         client_name = 'test_' + each['interface_name'] + '_client'
-        pre_content += 'set(' + to_underline(client_name).upper() + ' ./' + client_name + '.cpp)\n'
+        pre_content += 'set(' + to_underline(client_name).upper() + ' ./' + client_name + '.cpp' + ' ../' + project_name + '/pb/' + project_name + '.pb.cc)\n'
         pre_content += 'add_executable(' + client_name + ' ${' + to_underline(client_name).upper() + '})\n'
         pre_content += 'target_link_libraries(' + client_name + ' corpc pthread yaml-cpp protobuf dl)\n\n'
         'test_' + each['interface_name'] + '_client'
@@ -394,8 +395,8 @@ def gen_conf_file():
     print('Begin to generate corpc conf file')
     out_file = conf_path + '/' + project_name + '.yml'
     if os.path.exists(out_file):
-        print('makefile exist, skip generate')
-        print('End generate makefile')
+        print('conf file exist, skip generate')
+        print('End generate conf file')
         print('=' * 100)
         return 
     
@@ -423,8 +424,11 @@ def gen_run_script():
     script = open(generator_path + '/template/conf.yml.template','r')
     dir_src = generator_path + '/template/'
     cmd = 'cp -r ' + dir_src + '*.sh ' + proj_path + "/" 
+    exec_chmod = 'chmod +x ' + proj_path + "/*.sh" 
     print('execute cmd: ' + cmd)
     os.system(cmd)
+    print('execute cmd: ' + exec_chmod)
+    os.system(exec_chmod)
 
     print('End generate run script')
     print('=' * 100)
@@ -463,7 +467,10 @@ def generate_dir():
     src_path = proj_path + '/' + project_name
     src_interface_path = src_path + '/interface'
     src_service_path = src_path + '/service'
+
+    global src_pb_path
     src_pb_path = src_path + '/pb'
+
     src_common_path = src_path + '/common'
 
     dir_list = []

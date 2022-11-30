@@ -25,7 +25,7 @@ ${INCLUDE_SERVICE}
             done->Run();                                                                                       \
         }                                                                                                      \
     }                                                                                                          \
-    catch (${PROJECT_NAME}::BusinessException & e) {                                                           \
+    catch (${PROJECT_NAME}::BusinessException &e) {                                                            \
         USER_LOG_ERROR << "[" << e.fileName() << ":" << e.line() << "] occur BusinessException, error code = " \
                        << e.code() << ", errinfo = " << e.error();                                             \
         response->set_ret_code(e.code());                                                                      \

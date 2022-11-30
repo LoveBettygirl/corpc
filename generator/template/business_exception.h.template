@@ -19,7 +19,7 @@ namespace ${PROJECT_NAME} {
 
 class BusinessException : public std::exception {
 public:
-    BusinessException(long long code, const std::string &errInfo, const std::string &fileName, int line) : errorCode_(code), errorInfo_(err_info), fileName_(file_name), line_(line) {
+    BusinessException(long long code, const std::string &errInfo, const std::string &fileName, int line) : errorCode_(code), errorInfo_(errInfo), fileName_(fileName), line_(line) {
         USER_LOG_INFO << "[" << fileName_ << ":" << line << "] throw BusinessException: {code: " << errorCode_ << ", errinfo:" << errorInfo_ << "}";
     }
     ~BusinessException() {}
