@@ -29,6 +29,13 @@ time_wheel:
   # interval that destroy bad TcpConnection, s
   interval: 10
 
+zk_service_discovery: true
+zk_config: 
+  ip: 127.0.0.1
+  port: 2181
+  # Random (default), Round, ConsistentHash
+  load_balance_method: Random
+
 server:
   ip: 127.0.0.1
   port: 10000
