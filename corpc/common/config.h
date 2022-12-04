@@ -44,6 +44,12 @@ public:
     int timewheelBucketNum_{0};
     int timewheelInterval_{0};
 
+    bool zkServiceDiscoveryOn_{false};
+    std::string zkIp_;
+    int zkPort_{0};
+    int zkTimeout_{0};
+    std::string loadBalanceMethod_;
+
 private:
     std::string filePath_;
     YAML::Node yamlFile_;

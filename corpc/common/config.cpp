@@ -169,6 +169,30 @@ void Config::readConf()
         gTcpServer = std::make_shared<TcpServer>(addr, Pb_Protocol);
     }
 
+    YAML::Node zkServiceDiscoveryNode = yamlFile_["zk_service_discovery"];
+    if (!zkServiceDiscoveryNode || !zkServiceDiscoveryNode.IsScalar()) {
+        printf("start corpc server error! read config file [%s] error, cannot read [zk_service_discovery] yaml node\n", filePath_.c_str());
+        exit(0);
+    }
+    zkServiceDiscoveryOn_ = zkServiceDiscoveryNode.as<bool>();
+    YAML::Node zkConfigNode = yamlFile_["zk_config"];
+    if (!zkConfigNode || !zkConfigNode.IsMap()) {
+        printf("start corpc server error! read config file [%s] error, cannot read [zk_config] yaml node\n", filePath_.c_str());
+        exit(0);
+    }
+    zkIp_ = zkConfigNode["ip"].as<std::string>();
+    zkPort_ = std::stoi(zkConfigNode["port"].as<std::string>());
+    if (zkPort_ == 0) {
+        printf("start corpc server error! read config file [%s] error, read [zk_config.port] = 0\n", filePath_.c_str());
+        exit(0);
+    }
+    zkTimeout_ = std::stoi(zkConfigNode["timeout"].as<std::string>());
+    if (zkTimeout_ < 0) {
+        printf("start corpc server error! read config file [%s] error, read [zk_config.timeout] < 0\n", filePath_.c_str());
+        exit(0);
+    }
+    loadBalanceMethod_ = zkConfigNode["load_balance_method"].as<std::string>();
+
     char buff[512] = {0};
     sprintf(buff, "read config from file [%s]: [log_path: %s], [log_prefix: %s], [log_max_size: %d MB], [log_level: %s], [user_log_level: %s], "
                     "[coroutine_stack_size: %d KB], [coroutine_pool_size: %d], "

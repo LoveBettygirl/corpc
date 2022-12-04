@@ -14,13 +14,13 @@ protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS test_pb_server.proto)
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 
 add_executable(test_coroutine ${TEST_COROUTINE})
-target_link_libraries(test_coroutine corpc pthread)
+target_link_libraries(test_coroutine corpc pthread zookeeper_mt)
 
 add_executable(test_http_server ${TEST_HTTP_SERVER} ${PROTO_SRCS} ${PROTO_HDRS})
-target_link_libraries(test_http_server corpc pthread ${Protobuf_LIBRARIES})
+target_link_libraries(test_http_server corpc pthread ${Protobuf_LIBRARIES} zookeeper_mt)
 
 add_executable(test_pb_server ${TEST_PB_SERVER} ${PROTO_SRCS} ${PROTO_HDRS})
-target_link_libraries(test_pb_server corpc pthread ${Protobuf_LIBRARIES})
+target_link_libraries(test_pb_server corpc pthread ${Protobuf_LIBRARIES} zookeeper_mt)
 
 add_executable(test_pb_server_client ${TEST_PB_SERVER_CLIENT} ${PROTO_SRCS} ${PROTO_HDRS})
-target_link_libraries(test_pb_server_client corpc pthread ${Protobuf_LIBRARIES})
+target_link_libraries(test_pb_server_client corpc pthread ${Protobuf_LIBRARIES} zookeeper_mt)

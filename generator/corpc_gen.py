@@ -375,7 +375,7 @@ def gen_cmake_file():
         client_name = 'test_' + each['interface_name'] + '_client'
         pre_content += 'set(' + to_underline(client_name).upper() + ' ./' + client_name + '.cpp' + ' ../' + project_name + '/pb/' + project_name + '.pb.cc)\n'
         pre_content += 'add_executable(' + client_name + ' ${' + to_underline(client_name).upper() + '})\n'
-        pre_content += 'target_link_libraries(' + client_name + ' corpc pthread yaml-cpp protobuf dl)\n\n'
+        pre_content += 'target_link_libraries(' + client_name + ' corpc pthread yaml-cpp protobuf dl zookeeper_mt)\n\n'
         'test_' + each['interface_name'] + '_client'
     pre_content = pre_content[:-2]
     content = pre_content + next_content

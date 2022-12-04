@@ -33,6 +33,8 @@ zk_service_discovery: true
 zk_config: 
   ip: 127.0.0.1
   port: 2181
+  # default timeout: 30s
+  timeout: 30000
   # Random (default), Round, ConsistentHash
   load_balance_method: Random
 
