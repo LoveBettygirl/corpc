@@ -1,5 +1,7 @@
 #include "corpc/common/md5.h"
 
+namespace corpc {
+
 const uint32_t MD5::A = 0x67452301;
 const uint32_t MD5::B = 0xEFCDAB89;
 const uint32_t MD5::C = 0x98BADCFE;
@@ -157,4 +159,6 @@ void MD5::resetVector()
     state[1] = B;
     state[2] = C;
     state[3] = D;
+}
+
 }

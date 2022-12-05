@@ -17,6 +17,15 @@ enum LogLevel {
     NONE = 100, // don't print log
 };
 
+enum class LoadBalanceCategory {
+    // 随机算法
+    Random,
+    // 轮询算法
+    Round,
+    // 一致性哈希
+    ConsistentHash
+};
+
 }
 
 #endif

@@ -191,16 +191,20 @@ void Config::readConf()
         printf("start corpc server error! read config file [%s] error, read [zk_config.timeout] < 0\n", filePath_.c_str());
         exit(0);
     }
-    loadBalanceMethod_ = zkConfigNode["load_balance_method"].as<std::string>();
+    LoadBalanceCategory category = LoadBalance::str2Strategy(zkConfigNode["load_balance_method"].as<std::string>());
+    std::string categoryStr = LoadBalance::strategy2Str(category);
+    loadBalanceStrategy_ = LoadBalance::queryStrategy(category);
 
     char buff[512] = {0};
     sprintf(buff, "read config from file [%s]: [log_path: %s], [log_prefix: %s], [log_max_size: %d MB], [log_level: %s], [user_log_level: %s], "
                     "[coroutine_stack_size: %d KB], [coroutine_pool_size: %d], "
                     "[msg_seq_len: %d], [max_connect_timeout: %d s], "
-                    "[iothread_num:%d], [timewheel_bucket_num: %d], [timewheel_interval: %d s], [server_ip: %s], [server_port: %d], [server_protocol: %s]",
+                    "[iothread_num: %d], [timewheel_bucket_num: %d], [timewheel_interval: %d s], [server_ip: %s], [server_port: %d], [server_protocol: %s]"
+                    "[zk_service_discovery: %s], [zk_ip: %s], [zk_port: %d], [zk_timeout: %d], [load_balance_method: %s]",
             filePath_.c_str(), logPath_.c_str(), logPrefix_.c_str(), logMaxSize_ / 1024 / 1024,
             levelToString(logLevel_).c_str(), levelToString(userLogLevel_).c_str(), corStackSize_ / 1024, corPoolSize_, msgSeqLen_,
-            maxConnectTimeout_ / 1000, iothreadNum_, timewheelBucketNum_, timewheelInterval_, ip.c_str(), port, protocol.c_str());
+            maxConnectTimeout_ / 1000, iothreadNum_, timewheelBucketNum_, timewheelInterval_, ip.c_str(), port, protocol.c_str(),
+            zkServiceDiscoveryOn_ ? "true" : "false", zkIp_.c_str(), zkPort_, zkTimeout_, categoryStr.c_str());
 
     std::string s(buff);
     LOG_INFO << s;

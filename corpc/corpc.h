@@ -9,6 +9,7 @@
 #include "corpc/common/runtime.h"
 #include "corpc/common/start.h"
 #include "corpc/common/string_util.h"
+#include "corpc/common/md5.h"
 
 #include "corpc/coroutine/coctx.h"
 #include "corpc/coroutine/coroutine_hook.h"
@@ -25,6 +26,7 @@
 #include "corpc/net/mutex.h"
 #include "corpc/net/net_address.h"
 #include "corpc/net/timer.h"
+#include "corpc/net/load_balance.h"
 
 #include "corpc/net/http/http_codec.h"
 #include "corpc/net/http/http_define.h"
@@ -38,6 +40,9 @@
 #include "corpc/net/pb/pb_rpc_controller.h"
 #include "corpc/net/pb/pb_rpc_channel.h"
 #include "corpc/net/pb/pb_rpc_async_channel.h"
+#include "corpc/net/pb/pb_rpc_client_channel.h"
+#include "corpc/net/pb/pb_rpc_client_block_channel.h"
+#include "corpc/net/pb/pb_rpc_client_async_channel.h"
 #include "corpc/net/pb/pb_rpc_closure.h"
 #include "corpc/net/pb/pb_rpc_dispatcher.h"
 

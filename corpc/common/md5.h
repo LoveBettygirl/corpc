@@ -5,6 +5,8 @@
 #include <vector>
 #include <string>
 
+namespace corpc {
+
 class MD5 {
 private:
     /* 基本常量定义 */
@@ -65,5 +67,7 @@ public:
     MD5();
     std::vector<uint8_t> digest(const std::string &src); // MD5值转字节数组
 };
+
+}
 
 #endif

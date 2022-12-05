@@ -6,6 +6,7 @@
 #include <memory>
 #include <map>
 #include "corpc/common/const.h"
+#include "corpc/net/load_balance.h"
 
 namespace corpc {
 
@@ -48,7 +49,7 @@ public:
     std::string zkIp_;
     int zkPort_{0};
     int zkTimeout_{0};
-    std::string loadBalanceMethod_;
+    LoadBalanceStrategy::ptr loadBalanceStrategy_;
 
 private:
     std::string filePath_;
