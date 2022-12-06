@@ -21,7 +21,7 @@ std::string MsgSeqUtil::genMsgNumber()
 {
     int msgSeqLen = 20;
     if (gConfig) {
-        msgSeqLen = gConfig->msgSeqLen_;
+        msgSeqLen = gConfig->msgSeqLen;
     }
 
     // 如果当前消息序列号tMsgSeqNum是空的，或者已达到最大值tMaxMsgSeqNum

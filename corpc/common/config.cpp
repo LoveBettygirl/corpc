@@ -30,14 +30,14 @@ void Config::readLogConfig(YAML::Node &node)
         printf("start corpc server error! read config file [%s] error, cannot read [log_path] yaml node\n", filePath_.c_str());
         exit(0);
     }
-    logPath_ = logPathNode.as<std::string>();
+    logPath = logPathNode.as<std::string>();
 
     YAML::Node logPrefixNode = node["log_prefix"];
     if (!logPrefixNode || !logPrefixNode.IsScalar()) {
         printf("start corpc server error! read config file [%s] error, cannot read [log_prefix] yaml node\n", filePath_.c_str());
         exit(0);
     }
-    logPrefix_ = logPrefixNode.as<std::string>();
+    logPrefix = logPrefixNode.as<std::string>();
 
     YAML::Node logMaxSizeNode = node["log_max_file_size"];
     if (!logMaxSizeNode || !logMaxSizeNode.IsScalar()) {
@@ -45,7 +45,7 @@ void Config::readLogConfig(YAML::Node &node)
         exit(0);
     }
     int logMaxSize = std::stoi(logMaxSizeNode.as<std::string>());
-    logMaxSize_ = logMaxSize * 1024 * 1024;
+    logMaxSize = logMaxSize * 1024 * 1024;
 
     YAML::Node logLevelNode = node["log_level"];
     if (!logLevelNode || !logLevelNode.IsScalar()) {
@@ -53,7 +53,7 @@ void Config::readLogConfig(YAML::Node &node)
         exit(0);
     }
     std::string logLevel = logLevelNode.as<std::string>();
-    logLevel_ = stringToLevel(logLevel);
+    logLevel = stringToLevel(logLevel);
 
     YAML::Node userLogLevelNode = node["user_log_level"];
     if (!userLogLevelNode || !userLogLevelNode.IsScalar()) {
@@ -61,17 +61,17 @@ void Config::readLogConfig(YAML::Node &node)
         exit(0);
     }
     logLevel = userLogLevelNode.as<std::string>();
-    logLevel_ = stringToLevel(logLevel);
+    logLevel = stringToLevel(logLevel);
 
     YAML::Node logSyncIntervalNode = node["log_sync_interval"];
     if (!logSyncIntervalNode || !logSyncIntervalNode.IsScalar()) {
         printf("start corpc server error! read config file [%s] error, cannot read [log_sync_interval] yaml node\n", filePath_.c_str());
         exit(0);
     }
-    logSyncInterval_ = std::stoi(logSyncIntervalNode.as<std::string>());
+    logSyncInterval = std::stoi(logSyncIntervalNode.as<std::string>());
 
     gLogger = std::make_shared<Logger>();
-    gLogger->init(logPrefix_, logPath_, logMaxSize_, logSyncInterval_);
+    gLogger->init(logPrefix, logPath, logMaxSize, logSyncInterval);
 }
 
 void Config::readConf()
@@ -97,8 +97,8 @@ void Config::readConf()
         printf("start corpc server error! read config file [%s] error, cannot read [time_wheel.interval] yaml node\n", filePath_.c_str());
         exit(0);
     }
-    timewheelBucketNum_ = std::stoi(timeWheelNode["bucket_num"].as<std::string>());
-    timewheelInterval_ = std::stoi(timeWheelNode["interval"].as<std::string>());
+    timewheelBucketNum = std::stoi(timeWheelNode["bucket_num"].as<std::string>());
+    timewheelInterval = std::stoi(timeWheelNode["interval"].as<std::string>());
 
     YAML::Node coroutineNode = yamlFile_["coroutine"];
     if (!coroutineNode || !coroutineNode.IsMap()) {
@@ -114,27 +114,50 @@ void Config::readConf()
         exit(0);
     }
     int corStackSize = std::stoi(coroutineNode["coroutine_stack_size"].as<std::string>());
-    corStackSize_ = 1024 * corStackSize;
-    corPoolSize_ = std::stoi(coroutineNode["coroutine_pool_size"].as<std::string>());
+    corStackSize = 1024 * corStackSize;
+    corPoolSize = std::stoi(coroutineNode["coroutine_pool_size"].as<std::string>());
 
     if (!yamlFile_["msg_seq_len"] || !yamlFile_["msg_seq_len"].IsScalar()) {
         printf("start corpc server error! read config file [%s] error, cannot read [msg_seq_len] yaml node\n", filePath_.c_str());
         exit(0);
     }
-    msgSeqLen_ = std::stoi(yamlFile_["msg_seq_len"].as<std::string>());
+    msgSeqLen = std::stoi(yamlFile_["msg_seq_len"].as<std::string>());
 
     if (!yamlFile_["max_connect_timeout"] || !yamlFile_["max_connect_timeout"].IsScalar()) {
         printf("start corpc server error! read config file [%s] error, cannot read [max_connect_timeout] yaml node\n", filePath_.c_str());
         exit(0);
     }
     int maxConnectTimeout = std::stoi(yamlFile_["max_connect_timeout"].as<std::string>());
-    maxConnectTimeout_ = maxConnectTimeout * 1000;
+    maxConnectTimeout = maxConnectTimeout * 1000;
 
     if (!yamlFile_["iothread_num"] || !yamlFile_["iothread_num"].IsScalar()) {
         printf("start corpc server error! read config file [%s] error, cannot read [iothread_num] yaml node\n", filePath_.c_str());
         exit(0);
     }
-    iothreadNum_ = std::stoi(yamlFile_["iothread_num"].as<std::string>());
+    iothreadNum = std::stoi(yamlFile_["iothread_num"].as<std::string>());
+
+    YAML::Node serviceRegister = yamlFile_["service_register"];
+    if (!serviceRegister || !serviceRegister.IsScalar()) {
+        printf("start corpc server error! read config file [%s] error, cannot read [zk_service_discovery] yaml node\n", filePath_.c_str());
+        exit(0);
+    }
+    std::string serviceRegisterStr = serviceRegister.as<std::string>();
+    YAML::Node zkConfigNode = yamlFile_["zk_config"];
+    if (!zkConfigNode || !zkConfigNode.IsMap()) {
+        printf("start corpc server error! read config file [%s] error, cannot read [zk_config] yaml node\n", filePath_.c_str());
+        exit(0);
+    }
+    zkIp = zkConfigNode["ip"].as<std::string>();
+    zkPort = std::stoi(zkConfigNode["port"].as<std::string>());
+    if (zkPort == 0) {
+        printf("start corpc server error! read config file [%s] error, read [zk_config.port] = 0\n", filePath_.c_str());
+        exit(0);
+    }
+    zkTimeout = std::stoi(zkConfigNode["timeout"].as<std::string>());
+    if (zkTimeout < 0) {
+        printf("start corpc server error! read config file [%s] error, read [zk_config.timeout] < 0\n", filePath_.c_str());
+        exit(0);
+    }
 
     YAML::Node serverNode = yamlFile_["server"];
     if (!serverNode || !serverNode.IsMap()) {
@@ -169,42 +192,16 @@ void Config::readConf()
         gTcpServer = std::make_shared<TcpServer>(addr, Pb_Protocol);
     }
 
-    YAML::Node zkServiceDiscoveryNode = yamlFile_["zk_service_discovery"];
-    if (!zkServiceDiscoveryNode || !zkServiceDiscoveryNode.IsScalar()) {
-        printf("start corpc server error! read config file [%s] error, cannot read [zk_service_discovery] yaml node\n", filePath_.c_str());
-        exit(0);
-    }
-    zkServiceDiscoveryOn_ = zkServiceDiscoveryNode.as<bool>();
-    YAML::Node zkConfigNode = yamlFile_["zk_config"];
-    if (!zkConfigNode || !zkConfigNode.IsMap()) {
-        printf("start corpc server error! read config file [%s] error, cannot read [zk_config] yaml node\n", filePath_.c_str());
-        exit(0);
-    }
-    zkIp_ = zkConfigNode["ip"].as<std::string>();
-    zkPort_ = std::stoi(zkConfigNode["port"].as<std::string>());
-    if (zkPort_ == 0) {
-        printf("start corpc server error! read config file [%s] error, read [zk_config.port] = 0\n", filePath_.c_str());
-        exit(0);
-    }
-    zkTimeout_ = std::stoi(zkConfigNode["timeout"].as<std::string>());
-    if (zkTimeout_ < 0) {
-        printf("start corpc server error! read config file [%s] error, read [zk_config.timeout] < 0\n", filePath_.c_str());
-        exit(0);
-    }
-    LoadBalanceCategory category = LoadBalance::str2Strategy(zkConfigNode["load_balance_method"].as<std::string>());
-    std::string categoryStr = LoadBalance::strategy2Str(category);
-    loadBalanceStrategy_ = LoadBalance::queryStrategy(category);
-
     char buff[512] = {0};
     sprintf(buff, "read config from file [%s]: [log_path: %s], [log_prefix: %s], [log_max_size: %d MB], [log_level: %s], [user_log_level: %s], "
                     "[coroutine_stack_size: %d KB], [coroutine_pool_size: %d], "
                     "[msg_seq_len: %d], [max_connect_timeout: %d s], "
                     "[iothread_num: %d], [timewheel_bucket_num: %d], [timewheel_interval: %d s], [server_ip: %s], [server_port: %d], [server_protocol: %s]"
-                    "[zk_service_discovery: %s], [zk_ip: %s], [zk_port: %d], [zk_timeout: %d], [load_balance_method: %s]",
-            filePath_.c_str(), logPath_.c_str(), logPrefix_.c_str(), logMaxSize_ / 1024 / 1024,
-            levelToString(logLevel_).c_str(), levelToString(userLogLevel_).c_str(), corStackSize_ / 1024, corPoolSize_, msgSeqLen_,
-            maxConnectTimeout_ / 1000, iothreadNum_, timewheelBucketNum_, timewheelInterval_, ip.c_str(), port, protocol.c_str(),
-            zkServiceDiscoveryOn_ ? "true" : "false", zkIp_.c_str(), zkPort_, zkTimeout_, categoryStr.c_str());
+                    "[zk_ip: %s], [zk_port: %d], [zk_timeout: %d]",
+            filePath_.c_str(), logPath.c_str(), logPrefix.c_str(), logMaxSize / 1024 / 1024,
+            levelToString(logLevel).c_str(), levelToString(userLogLevel).c_str(), corStackSize / 1024, corPoolSize, msgSeqLen,
+            maxConnectTimeout / 1000, iothreadNum, timewheelBucketNum, timewheelInterval, ip.c_str(), port, protocol.c_str(),
+            zkIp.c_str(), zkPort, zkTimeout);
 
     std::string s(buff);
     LOG_INFO << s;

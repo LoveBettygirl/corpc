@@ -2,11 +2,13 @@
 #define CORPC_NET_PB_PB_RPC_CLIENT_BLOCK_CHANNEL_H
 
 #include <memory>
+#include <vector>
 #include <google/protobuf/service.h>
 #include "corpc/net/net_address.h"
 #include "corpc/net/pb/pb_rpc_channel.h"
 #include "corpc/net/event_loop.h"
 #include "corpc/coroutine/coroutine.h"
+#include "corpc/net/load_balance.h"
 
 namespace corpc {
 
@@ -14,6 +16,7 @@ class PbRpcClientBlockChannel : public google::protobuf::RpcChannel {
 public:
     typedef std::shared_ptr<PbRpcClientBlockChannel> ptr;
     PbRpcClientBlockChannel(NetAddress::ptr addr);
+    PbRpcClientBlockChannel(std::vector<NetAddress::ptr> addrs, LoadBalanceCategory loadBalance = LoadBalanceCategory::Random);
     ~PbRpcClientBlockChannel();
 
     void CallMethod(const google::protobuf::MethodDescriptor *method,

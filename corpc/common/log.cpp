@@ -185,10 +185,10 @@ std::stringstream &LogEvent::getStringStream()
 void LogEvent::log()
 {
     ss_ << "\n";
-    if (level_ >= gConfig->logLevel_ && type_ == INTER_LOG) {
+    if (level_ >= gConfig->logLevel && type_ == INTER_LOG) {
         gLogger->pushLog(ss_.str());
     }
-    else if (level_ >= gConfig->userLogLevel_ && type_ == USER_LOG) {
+    else if (level_ >= gConfig->userLogLevel && type_ == USER_LOG) {
         gLogger->pushUserLog(ss_.str());
     }
 }

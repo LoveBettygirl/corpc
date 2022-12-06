@@ -23,43 +23,43 @@ namespace corpc {
 extern corpc::Config::ptr gConfig;
 
 #define LOG_DEBUG                                                                            \
-    if (corpc::openLog() && corpc::LogLevel::DEBUG >= corpc::gConfig->logLevel_) \
+    if (corpc::openLog() && corpc::LogLevel::DEBUG >= corpc::gConfig->logLevel) \
     corpc::LogTemp(corpc::LogEvent::ptr(new corpc::LogEvent(corpc::LogLevel::DEBUG, __FILE__, __LINE__, __func__, corpc::LogType::INTER_LOG))).getStringStream()
 
 #define LOG_INFO                                                                            \
-    if (corpc::openLog() && corpc::LogLevel::INFO >= corpc::gConfig->logLevel_) \
+    if (corpc::openLog() && corpc::LogLevel::INFO >= corpc::gConfig->logLevel) \
     corpc::LogTemp(corpc::LogEvent::ptr(new corpc::LogEvent(corpc::LogLevel::INFO, __FILE__, __LINE__, __func__, corpc::LogType::INTER_LOG))).getStringStream()
 
 #define LOG_WARN                                                                            \
-    if (corpc::openLog() && corpc::LogLevel::WARN >= corpc::gConfig->logLevel_) \
+    if (corpc::openLog() && corpc::LogLevel::WARN >= corpc::gConfig->logLevel) \
     corpc::LogTemp(corpc::LogEvent::ptr(new corpc::LogEvent(corpc::LogLevel::WARN, __FILE__, __LINE__, __func__, corpc::LogType::INTER_LOG))).getStringStream()
 
 #define LOG_ERROR                                                                            \
-    if (corpc::openLog() && corpc::LogLevel::ERROR >= corpc::gConfig->logLevel_) \
+    if (corpc::openLog() && corpc::LogLevel::ERROR >= corpc::gConfig->logLevel) \
     corpc::LogTemp(corpc::LogEvent::ptr(new corpc::LogEvent(corpc::LogLevel::ERROR, __FILE__, __LINE__, __func__, corpc::LogType::INTER_LOG))).getStringStream()
 
 #define LOG_FATAL                                                                            \
-    if (corpc::openLog() && corpc::LogLevel::FATAL >= corpc::gConfig->logLevel_) \
+    if (corpc::openLog() && corpc::LogLevel::FATAL >= corpc::gConfig->logLevel) \
     corpc::LogTemp(corpc::LogEvent::ptr(new corpc::LogEvent(corpc::LogLevel::FATAL, __FILE__, __LINE__, __func__, corpc::LogType::INTER_LOG))).getStringStream()
 
 #define USER_LOG_DEBUG                                                                             \
-    if (corpc::openLog() && corpc::LogLevel::DEBUG >= corpc::gConfig->userLogLevel_) \
+    if (corpc::openLog() && corpc::LogLevel::DEBUG >= corpc::gConfig->userLogLevel) \
     corpc::LogTemp(corpc::LogEvent::ptr(new corpc::LogEvent(corpc::LogLevel::DEBUG, __FILE__, __LINE__, __func__, corpc::LogType::USER_LOG))).getStringStream()
 
 #define USER_LOG_INFO                                                                             \
-    if (corpc::openLog() && corpc::LogLevel::INFO >= corpc::gConfig->userLogLevel_) \
+    if (corpc::openLog() && corpc::LogLevel::INFO >= corpc::gConfig->userLogLevel) \
     corpc::LogTemp(corpc::LogEvent::ptr(new corpc::LogEvent(corpc::LogLevel::INFO, __FILE__, __LINE__, __func__, corpc::LogType::USER_LOG))).getStringStream()
 
 #define USER_LOG_WARN                                                                             \
-    if (corpc::openLog() && corpc::LogLevel::WARN >= corpc::gConfig->userLogLevel_) \
+    if (corpc::openLog() && corpc::LogLevel::WARN >= corpc::gConfig->userLogLevel) \
     corpc::LogTemp(corpc::LogEvent::ptr(new corpc::LogEvent(corpc::LogLevel::WARN, __FILE__, __LINE__, __func__, corpc::LogType::USER_LOG))).getStringStream()
 
 #define USER_LOG_ERROR                                                                             \
-    if (corpc::openLog() && corpc::LogLevel::ERROR >= corpc::gConfig->userLogLevel_) \
+    if (corpc::openLog() && corpc::LogLevel::ERROR >= corpc::gConfig->userLogLevel) \
     corpc::LogTemp(corpc::LogEvent::ptr(new corpc::LogEvent(corpc::LogLevel::ERROR, __FILE__, __LINE__, __func__, corpc::LogType::USER_LOG))).getStringStream()
 
 #define USER_LOG_FATAL                                                                             \
-    if (corpc::openLog() && corpc::LogLevel::FATAL >= corpc::gConfig->userLogLevel_) \
+    if (corpc::openLog() && corpc::LogLevel::FATAL >= corpc::gConfig->userLogLevel) \
     corpc::LogTemp(corpc::LogEvent::ptr(new corpc::LogEvent(corpc::LogLevel::FATAL, __FILE__, __LINE__, __func__, corpc::LogType::USER_LOG))).getStringStream()
 
 pid_t gettid();

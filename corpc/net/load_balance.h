@@ -11,6 +11,8 @@
 #include <iostream>
 #include "corpc/common/md5.h"
 #include "corpc/common/const.h"
+#include "corpc/net/net_address.h"
+#include "corpc/net/pb/pb_data.h"
 
 namespace corpc {
 
@@ -20,27 +22,28 @@ public:
     virtual ~LoadBalanceStrategy() {}
 
     // 选择节点（一致性哈希需要用到请求的服务名和参数信息，其他方法不需要）
-    virtual std::string select(std::vector<std::string> &list, const std::string &invocation) = 0;
+    virtual NetAddress::ptr select(std::vector<NetAddress::ptr> &addrs, const PbStruct &invocation) = 0;
 };
 
 // 随机策略
 class RandomLoadBalanceStrategy : public LoadBalanceStrategy {
 public:
-    std::string select(std::vector<std::string> &list, const std::string &invocation) {
+    NetAddress::ptr select(std::vector<NetAddress::ptr> &addrs, const PbStruct &) {
         srand((unsigned)time(nullptr));
-        return list[rand() % list.size()];
+        return addrs[rand() % addrs.size()];
     }
 };
 
 // 轮询策略
 class RoundLoadBalanceStrategy : public LoadBalanceStrategy {
 public:
-    std::string select(std::vector<std::string>& list, const std::string &invocation) {
+    NetAddress::ptr select(std::vector<NetAddress::ptr> &addrs, const PbStruct &) {
+        // 由于涉及到多个不同的线程操作下标index_，因此需要加锁
         std::lock_guard<std::mutex> lock(mutex_);
-        if (index_ >= (int)list.size()) {
+        if (index_ >= (int)addrs.size()) {
             index_ = 0;
         }
-        return list[index_++];
+        return addrs[index_++];
     }
 private:
     int index_ = 0;
@@ -50,32 +53,32 @@ private:
 // 一致性哈希
 class ConsistentHashLoadBalanceStrategy : public LoadBalanceStrategy {
 public:
-    std::string select(std::vector<std::string> &list, const std::string &invocation) {
-        size_t identityHashCode = hashCode(list);
+    NetAddress::ptr select(std::vector<NetAddress::ptr> &addrs, const PbStruct &invocation) {
+        size_t identityHashCode = hashCode(addrs);
         std::lock_guard<std::mutex> lock(mutex_); // C++的map不是线程安全的
-        auto it = selectors_.find(invocation); // 对每个服务创建一个选择器
+        auto it = selectors_.find(invocation.serviceFullName); // 对每个服务创建一个选择器
         std::shared_ptr<ConsistentHashSelector> selector;
         // check for updates
         // 检查invokers列表是否扩容或者缩容，如果不存在对应选择器，或者出现了扩缩容（会导致服务器列表的hash值不一致）则初始化选择器
         if (it == selectors_.end() || it->second->identityHashCode != identityHashCode) {
-            selectors_.insert({invocation, std::make_shared<ConsistentHashSelector>(list, 160, identityHashCode)});
-            selector = selectors_[invocation];
+            selectors_.insert({invocation.serviceFullName, std::make_shared<ConsistentHashSelector>(addrs, 160, identityHashCode)});
+            selector = selectors_[invocation.serviceFullName];
         }
         else {
             selector = it->second;
         }
-        return selector->select(invocation); // 同一个参数，请求会打到同一个虚拟节点上
+        return selector->select(invocation.pbData); // 同一个参数，请求会打到同一个虚拟节点上
     }
 private:
     class ConsistentHashSelector {
     public:
-        ConsistentHashSelector(std::vector<std::string> &invokers, int replicaNumber, int identityHashCode) : identityHashCode(identityHashCode) {
+        ConsistentHashSelector(std::vector<NetAddress::ptr> &invokers, int replicaNumber, int identityHashCode) : identityHashCode(identityHashCode) {
             // 创建ConsistentHashSelector时会生成所有虚拟节点，
-            for (const std::string &invoker : invokers) {
+            for (const auto &invoker : invokers) {
                 // 每个实际节点扩展为160个虚拟节点，每4个为一组
                 for (int i = 0; i < replicaNumber / 4; i++) {
                     // 同组的虚拟节点的md5相同
-                    std::vector<uint8_t> digest = md5(invoker + std::to_string(i));
+                    std::vector<uint8_t> digest = md5(invoker->toString() + std::to_string(i));
                     // 根据md5算法为每4个结点生成一个消息摘要，摘要长为16字节128位。 md5就是一个长16字节占128位的bit数组
                     // md5共16字节，这一个组里的每个虚拟节点占用生成的md5数组中的4个字节
                     for (int h = 0; h < 4; h++) {
@@ -87,7 +90,7 @@ private:
             }
         }
 
-        std::map<size_t, std::string> virtualInvokers;
+        std::map<size_t, NetAddress::ptr> virtualInvokers;
         const int identityHashCode;
 
         static size_t hash(const std::vector<uint8_t> &digest, int number) {
@@ -103,12 +106,12 @@ private:
             return obj.digest(key);
         }
 
-        std::string select(const std::string &rpcServiceKey) {
+        NetAddress::ptr select(const std::string &rpcServiceKey) {
             std::vector<uint8_t> digest = md5(rpcServiceKey);
             return selectForKey(hash(digest, 0));
         }
 
-        std::string selectForKey(size_t hashCode) {
+        NetAddress::ptr selectForKey(size_t hashCode) {
             auto it = virtualInvokers.lower_bound(hashCode);
             if (it == virtualInvokers.end()) {
                 it = virtualInvokers.begin();
@@ -118,10 +121,10 @@ private:
     };
 
     // 计算vector的hashCode
-    size_t hashCode(const std::vector<std::string> &list) {
+    size_t hashCode(const std::vector<NetAddress::ptr> &addrs) {
         size_t result = 1;
-        for (const std::string & item : list) {
-            result = 31 * result + std::hash<std::string>()(item);
+        for (auto & item : addrs) {
+            result = 31 * result + std::hash<std::string>()(item->toString());
         }
         return result;
     }

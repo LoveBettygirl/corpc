@@ -189,7 +189,7 @@ int connect_hook(int sockfd, const struct sockaddr *addr, socklen_t addrlen)
         corpc::Coroutine::resume(curCor);
     };
 
-    corpc::TimerEvent::ptr event = std::make_shared<corpc::TimerEvent>(gConfig->maxConnectTimeout_, false, timeoutcb);
+    corpc::TimerEvent::ptr event = std::make_shared<corpc::TimerEvent>(gConfig->maxConnectTimeout, false, timeoutcb);
 
     corpc::Timer *timer = loop->getTimer();
     timer->addTimerEvent(event);
@@ -210,7 +210,7 @@ int connect_hook(int sockfd, const struct sockaddr *addr, socklen_t addrlen)
     }
 
     if (isTimeout) {
-        LOG_ERROR << "connect error,  timeout[ " << gConfig->maxConnectTimeout_ << "ms]";
+        LOG_ERROR << "connect error,  timeout[ " << gConfig->maxConnectTimeout << "ms]";
         errno = ETIMEDOUT;
     }
 

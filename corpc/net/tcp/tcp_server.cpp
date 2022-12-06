@@ -100,7 +100,7 @@ int TcpAcceptor::toAccept()
 
 TcpServer::TcpServer(NetAddress::ptr addr, ProtocolType type /*= Pb_Protocol*/) : addr_(addr)
 {
-    ioPool_ = std::make_shared<IOThreadPool>(gConfig->iothreadNum_);
+    ioPool_ = std::make_shared<IOThreadPool>(gConfig->iothreadNum);
     if (type == Http_Protocol) {
         dispatcher_ = std::make_shared<HttpDispacther>();
         codec_ = std::make_shared<HttpCodeC>();
@@ -117,7 +117,7 @@ TcpServer::TcpServer(NetAddress::ptr addr, ProtocolType type /*= Pb_Protocol*/) 
     mainLoop_->setEventLoopType(MainLoop);
 
     // 创建时间轮对象，添加定时事件到main loop的epoll，用于定时关闭非活跃连接
-    timeWheel_ = std::make_shared<TcpTimeWheel>(mainLoop_, gConfig->timewheelBucketNum_, gConfig->timewheelInterval_);
+    timeWheel_ = std::make_shared<TcpTimeWheel>(mainLoop_, gConfig->timewheelBucketNum, gConfig->timewheelInterval);
 
     // 定时清理维护的所有客户端clients_中已关闭的连接，减少资源占用
     clearClientTimerEvent_ = std::make_shared<TimerEvent>(10000, true, std::bind(&TcpServer::clearClientTimerFunc, this));

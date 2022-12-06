@@ -3,12 +3,14 @@
 
 #include <google/protobuf/service.h>
 #include <future>
+#include <vector>
 #include "corpc/net/pb/pb_data.h"
 #include "corpc/net/pb/pb_rpc_channel.h"
 #include "corpc/net/pb/pb_rpc_controller.h"
 #include "corpc/net/net_address.h"
 #include "corpc/net/tcp/tcp_client.h"
 #include "corpc/coroutine/coroutine.h"
+#include "corpc/net/load_balance.h"
 
 namespace corpc {
 
@@ -21,6 +23,7 @@ public:
     typedef std::shared_ptr<google::protobuf::Closure> cloPtr;
 
     PbRpcAsyncChannel(NetAddress::ptr addr);
+    PbRpcAsyncChannel(std::vector<NetAddress::ptr> addrs, LoadBalanceCategory loadBalance = LoadBalanceCategory::Random);
     ~PbRpcAsyncChannel();
 
     void CallMethod(const google::protobuf::MethodDescriptor *method,

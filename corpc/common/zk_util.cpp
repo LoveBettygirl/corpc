@@ -27,8 +27,8 @@ ZkClient::~ZkClient()
 // zkclient启动连接zkserver
 void ZkClient::start()
 {
-    std::string host = gConfig->zkIp_;
-    std::string port = std::to_string(gConfig->zkPort_);
+    std::string host = gConfig->zkIp;
+    std::string port = std::to_string(gConfig->zkPort);
     std::string connstr = host + ":" + port;
 
     /*
@@ -39,7 +39,7 @@ void ZkClient::start()
     watcher回调线程 pthread_create 给客户端通知
     */
     // 这是异步的连接
-    int timeout = gConfig->zkTimeout_;
+    int timeout = gConfig->zkTimeout;
     zhandle_ = zookeeper_init(connstr.c_str(), globalWatcher, timeout, nullptr, nullptr, 0);
     // 返回表示句柄创建成功，不代表连接成功了
     if (nullptr == zhandle_) {

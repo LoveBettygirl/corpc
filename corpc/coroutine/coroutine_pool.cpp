@@ -13,7 +13,7 @@ static CoroutinePool *tCoroutineContainerPtr = nullptr;
 CoroutinePool *getCoroutinePool()
 {
     if (!tCoroutineContainerPtr) {
-        tCoroutineContainerPtr = new CoroutinePool(gConfig->corPoolSize_, gConfig->corStackSize_);
+        tCoroutineContainerPtr = new CoroutinePool(gConfig->corPoolSize, gConfig->corStackSize);
     }
     return tCoroutineContainerPtr;
 }

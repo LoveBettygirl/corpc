@@ -26,30 +26,29 @@ public:
 
 public:
     // log params
-    std::string logPath_;
-    std::string logPrefix_;
-    int logMaxSize_{0};
-    LogLevel logLevel_{LogLevel::DEBUG};
-    LogLevel userLogLevel_{LogLevel::DEBUG};
-    int logSyncInterval_{500};
+    std::string logPath;
+    std::string logPrefix;
+    int logMaxSize{0};
+    LogLevel logLevel{LogLevel::DEBUG};
+    LogLevel userLogLevel{LogLevel::DEBUG};
+    int logSyncInterval{500};
 
     // coroutine params
-    int corStackSize_{0};
-    int corPoolSize_{0};
+    int corStackSize{0};
+    int corPoolSize{0};
 
-    int msgSeqLen_{0};
+    int msgSeqLen{0};
 
-    int maxConnectTimeout_{0}; // ms
-    int iothreadNum_{0};
+    int maxConnectTimeout{0}; // ms
+    int iothreadNum{0};
 
-    int timewheelBucketNum_{0};
-    int timewheelInterval_{0};
+    int timewheelBucketNum{0};
+    int timewheelInterval{0};
 
-    bool zkServiceDiscoveryOn_{false};
-    std::string zkIp_;
-    int zkPort_{0};
-    int zkTimeout_{0};
-    LoadBalanceStrategy::ptr loadBalanceStrategy_;
+    bool serviceRegister{false};
+    std::string zkIp;
+    int zkPort{0};
+    int zkTimeout{0};
 
 private:
     std::string filePath_;

@@ -17,6 +17,14 @@ namespace corpc {
 
 PbRpcChannel::PbRpcChannel(NetAddress::ptr addr) : addr_(addr)
 {
+    addrs_.clear();
+    addrs_.push_back(addr_);
+    loadBalancer_ = LoadBalance::queryStrategy(LoadBalanceCategory::Random);
+}
+
+PbRpcChannel::PbRpcChannel(std::vector<NetAddress::ptr> addrs, LoadBalanceCategory loadBalance/* = LoadBalanceCategory::Random*/) : addrs_(addrs)
+{
+    loadBalancer_ = LoadBalance::queryStrategy(loadBalance);
 }
 
 void PbRpcChannel::CallMethod(const google::protobuf::MethodDescriptor *method,
@@ -35,10 +43,6 @@ void PbRpcChannel::CallMethod(const google::protobuf::MethodDescriptor *method,
         return;
     }
 
-    TcpClient::ptr client = std::make_shared<TcpClient>(addr_);
-    rpcController->SetLocalAddr(client->getLocalAddr());
-    rpcController->SetPeerAddr(client->getPeerAddr());
-
     pbStruct.serviceFullName = method->full_name();
     LOG_DEBUG << "call service full name = " << pbStruct.serviceFullName;
     if (!request->SerializeToString(&(pbStruct.pbData))) {
@@ -48,6 +52,11 @@ void PbRpcChannel::CallMethod(const google::protobuf::MethodDescriptor *method,
         }
         return;
     }
+
+    NetAddress::ptr addr = loadBalancer_->select(addrs_, pbStruct); // 负载均衡器的选择
+    TcpClient::ptr client = std::make_shared<TcpClient>(addr);
+    rpcController->SetLocalAddr(client->getLocalAddr());
+    rpcController->SetPeerAddr(client->getPeerAddr());
 
     if (!rpcController->MsgSeq().empty()) {
         pbStruct.msgSeq = rpcController->MsgSeq();
