@@ -6,6 +6,7 @@
 #include "corpc/common/log.h"
 #include "corpc/net/net_address.h"
 #include "corpc/net/tcp/tcp_server.h"
+#include "corpc/net/service_register.h"
 
 namespace corpc {
 
@@ -136,12 +137,13 @@ void Config::readConf()
     }
     iothreadNum = std::stoi(yamlFile_["iothread_num"].as<std::string>());
 
-    YAML::Node serviceRegister = yamlFile_["service_register"];
-    if (!serviceRegister || !serviceRegister.IsScalar()) {
-        printf("start corpc server error! read config file [%s] error, cannot read [zk_service_discovery] yaml node\n", filePath_.c_str());
+    YAML::Node serviceRegisterNode = yamlFile_["service_register"];
+    if (!serviceRegisterNode || !serviceRegisterNode.IsScalar()) {
+        printf("start corpc server error! read config file [%s] error, cannot read [service_register] yaml node\n", filePath_.c_str());
         exit(0);
     }
-    std::string serviceRegisterStr = serviceRegister.as<std::string>();
+    std::string serviceRegisterStr = serviceRegisterNode.as<std::string>();
+    serviceRegister = ServiceRegister::str2Category(serviceRegisterStr);
     YAML::Node zkConfigNode = yamlFile_["zk_config"];
     if (!zkConfigNode || !zkConfigNode.IsMap()) {
         printf("start corpc server error! read config file [%s] error, cannot read [zk_config] yaml node\n", filePath_.c_str());
@@ -196,12 +198,12 @@ void Config::readConf()
     sprintf(buff, "read config from file [%s]: [log_path: %s], [log_prefix: %s], [log_max_size: %d MB], [log_level: %s], [user_log_level: %s], "
                     "[coroutine_stack_size: %d KB], [coroutine_pool_size: %d], "
                     "[msg_seq_len: %d], [max_connect_timeout: %d s], "
-                    "[iothread_num: %d], [timewheel_bucket_num: %d], [timewheel_interval: %d s], [server_ip: %s], [server_port: %d], [server_protocol: %s]"
-                    "[zk_ip: %s], [zk_port: %d], [zk_timeout: %d]",
+                    "[iothread_num: %d], [timewheel_bucket_num: %d], [timewheel_interval: %d s], [server_ip: %s], [server_port: %d], [server_protocol: %s], "
+                    "[service_register: %s], [zk_ip: %s], [zk_port: %d], [zk_timeout: %d]",
             filePath_.c_str(), logPath.c_str(), logPrefix.c_str(), logMaxSize / 1024 / 1024,
             levelToString(logLevel).c_str(), levelToString(userLogLevel).c_str(), corStackSize / 1024, corPoolSize, msgSeqLen,
             maxConnectTimeout / 1000, iothreadNum, timewheelBucketNum, timewheelInterval, ip.c_str(), port, protocol.c_str(),
-            zkIp.c_str(), zkPort, zkTimeout);
+            serviceRegisterStr.c_str(), zkIp.c_str(), zkPort, zkTimeout);
 
     std::string s(buff);
     LOG_INFO << s;

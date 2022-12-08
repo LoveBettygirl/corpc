@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 #include <google/protobuf/service.h>
 #include "corpc/net/net_address.h"
 
@@ -10,8 +11,14 @@ namespace corpc {
 
 class AbstractServiceRegister {
 public:
-    virtual void registerService(std::shared_ptr<google::protobuf::Service> service) = 0;
-    virtual NetAddress::ptr discoverService(const std::string &serviceFullName) = 0;
+    typedef std::shared_ptr<AbstractServiceRegister> ptr;
+
+    AbstractServiceRegister() {}
+    virtual ~AbstractServiceRegister() {}
+
+    virtual void registerService(std::shared_ptr<google::protobuf::Service> service, NetAddress::ptr addr) = 0;
+    virtual std::vector<NetAddress::ptr> discoverService(const std::string &serviceName) = 0;
+    virtual void clear() = 0;
 };
 
 }

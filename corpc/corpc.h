@@ -27,6 +27,7 @@
 #include "corpc/net/net_address.h"
 #include "corpc/net/timer.h"
 #include "corpc/net/load_balance.h"
+#include "corpc/net/abstract_service_register.h"
 
 #include "corpc/net/http/http_codec.h"
 #include "corpc/net/http/http_define.h"
@@ -53,5 +54,7 @@
 #include "corpc/net/tcp/tcp_server.h"
 #include "corpc/net/tcp/timewheel.h"
 #include "corpc/net/tcp/tcp_buffer.h"
+
+#include "corpc/net/register/zk_service_register.h"
 
 #endif

@@ -14,6 +14,7 @@
 #include "corpc/net/http/http_dispatcher.h"
 #include "corpc/net/http/http_servlet.h"
 #include "corpc/net/tcp/tcp_connection.h"
+#include "corpc/net/abstract_service_register.h"
 
 namespace corpc {
 
@@ -71,6 +72,7 @@ private:
     Coroutine::ptr acceptCor_;
     AbstractDispatcher::ptr dispatcher_;
     AbstractCodeC::ptr codec_;
+    AbstractServiceRegister::ptr register_;
     IOThreadPool::ptr ioPool_;
     ProtocolType protocolType_{Pb_Protocol};
     TcpTimeWheel::ptr timeWheel_;

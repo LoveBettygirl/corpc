@@ -31,7 +31,6 @@ bool IPAddress::checkValidIPAddr(const std::string &addr)
 IPAddress::IPAddress(const std::string &ip, uint16_t port)
     : ip_(ip), port_(port)
 {
-
     memset(&addr_, 0, sizeof(addr_));
     addr_.sin_family = AF_INET;
     addr_.sin_addr.s_addr = inet_addr(ip_.c_str());
@@ -50,8 +49,7 @@ IPAddress::IPAddress(sockaddr_in addr) : addr_(addr)
 IPAddress::IPAddress(const std::string &addr)
 {
     size_t i = addr.find_first_of(":");
-    if (i == addr.npos)
-    {
+    if (i == addr.npos) {
         LOG_ERROR << "invalid addr[" << addr << "]";
         return;
     }

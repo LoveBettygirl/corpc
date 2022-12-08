@@ -13,6 +13,7 @@
 #include "corpc/net/http/http_codec.h"
 #include "corpc/net/pb/pb_rpc_dispatcher.h"
 #include "corpc/net/pb/pb_codec.h"
+#include "corpc/net/service_register.h"
 
 namespace corpc {
 
@@ -146,6 +147,9 @@ TcpServer::~TcpServer()
     if (acceptCor_) {
         getCoroutinePool()->returnCoroutine(acceptCor_);
     }
+    if (register_) {
+        register_->clear();
+    }
     LOG_DEBUG << "~TcpServer";
 }
 
@@ -183,6 +187,10 @@ bool TcpServer::registerService(std::shared_ptr<google::protobuf::Service> servi
     if (protocolType_ == Pb_Protocol) {
         if (service) {
             dynamic_cast<PbRpcDispacther *>(dispatcher_.get())->registerService(service);
+            if (!register_) {
+                register_ = ServiceRegister::queryRegister(gConfig->serviceRegister);
+            }
+            register_->registerService(service, addr_);
         }
         else {
             LOG_ERROR << "register service error, service ptr is nullptr";

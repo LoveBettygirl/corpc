@@ -6,7 +6,8 @@ LoadBalanceStrategy::ptr LoadBalance::s_randomStrategy = std::make_shared<Random
 LoadBalanceStrategy::ptr LoadBalance::s_RoundStrategy = std::make_shared<RoundLoadBalanceStrategy>();
 LoadBalanceStrategy::ptr LoadBalance::s_consistentHashStrategy = std::make_shared<ConsistentHashLoadBalanceStrategy>();
 
-LoadBalanceStrategy::ptr LoadBalance::queryStrategy(LoadBalanceCategory category) {
+LoadBalanceStrategy::ptr LoadBalance::queryStrategy(LoadBalanceCategory category)
+{
     switch (category) {
         case LoadBalanceCategory::Random:
             return s_randomStrategy;
@@ -19,8 +20,9 @@ LoadBalanceStrategy::ptr LoadBalance::queryStrategy(LoadBalanceCategory category
     }
 }
 
-std::string LoadBalance::strategy2Str(LoadBalanceCategory category) {
-        switch (category) {
+std::string LoadBalance::strategy2Str(LoadBalanceCategory category)
+{
+    switch (category) {
         case LoadBalanceCategory::Random:
             return "Random";
         case LoadBalanceCategory::Round:
@@ -32,7 +34,8 @@ std::string LoadBalance::strategy2Str(LoadBalanceCategory category) {
     }
 }
 
-LoadBalanceCategory LoadBalance::str2Strategy(const std::string &str) {
+LoadBalanceCategory LoadBalance::str2Strategy(const std::string &str)
+{
     if (str == "Round")
         return LoadBalanceCategory::Round;
     else if (str == "ConsistentHash")

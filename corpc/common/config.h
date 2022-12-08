@@ -45,7 +45,7 @@ public:
     int timewheelBucketNum{0};
     int timewheelInterval{0};
 
-    bool serviceRegister{false};
+    ServiceRegisterCategory serviceRegister;
     std::string zkIp;
     int zkPort{0};
     int zkTimeout{0};

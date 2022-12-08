@@ -26,6 +26,13 @@ enum class LoadBalanceCategory {
     ConsistentHash
 };
 
+enum class ServiceRegisterCategory {
+    // 不进行服务注册
+    None,
+    // zk
+    Zk,
+};
+
 }
 
 #endif
