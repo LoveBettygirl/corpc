@@ -45,6 +45,7 @@ public:
     TcpServer(NetAddress::ptr addr, ProtocolType type = Pb_Protocol);
     ~TcpServer();
     void start();
+    void stop();
     void addCoroutine(corpc::Coroutine::ptr cor);
     bool registerService(std::shared_ptr<google::protobuf::Service> service);
     bool registerHttpServlet(const std::string &urlPath, HttpServlet::ptr servlet);

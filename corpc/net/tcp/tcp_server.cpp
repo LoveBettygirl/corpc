@@ -142,14 +142,20 @@ void TcpServer::start()
     mainLoop_->loop();
 }
 
-TcpServer::~TcpServer()
+void TcpServer::stop()
 {
+    mainLoop_->stop();
     if (acceptCor_) {
         getCoroutinePool()->returnCoroutine(acceptCor_);
     }
     if (register_) {
         register_->clear();
     }
+}
+
+TcpServer::~TcpServer()
+{
+    stop();
     LOG_DEBUG << "~TcpServer";
 }
 

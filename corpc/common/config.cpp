@@ -45,24 +45,24 @@ void Config::readLogConfig(YAML::Node &node)
         printf("start corpc server error! read config file [%s] error, cannot read [log_max_file_size] yaml node\n", filePath_.c_str());
         exit(0);
     }
-    int logMaxSize = std::stoi(logMaxSizeNode.as<std::string>());
-    logMaxSize = logMaxSize * 1024 * 1024;
+    int logMaxSizePre = std::stoi(logMaxSizeNode.as<std::string>());
+    logMaxSize = logMaxSizePre * 1024 * 1024;
 
     YAML::Node logLevelNode = node["log_level"];
     if (!logLevelNode || !logLevelNode.IsScalar()) {
         printf("start corpc server error! read config file [%s] error, cannot read [log_level] yaml node\n", filePath_.c_str());
         exit(0);
     }
-    std::string logLevel = logLevelNode.as<std::string>();
-    logLevel = stringToLevel(logLevel);
+    std::string logLevelStr = logLevelNode.as<std::string>();
+    logLevel = stringToLevel(logLevelStr);
 
     YAML::Node userLogLevelNode = node["user_log_level"];
     if (!userLogLevelNode || !userLogLevelNode.IsScalar()) {
         printf("start corpc server error! read config file [%s] error, cannot read [user_log_level] yaml node\n", filePath_.c_str());
         exit(0);
     }
-    logLevel = userLogLevelNode.as<std::string>();
-    logLevel = stringToLevel(logLevel);
+    logLevelStr = userLogLevelNode.as<std::string>();
+    userLogLevel = stringToLevel(logLevelStr);
 
     YAML::Node logSyncIntervalNode = node["log_sync_interval"];
     if (!logSyncIntervalNode || !logSyncIntervalNode.IsScalar()) {
@@ -114,8 +114,8 @@ void Config::readConf()
         printf("start corpc server error! read config file [%s] error, cannot read [coroutine.coroutine_pool_size] yaml node\n", filePath_.c_str());
         exit(0);
     }
-    int corStackSize = std::stoi(coroutineNode["coroutine_stack_size"].as<std::string>());
-    corStackSize = 1024 * corStackSize;
+    int corStackSizePre = std::stoi(coroutineNode["coroutine_stack_size"].as<std::string>());
+    corStackSize = 1024 * corStackSizePre;
     corPoolSize = std::stoi(coroutineNode["coroutine_pool_size"].as<std::string>());
 
     if (!yamlFile_["msg_seq_len"] || !yamlFile_["msg_seq_len"].IsScalar()) {
@@ -128,8 +128,8 @@ void Config::readConf()
         printf("start corpc server error! read config file [%s] error, cannot read [max_connect_timeout] yaml node\n", filePath_.c_str());
         exit(0);
     }
-    int maxConnectTimeout = std::stoi(yamlFile_["max_connect_timeout"].as<std::string>());
-    maxConnectTimeout = maxConnectTimeout * 1000;
+    int maxConnectTimeoutPre = std::stoi(yamlFile_["max_connect_timeout"].as<std::string>());
+    maxConnectTimeout = maxConnectTimeoutPre * 1000;
 
     if (!yamlFile_["iothread_num"] || !yamlFile_["iothread_num"].IsScalar()) {
         printf("start corpc server error! read config file [%s] error, cannot read [iothread_num] yaml node\n", filePath_.c_str());

@@ -23,6 +23,14 @@ PbRpcClientBlockChannel::PbRpcClientBlockChannel(NetAddress::ptr addr)
     loop_->setEventLoopType(SubLoop);
 }
 
+PbRpcClientBlockChannel::PbRpcClientBlockChannel(std::vector<NetAddress::ptr> addrs, LoadBalanceCategory loadBalance/* = LoadBalanceCategory::Random*/)
+{
+    Coroutine::getCurrentCoroutine();
+    rpcChannel_ = std::make_shared<PbRpcChannel>(addrs, loadBalance);
+    loop_ = corpc::EventLoop::getEventLoop();
+    loop_->setEventLoopType(SubLoop);
+}
+
 PbRpcClientBlockChannel::~PbRpcClientBlockChannel()
 {
     getCoroutinePool()->returnCoroutine(cor_);

@@ -19,11 +19,13 @@
 #include "corpc/common/log.h"
 #include "corpc/common/runtime.h"
 #include "corpc/coroutine/coroutine.h"
+#include "corpc/net/tcp/tcp_server.h"
 
 namespace corpc {
 
 extern corpc::Logger::ptr gLogger;
 extern corpc::Config::ptr gConfig;
+extern corpc::TcpServer::ptr gTcpServer;
 
 void coredumpHandler(int signal_no)
 {
@@ -32,6 +34,7 @@ void coredumpHandler(int signal_no)
     gLogger->flush();
     gLogger->getAsyncLogger()->thread_->join();
     gLogger->getAsyncUserLogger()->thread_->join();
+    gTcpServer->stop();
 
     signal(signal_no, SIG_DFL);
     raise(signal_no);
@@ -444,6 +447,7 @@ void Exit(int code)
     gLogger->flush();
     gLogger->getAsyncLogger()->thread_->join();
     gLogger->getAsyncUserLogger()->thread_->join();
+    gTcpServer->stop();
 
     _exit(code);
 }
@@ -454,6 +458,7 @@ void Abort()
     gLogger->flush();
     gLogger->getAsyncLogger()->thread_->join();
     gLogger->getAsyncUserLogger()->thread_->join();
+    gTcpServer->stop();
 
     abort();
 }

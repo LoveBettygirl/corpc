@@ -6,9 +6,9 @@ namespace corpc {
 
 ZkServiceRegister::ZkServiceRegister()
 {
+    zkCli_.closeLog();
     // 启动zkclient客户端
     zkCli_.start();
-    zkCli_.closeLog();
     // 加入根节点
     zkCli_.create(ROOT_PATH, nullptr, 0);
 }
@@ -20,6 +20,7 @@ void ZkServiceRegister::registerService(std::shared_ptr<google::protobuf::Servic
     // znode路径：/corpc/serviceName/ip:port
     std::string servicePath = ROOT_PATH;
     servicePath += "/" + serviceName;
+    zkCli_.create(servicePath.c_str(), nullptr, 0); // 不能递归注册节点，只能逐级注册
     servicePath += "/" + addr->toString();
     zkCli_.create(servicePath.c_str(), nullptr, 0);
     pathSet_.insert(servicePath);
@@ -40,10 +41,11 @@ std::vector<NetAddress::ptr> ZkServiceRegister::discoverService(const std::strin
 void ZkServiceRegister::clear()
 {
     if (zkCli_.getIsConnected()) {
-        // 先删除地址对应的节点
+        // 先删除注册的地址对应的节点
         for (const std::string &path : pathSet_) {
             zkCli_.deleteNode(path.c_str());
         }
+        // 然后如果子节点为空，就删除注册的服务对应的节点
         for (auto &sp : serviceSet_) {
             std::string servicePath = ROOT_PATH;
             servicePath += "/" + sp;

@@ -9,6 +9,7 @@
 #include "corpc/net/pb/pb_rpc_closure.h"
 #include "corpc/net/net_address.h"
 #include "corpc/common/start.h"
+#include "corpc/net/service_register.h"
 #include "test_pb_server.pb.h"
 
 corpc::IPAddress::ptr gAddr = std::make_shared<corpc::IPAddress>("127.0.0.1", 20000);
@@ -74,7 +75,11 @@ void testClient()
 
 void testBlockClient()
 {
-    corpc::PbRpcClientBlockChannel channel(gAddr);
+    corpc::AbstractServiceRegister::ptr center = corpc::ServiceRegister::queryRegister(corpc::ServiceRegisterCategory::Zk);
+    std::vector<corpc::NetAddress::ptr> addrs = center->discoverService("QueryService");
+
+    // corpc::PbRpcClientBlockChannel channel(gAddr);
+    corpc::PbRpcClientBlockChannel channel(addrs, corpc::LoadBalanceCategory::ConsistentHash);
     QueryService_Stub stub(&channel);
 
     corpc::PbRpcController rpcControllerName;

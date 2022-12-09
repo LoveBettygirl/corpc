@@ -56,18 +56,23 @@ public:
     NetAddress::ptr select(std::vector<NetAddress::ptr> &addrs, const PbStruct &invocation) {
         size_t identityHashCode = hashCode(addrs);
         std::lock_guard<std::mutex> lock(mutex_); // C++的map不是线程安全的
-        auto it = selectors_.find(invocation.serviceFullName); // 对每个服务创建一个选择器
+
+        size_t index = invocation.serviceFullName.find('.');
+        std::string serviceName = invocation.serviceFullName.substr(0, index);
+        std::string methodName = invocation.serviceFullName.substr(index);
+
+        auto it = selectors_.find(serviceName); // 对每个服务创建一个选择器
         std::shared_ptr<ConsistentHashSelector> selector;
         // check for updates
         // 检查invokers列表是否扩容或者缩容，如果不存在对应选择器，或者出现了扩缩容（会导致服务器列表的hash值不一致）则初始化选择器
         if (it == selectors_.end() || it->second->identityHashCode != identityHashCode) {
-            selectors_.insert({invocation.serviceFullName, std::make_shared<ConsistentHashSelector>(addrs, 160, identityHashCode)});
-            selector = selectors_[invocation.serviceFullName];
+            selectors_.insert({serviceName, std::make_shared<ConsistentHashSelector>(addrs, 160, identityHashCode)});
+            selector = selectors_[serviceName];
         }
         else {
             selector = it->second;
         }
-        return selector->select(invocation.pbData); // 同一个参数，请求会打到同一个虚拟节点上
+        return selector->select(methodName + invocation.pbData); // 同一个方法和参数，请求会打到同一个虚拟节点上
     }
 private:
     class ConsistentHashSelector {
