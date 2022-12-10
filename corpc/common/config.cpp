@@ -2,6 +2,7 @@
 #include <cstdio>
 #include <memory>
 #include <algorithm>
+#include <cctype>
 #include "corpc/common/config.h"
 #include "corpc/common/log.h"
 #include "corpc/net/net_address.h"
@@ -183,14 +184,14 @@ void Config::readConf()
         exit(0);
     }
     std::string protocol = serverNode["protocol"].as<std::string>();
-    std::transform(protocol.begin(), protocol.end(), protocol.begin(), toupper);
+    std::transform(protocol.begin(), protocol.end(), protocol.begin(), tolower);
 
     corpc::IPAddress::ptr addr = std::make_shared<corpc::IPAddress>(ip, port);
 
-    if (protocol == "HTTP") {
+    if (protocol == "http") {
         gTcpServer = std::make_shared<TcpServer>(addr, Http_Protocol);
     }
-    else if (protocol == "PB") {
+    else if (protocol == "pb") {
         gTcpServer = std::make_shared<TcpServer>(addr, Pb_Protocol);
     }
 

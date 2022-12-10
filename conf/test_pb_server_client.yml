@@ -29,8 +29,8 @@ time_wheel:
   # interval that destroy bad TcpConnection, s
   interval: 10
 
-# None (not to register server), Zk
-service_register: Zk
+# none (not to register server), zk
+service_register: zk
 zk_config: 
   ip: 127.0.0.1
   port: 2181

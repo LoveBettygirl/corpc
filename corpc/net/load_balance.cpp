@@ -1,3 +1,5 @@
+#include <algorithm>
+#include <cctype>
 #include "corpc/net/load_balance.h"
 
 namespace corpc {
@@ -36,9 +38,11 @@ std::string LoadBalance::strategy2Str(LoadBalanceCategory category)
 
 LoadBalanceCategory LoadBalance::str2Strategy(const std::string &str)
 {
-    if (str == "Round")
+    std::string strTemp = str;
+    std::transform(str.begin(), str.end(), strTemp.begin(), tolower);
+    if (strTemp == "round")
         return LoadBalanceCategory::Round;
-    else if (str == "ConsistentHash")
+    else if (strTemp == "consistenthash")
         return LoadBalanceCategory::ConsistentHash;
     return LoadBalanceCategory::Random;
 }

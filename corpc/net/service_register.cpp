@@ -1,3 +1,5 @@
+#include <algorithm>
+#include <cctype>
 #include "corpc/net/service_register.h"
 #include "corpc/net/register/zk_service_register.h"
 #include "corpc/net/register/none_service_register.h"
@@ -30,9 +32,9 @@ std::string ServiceRegister::category2Str(ServiceRegisterCategory category)
 
 ServiceRegisterCategory ServiceRegister::str2Category(const std::string &str)
 {
-    if (str == "None")
-        return ServiceRegisterCategory::None;
-    else if (str == "Zk")
+    std::string strTemp = str;
+    std::transform(str.begin(), str.end(), strTemp.begin(), tolower);
+    if (strTemp == "zk")
         return ServiceRegisterCategory::Zk;
     return ServiceRegisterCategory::None;
 }
