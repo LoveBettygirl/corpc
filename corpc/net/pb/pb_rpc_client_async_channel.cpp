@@ -32,6 +32,16 @@ PbRpcClientAsyncChannel::PbRpcClientAsyncChannel(NetAddress::ptr addr)
     ioPool_->start();
 }
 
+PbRpcClientAsyncChannel::PbRpcClientAsyncChannel(std::vector<NetAddress::ptr> addrs, LoadBalanceCategory loadBalance/* = LoadBalanceCategory::Random*/)
+{
+    Coroutine::getCurrentCoroutine();
+    rpcChannel_ = std::make_shared<PbRpcChannel>(addrs, loadBalance);
+    loop_ = corpc::EventLoop::getEventLoop();
+    loop_->setEventLoopType(SubLoop);
+    ioPool_ = std::make_shared<IOThreadPool>(1);
+    ioPool_->start();
+}
+
 PbRpcClientAsyncChannel::~PbRpcClientAsyncChannel()
 {
     if (currentCor_) {

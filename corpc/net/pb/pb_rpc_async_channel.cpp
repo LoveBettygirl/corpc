@@ -28,6 +28,13 @@ PbRpcAsyncChannel::PbRpcAsyncChannel(NetAddress::ptr addr)
     currentCor_ = Coroutine::getCurrentCoroutine();
 }
 
+PbRpcAsyncChannel::PbRpcAsyncChannel(std::vector<NetAddress::ptr> addrs, LoadBalanceCategory loadBalance/* = LoadBalanceCategory::Random*/)
+{
+    rpcChannel_ = std::make_shared<PbRpcChannel>(addrs, loadBalance);
+    currentIothread_ = IOThread::getCurrentIOThread();
+    currentCor_ = Coroutine::getCurrentCoroutine();
+}
+
 PbRpcAsyncChannel::~PbRpcAsyncChannel()
 {
     getCoroutinePool()->returnCoroutine(pendingCor_);

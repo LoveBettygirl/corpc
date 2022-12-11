@@ -7,8 +7,9 @@
 #include "corpc/net/net_address.h"
 #include "corpc/net/pb/pb_rpc_channel.h"
 #include "corpc/net/tcp/io_thread.h"
-#include <semaphore.h>
 #include "corpc/net/load_balance.h"
+#include "corpc/net/pb/pb_rpc_closure.h"
+#include <semaphore.h>
 
 namespace corpc {
 
@@ -30,6 +31,7 @@ public:
 private:
     PbRpcChannel::ptr rpcChannel_;
     IOThreadPool::ptr ioPool_;
+    std::shared_ptr<corpc::PbRpcClosure> closure_;
     sem_t waitSemaphore_;
 
 private:

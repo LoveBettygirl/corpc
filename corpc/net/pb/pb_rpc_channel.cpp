@@ -54,6 +54,7 @@ void PbRpcChannel::CallMethod(const google::protobuf::MethodDescriptor *method,
     }
 
     NetAddress::ptr addr = loadBalancer_->select(addrs_, pbStruct); // 负载均衡器的选择
+    LOG_INFO << "service full name: " << pbStruct.serviceFullName << " server addr: " << addr->toString();
     TcpClient::ptr client = std::make_shared<TcpClient>(addr);
     rpcController->SetLocalAddr(client->getLocalAddr());
     rpcController->SetPeerAddr(client->getPeerAddr());
