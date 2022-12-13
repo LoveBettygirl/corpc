@@ -12,7 +12,7 @@
 
 namespace corpc {
 
-int64_t getNowMs();
+int64_t getNowMs(); // 获取当前时间戳，ms
 
 class TimerEvent {
 public:

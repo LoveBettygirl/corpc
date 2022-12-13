@@ -24,8 +24,8 @@ public:
                     google::protobuf::Closure *done);
 
 private:
-    NetAddress::ptr addr_;
     std::vector<NetAddress::ptr> addrs_;
+    std::vector<NetAddress::ptr> originAddrs_;
     LoadBalanceStrategy::ptr loadBalancer_;
 };
 

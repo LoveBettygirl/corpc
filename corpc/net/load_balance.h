@@ -66,7 +66,7 @@ public:
         // check for updates
         // 检查invokers列表是否扩容或者缩容，如果不存在对应选择器，或者出现了扩缩容（会导致服务器列表的hash值不一致）则初始化选择器
         if (it == selectors_.end() || it->second->identityHashCode != identityHashCode) {
-            selectors_.insert({serviceName, std::make_shared<ConsistentHashSelector>(addrs, 160, identityHashCode)});
+            selectors_[serviceName] = std::make_shared<ConsistentHashSelector>(addrs, 160, identityHashCode);
             selector = selectors_[serviceName];
         }
         else {

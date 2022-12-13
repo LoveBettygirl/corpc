@@ -64,7 +64,7 @@ void TcpClient::resetFd()
 
 int TcpClient::sendAndRecvPb(const std::string &msgNo, PbStruct::ptr &res)
 {
-    bool isTimeout = false;
+    bool isTimeout = false; // rpc是否超时的标记，rpc超时异常不进行重试
     corpc::Coroutine *curCor = corpc::Coroutine::getCurrentCoroutine(); // 子协程
     auto timercb = [this, &isTimeout, curCor]() {
         LOG_INFO << "TcpClient timer out event occur";
@@ -73,6 +73,10 @@ int TcpClient::sendAndRecvPb(const std::string &msgNo, PbStruct::ptr &res)
         corpc::Coroutine::resume(curCor);
     };
     TimerEvent::ptr event = std::make_shared<TimerEvent>(maxTimeout_, false, timercb);
+    if (maxTimeout_ <= 0) {
+        isTimeout = true;
+        goto ERR_DEAL;
+    }
     loop_->getTimer()->addTimerEvent(event);
 
     LOG_DEBUG << "add rpc timer event, timeout on " << event->arriveTime_;
@@ -83,6 +87,7 @@ int TcpClient::sendAndRecvPb(const std::string &msgNo, PbStruct::ptr &res)
             int ret = connect_hook(fd_, reinterpret_cast<sockaddr *>(peerAddr_->getSockAddr()), peerAddr_->getSockLen());
             if (ret == 0) {
                 LOG_DEBUG << "connect [" << peerAddr_->toString() << "] succ!";
+                std::cout << "connect [" << peerAddr_->toString() << "] succ!" << std::endl;
                 connection_->setUpClient(); // 设置状态为已连接
                 break;
             }
@@ -99,11 +104,12 @@ int TcpClient::sendAndRecvPb(const std::string &msgNo, PbStruct::ptr &res)
                 loop_->getTimer()->delTimerEvent(event);
                 return ERROR_PEER_CLOSED;
             }
+            // 无意义的错误不重试
             if (errno == EAFNOSUPPORT) {
                 std::stringstream ss;
                 ss << "connect cur sys ror, err info is " << std::string(strerror(errno)) << " ] closed.";
                 errInfo_ = ss.str();
-                LOG_ERROR << "cancle overtime event, err info=" << errInfo_;
+                LOG_ERROR << "cancel overtime event, err info=" << errInfo_;
                 loop_->getTimer()->delTimerEvent(event);
                 return ERROR_CONNECT_SYS_ERR;
             }
@@ -163,12 +169,13 @@ ERR_DEAL:
         errInfo_ = ss.str();
 
         connection_->setOverTimeFlag(false);
-        return ERROR_RPC_CALL_TIMEOUT;
+        return ERROR_RPC_TIMEOUT;
     }
     else {
         ss << "call rpc failed, peer closed [" << peerAddr_->toString() << "]";
         errInfo_ = ss.str();
-        return ERROR_PEER_CLOSED;
+        loop_->getTimer()->delTimerEvent(event);
+        return ERROR_PEER_CLOSED; // 数据收发过程中，出现了错误，如果不是超时错误，就默认是对方关闭了连接
     }
 }
 

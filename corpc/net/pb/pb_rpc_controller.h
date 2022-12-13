@@ -45,6 +45,9 @@ public:
     void SetTimeout(const int timeout);
     int Timeout() const;
 
+    void SetMaxRetry(const int maxRetry);
+    int MaxRetry() const;
+
     void SetMethodName(const std::string &name);
     std::string GetMethodName();
 
@@ -63,6 +66,8 @@ private:
     int timeout_{5000};       // max call rpc timeout
     std::string methodName_; // method name
     std::string fullName_;   // full name, like server.method_name
+
+    int maxRetry_{2};
 };
 
 }

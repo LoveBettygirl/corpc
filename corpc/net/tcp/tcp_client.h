@@ -24,8 +24,7 @@ public:
 
     TcpConnection *getConnection();
 
-    void setTimeout(const int v) { maxTimeout_ = v; }
-    void setTryCounts(const int v) { tryCounts_ = v; }
+    void setTimeout(const int64_t v) { maxTimeout_ = v; }
 
     const std::string &getErrInfo() { return errInfo_; }
     NetAddress::ptr getPeerAddr() const { return peerAddr_; }
@@ -35,8 +34,7 @@ public:
 private:
     int family_{0};
     int fd_{-1};
-    int tryCounts_{3};      // max try reconnect times
-    int maxTimeout_{10000}; // max connect timeout, ms
+    int64_t maxTimeout_{5000}; // max rpc timeout, ms
     bool isStop_{false};
     std::string errInfo_; // error info of client
 

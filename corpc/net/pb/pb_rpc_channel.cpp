@@ -15,14 +15,15 @@
 
 namespace corpc {
 
-PbRpcChannel::PbRpcChannel(NetAddress::ptr addr) : addr_(addr)
+PbRpcChannel::PbRpcChannel(NetAddress::ptr addr)
 {
     addrs_.clear();
-    addrs_.push_back(addr_);
+    addrs_.push_back(addr);
+    originAddrs_ = addrs_;
     loadBalancer_ = LoadBalance::queryStrategy(LoadBalanceCategory::Random);
 }
 
-PbRpcChannel::PbRpcChannel(std::vector<NetAddress::ptr> addrs, LoadBalanceCategory loadBalance/* = LoadBalanceCategory::Random*/) : addrs_(addrs)
+PbRpcChannel::PbRpcChannel(std::vector<NetAddress::ptr> addrs, LoadBalanceCategory loadBalance/* = LoadBalanceCategory::Random*/) : addrs_(addrs), originAddrs_(addrs)
 {
     loadBalancer_ = LoadBalance::queryStrategy(loadBalance);
 }
@@ -53,12 +54,6 @@ void PbRpcChannel::CallMethod(const google::protobuf::MethodDescriptor *method,
         return;
     }
 
-    NetAddress::ptr addr = loadBalancer_->select(addrs_, pbStruct); // 负载均衡器的选择
-    LOG_INFO << "service full name: " << pbStruct.serviceFullName << " server addr: " << addr->toString();
-    TcpClient::ptr client = std::make_shared<TcpClient>(addr);
-    rpcController->SetLocalAddr(client->getLocalAddr());
-    rpcController->SetPeerAddr(client->getPeerAddr());
-
     if (!rpcController->MsgSeq().empty()) {
         pbStruct.msgSeq = rpcController->MsgSeq();
     }
@@ -76,32 +71,69 @@ void PbRpcChannel::CallMethod(const google::protobuf::MethodDescriptor *method,
         rpcController->SetMsgSeq(pbStruct.msgSeq);
     }
 
-    AbstractCodeC::ptr codec = client->getConnection()->getCodec();
-    codec->encode(client->getConnection()->getOutBuffer(), &pbStruct);
-    if (!pbStruct.encodeSucc_) {
-        rpcController->SetError(ERROR_FAILED_ENCODE, "encode pb data error");
-        if (done) {
-            done->Run();
-        }
-        return;
-    }
-
-    LOG_INFO << "============================================================";
-    LOG_INFO << pbStruct.msgSeq << "|" << rpcController->PeerAddr()->toString()
-            << "|. Set client send request data:" << request->ShortDebugString();
-    LOG_INFO << "============================================================";
-    client->setTimeout(rpcController->Timeout());
-
+    int maxRetry = rpcController->MaxRetry();
     PbStruct::ptr resData;
-    int ret = client->sendAndRecvPb(pbStruct.msgSeq, resData); // 接收并解码服务端响应
-    if (ret != 0) {
-        rpcController->SetError(ret, client->getErrInfo());
-        LOG_ERROR << pbStruct.msgSeq << "|call rpc occur client error, serviceFullName=" << pbStruct.serviceFullName << ", error_code="
-                    << ret << ", errorInfo = " << client->getErrInfo();
-        if (done) {
-            done->Run();
+    int64_t endCall = getNowMs() + rpcController->Timeout();
+
+    // 重试大循环，最多的重复调用次数为 1 + maxRetry
+    for (int retryTimes = 0; retryTimes <= maxRetry; retryTimes++) {
+        NetAddress::ptr addr = loadBalancer_->select(addrs_, pbStruct); // 负载均衡器的选择
+        LOG_INFO << "service full name: " << pbStruct.serviceFullName << " server addr: " << addr->toString();
+        TcpClient::ptr client = std::make_shared<TcpClient>(addr);
+        rpcController->SetLocalAddr(client->getLocalAddr());
+        rpcController->SetPeerAddr(client->getPeerAddr());
+
+        AbstractCodeC::ptr codec = client->getConnection()->getCodec();
+        codec->encode(client->getConnection()->getOutBuffer(), &pbStruct);
+        if (!pbStruct.encodeSucc_) {
+            rpcController->SetError(ERROR_FAILED_ENCODE, "encode pb data error");
+            if (done) {
+                done->Run();
+            }
+            return;
         }
-        return;
+
+        LOG_INFO << "============================================================";
+        LOG_INFO << pbStruct.msgSeq << "|" << rpcController->PeerAddr()->toString()
+                << "|. Set client send request data: " << request->ShortDebugString();
+        if (retryTimes > 0) {
+            LOG_INFO << "retry times: " << retryTimes;
+        }
+        LOG_INFO << "============================================================";
+
+        int64_t restTime = endCall - getNowMs();
+        client->setTimeout(restTime);
+
+        int ret = client->sendAndRecvPb(pbStruct.msgSeq, resData); // 接收并解码服务端响应
+        if (ret == 0) {
+            break;
+        }
+        else if (ret != 0 && ret != ERROR_RPC_TIMEOUT) {
+            auto it = addrs_.begin();
+            for (; it != addrs_.end(); it++) {
+                if ((*it)->toString() == addr->toString()) {
+                    break;
+                }
+            }
+            if (it != addrs_.end()) {
+                addrs_.erase(it);
+            }
+            if (addrs_.empty()) {
+                addrs_ = originAddrs_;
+            }
+            LOG_ERROR << pbStruct.msgSeq << "|call rpc occur client error, serviceFullName=" << pbStruct.serviceFullName << ", error_code="
+                        << ret << ", errorInfo = " << client->getErrInfo() << ", to retry......";
+            continue;
+        }
+        else {
+            rpcController->SetError(ret, client->getErrInfo());
+            LOG_ERROR << pbStruct.msgSeq << "|call rpc occur client error, serviceFullName=" << pbStruct.serviceFullName << ", error_code="
+                        << ret << ", errorInfo = " << client->getErrInfo();
+            if (done) {
+                done->Run();
+            }
+            return;
+        }
     }
 
     if (!response->ParseFromString(resData->pbData)) {
@@ -112,9 +144,11 @@ void PbRpcChannel::CallMethod(const google::protobuf::MethodDescriptor *method,
         }
         return;
     }
+
+    // fix: rpc成功调用，结果返回错误，不能成为框架级错误
     if (resData->errCode != 0) {
         LOG_ERROR << pbStruct.msgSeq << "|server reply error_code=" << resData->errCode << ", errInfo=" << resData->errInfo;
-        rpcController->SetError(resData->errCode, resData->errInfo);
+        // rpcController->SetError(resData->errCode, resData->errInfo);
         if (done) {
             done->Run();
         }

@@ -89,6 +89,16 @@ int PbRpcController::Timeout() const
     return timeout_;
 }
 
+void PbRpcController::SetMaxRetry(const int maxRetry)
+{
+    maxRetry_ = maxRetry;
+}
+
+int PbRpcController::MaxRetry() const
+{
+    return maxRetry_;
+}
+
 void PbRpcController::SetMethodName(const std::string &name)
 {
     methodName_ = name;
