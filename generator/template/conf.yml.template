@@ -32,7 +32,16 @@ time_wheel:
   # interval that destroy bad TcpConnection, s
   interval: 10
 
+# none (not to register server), zk
+service_register: zk
+zk_config: 
+  ip: 127.0.0.1
+  port: 2181
+  # default timeout: 30s
+  timeout: 30000
+
 server:
   ip: ${IP}
   port: ${PORT}
-  protocol: PB
+  server_type: rpc
+  rpc_protocol: PB

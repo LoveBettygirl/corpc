@@ -28,7 +28,7 @@ namespace corpc {
     } while (0)
 
 void initConfig(const char *file);
-void startRpcServer();
+void startServer();
 TcpServer::ptr getServer();
 int getIOThreadPoolSize();
 Config::ptr getConfig();

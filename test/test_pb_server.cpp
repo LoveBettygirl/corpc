@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
 
     REGISTER_SERVICE(QueryServiceImpl);
 
-    corpc::startRpcServer();
+    corpc::startServer();
 
     return 0;
 }

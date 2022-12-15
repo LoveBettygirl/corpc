@@ -18,6 +18,11 @@
 
 namespace corpc {
 
+enum ServerType {
+    Rpc_Server,
+    Common_Server,
+};
+
 class TcpAcceptor {
 public:
     typedef std::shared_ptr<TcpAcceptor> ptr;
@@ -41,8 +46,10 @@ private:
 class TcpServer {
 public:
     typedef std::shared_ptr<TcpServer> ptr;
+    using ConnectionCallback = std::function<void(const TcpConnection::ptr&)>;
+    using MessageCallback = std::function<void(const TcpConnection::ptr&)>;
 
-    TcpServer(NetAddress::ptr addr, ProtocolType type = Pb_Protocol);
+    TcpServer(NetAddress::ptr addr, ServerType serverType = Rpc_Server, ProtocolType protocolType = Pb_Protocol);
     ~TcpServer();
     void start();
     void stop();
@@ -51,6 +58,8 @@ public:
     bool registerHttpServlet(const std::string &urlPath, HttpServlet::ptr servlet);
     TcpConnection::ptr addClient(IOThread *ioThread, int fd);
     void freshTcpConnection(TcpTimeWheel::TcpConnectionSlot::ptr slot);
+    void setConnectionCallback(const ConnectionCallback &cb) { connectionCallback_ = cb; }
+    void setMessageCallback(const MessageCallback &cb) { messageCallback_ = cb; }
 
 public:
     AbstractDispatcher::ptr getDispatcher();
@@ -59,6 +68,7 @@ public:
     NetAddress::ptr getLocalAddr();
     IOThreadPool::ptr getIOThreadPool();
     TcpTimeWheel::ptr getTimeWheel();
+    ServerType getServerType() const { return serverType_; }
 
 private:
     void mainAcceptCorFunc();
@@ -76,9 +86,12 @@ private:
     AbstractServiceRegister::ptr register_;
     IOThreadPool::ptr ioPool_;
     ProtocolType protocolType_{Pb_Protocol};
+    ServerType serverType_{Rpc_Server};
     TcpTimeWheel::ptr timeWheel_;
     std::map<int, std::shared_ptr<TcpConnection>> clients_;
     TimerEvent::ptr clearClientTimerEvent_{nullptr};
+    ConnectionCallback connectionCallback_; // 有新连接时的回调
+    MessageCallback messageCallback_; // 有读写消息时的回调
 };
 
 }

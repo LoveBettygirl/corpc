@@ -184,6 +184,6 @@ int main(int argc, char *argv[])
     REGISTER_HTTP_SERVLET("/block", BlockCallHttpServlet);
     REGISTER_HTTP_SERVLET("/nonblock", NonBlockCallHttpServlet);
 
-    corpc::startRpcServer();
+    corpc::startServer();
     return 0;
 }

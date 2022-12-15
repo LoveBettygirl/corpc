@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 #include <queue>
+#include <functional>
 #include "corpc/common/log.h"
 #include "corpc/net/channel.h"
 #include "corpc/net/event_loop.h"
@@ -34,6 +35,8 @@ enum TcpConnectionState {
 class TcpConnection : public std::enable_shared_from_this<TcpConnection> {
 public:
     typedef std::shared_ptr<TcpConnection> ptr;
+    using ConnectionCallback = std::function<void(const TcpConnection::ptr&)>;
+    using MessageCallback = std::function<void(const TcpConnection::ptr&)>;
 
     TcpConnection(corpc::TcpServer *tcpServer, corpc::IOThread *ioThread, int fd, int buffSize, NetAddress::ptr peerAddr);
     TcpConnection(corpc::TcpClient *tcpClient, corpc::EventLoop *loop, int fd, int buffSize, NetAddress::ptr peerAddr);
@@ -60,6 +63,8 @@ public:
     bool getResPackageData(const std::string &msgSeq, PbStruct::ptr &pbStruct);
     void registerToTimeWheel();
     Coroutine::ptr getCoroutine();
+    void setConnectionCallback(const ConnectionCallback &cb) { connectionCallback_ = cb; }
+    void setMessageCallback(const MessageCallback &cb) { messageCallback_ = cb; }
 
 public:
     void mainServerLoopCorFunc();
@@ -69,9 +74,11 @@ public:
     void setOverTimeFlag(bool value);
     bool getOverTimerFlag();
     void initServer();
+    void send(const std::string &data); // 开启一个协程，主动给对方发送消息
 
 private:
     void clearClient();
+    void sendData(const std::string &data);
 
 private:
     TcpServer *tcpServer_{nullptr};
@@ -102,6 +109,9 @@ private:
     std::weak_ptr<AbstractSlot<TcpConnection>> weakSlot_;
 
     RWMutex mutex_;
+
+    ConnectionCallback connectionCallback_; // 有新连接时的回调
+    MessageCallback messageCallback_; // 有读写消息时的回调
 };
 
 }

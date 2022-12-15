@@ -30,7 +30,7 @@ TcpServer::ptr getServer()
     return gTcpServer;
 }
 
-void startRpcServer()
+void startServer()
 {
     gLogger->start();
     gTcpServer->start();

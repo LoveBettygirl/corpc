@@ -55,7 +55,8 @@ void TcpConnection::setUpServer()
 
 void TcpConnection::registerToTimeWheel()
 {
-    auto cb = [](TcpConnection::ptr conn) {
+    auto cb = [this](TcpConnection::ptr conn) {
+        conn->connectionCallback_(conn);
         conn->shutdownConnection();
     };
     TcpTimeWheel::TcpConnectionSlot::ptr temp = std::make_shared<AbstractSlot<TcpConnection>>(shared_from_this(), cb);
@@ -92,6 +93,19 @@ void TcpConnection::mainServerLoopCorFunc()
         output(); // 写数据
     }
     LOG_INFO << "this connection has already end loop";
+}
+
+void TcpConnection::sendData(const std::string &data)
+{
+    writeBuffer_->writeToBuffer(data.c_str(), data.size());
+    output();
+}
+
+void TcpConnection::send(const std::string &data)
+{
+    Coroutine::ptr cor = getCoroutinePool()->getCoroutineInstanse();
+    cor->setCallBack(std::bind(&TcpConnection::sendData, this, data));
+    loop_->addCoroutine(cor);
 }
 
 void TcpConnection::input()
@@ -175,6 +189,12 @@ void TcpConnection::input()
 
 void TcpConnection::execute()
 {
+    if (connectionType_ == ServerConnection) {
+        if (tcpServer_->getServerType() == Common_Server) {
+            messageCallback_(shared_from_this());
+            return;
+        }
+    }
     // it only server do this
     while (readBuffer_->readAble() > 0) {
         std::shared_ptr<AbstractData> data;
@@ -261,9 +281,11 @@ void TcpConnection::clearClient()
 
     // stop read and write cor
     stop_ = true;
+    setState(Closed);
+
+    connectionCallback_(shared_from_this());
 
     close(channel_->getFd());
-    setState(Closed);
 }
 
 void TcpConnection::shutdownConnection()

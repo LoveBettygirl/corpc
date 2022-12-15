@@ -99,19 +99,21 @@ int TcpAcceptor::toAccept()
     return ret;
 }
 
-TcpServer::TcpServer(NetAddress::ptr addr, ProtocolType type /*= Pb_Protocol*/) : addr_(addr)
+TcpServer::TcpServer(NetAddress::ptr addr, ServerType serverType /*= Rpc_Server*/, ProtocolType protocolType /*= Pb_Protocol*/) : addr_(addr)
 {
     ioPool_ = std::make_shared<IOThreadPool>(gConfig->iothreadNum);
-    if (type == Http_Protocol) {
-        dispatcher_ = std::make_shared<HttpDispacther>();
-        codec_ = std::make_shared<HttpCodeC>();
-        protocolType_ = Http_Protocol;
+    if (serverType == Rpc_Server) {
+        if (protocolType == Http_Protocol) {
+            dispatcher_ = std::make_shared<HttpDispacther>();
+            codec_ = std::make_shared<HttpCodeC>();
+        }
+        else if (protocolType == Pb_Protocol) {
+            dispatcher_ = std::make_shared<PbRpcDispacther>();
+            codec_ = std::make_shared<PbCodeC>();
+        }
+        protocolType_ = protocolType;
     }
-    else if (type == Pb_Protocol) {
-        dispatcher_ = std::make_shared<PbRpcDispacther>();
-        codec_ = std::make_shared<PbCodeC>();
-        protocolType_ = Pb_Protocol;
-    }
+    serverType_ = serverType;
 
     // main loop对应主线程
     mainLoop_ = corpc::EventLoop::getEventLoop();
@@ -190,7 +192,7 @@ void TcpServer::addCoroutine(Coroutine::ptr cor)
 
 bool TcpServer::registerService(std::shared_ptr<google::protobuf::Service> service)
 {
-    if (protocolType_ == Pb_Protocol) {
+    if (serverType_ == Rpc_Server && protocolType_ == Pb_Protocol) {
         if (service) {
             dynamic_cast<PbRpcDispacther *>(dispatcher_.get())->registerService(service);
             if (!register_) {
@@ -204,7 +206,7 @@ bool TcpServer::registerService(std::shared_ptr<google::protobuf::Service> servi
         }
     }
     else {
-        LOG_ERROR << "register service error. Just PB protocol server need to register Service";
+        LOG_ERROR << "register service error. Just PB protocol rpc server need to register Service";
         return false;
     }
     return true;
@@ -212,7 +214,7 @@ bool TcpServer::registerService(std::shared_ptr<google::protobuf::Service> servi
 
 bool TcpServer::registerHttpServlet(const std::string &urlPath, HttpServlet::ptr servlet)
 {
-    if (protocolType_ == Http_Protocol) {
+    if (serverType_ == Rpc_Server && protocolType_ == Http_Protocol) {
         if (servlet) {
             dynamic_cast<HttpDispacther *>(dispatcher_.get())->registerServlet(urlPath, servlet);
         }
@@ -222,7 +224,7 @@ bool TcpServer::registerHttpServlet(const std::string &urlPath, HttpServlet::ptr
         }
     }
     else {
-        LOG_ERROR << "register http servlet error. Just Http protocol server need to resgister HttpServlet";
+        LOG_ERROR << "register http servlet error. Just Http protocol rpc server need to resgister HttpServlet";
         return false;
     }
     return true;
@@ -236,12 +238,14 @@ TcpConnection::ptr TcpServer::addClient(IOThread *ioThread, int fd)
         // set new Tcpconnection
         LOG_DEBUG << "fd " << fd << "have exist, reset it";
         it->second = std::make_shared<TcpConnection>(this, ioThread, fd, 128, getPeerAddr());
+        connectionCallback_(it->second);
         return it->second;
     }
     else {
         LOG_DEBUG << "fd " << fd << "did't exist, new it";
         TcpConnection::ptr conn = std::make_shared<TcpConnection>(this, ioThread, fd, 128, getPeerAddr());
         clients_.insert(std::make_pair(fd, conn));
+        connectionCallback_(conn);
         return conn;
     }
 }
