@@ -10,6 +10,8 @@
 #include "corpc/common/start.h"
 #include "corpc/common/string_util.h"
 #include "corpc/common/md5.h"
+#include "corpc/common/noncopyable.h"
+#include "corpc/common/zk_util.h"
 
 #include "corpc/coroutine/coctx.h"
 #include "corpc/coroutine/coroutine_hook.h"
@@ -28,6 +30,7 @@
 #include "corpc/net/timer.h"
 #include "corpc/net/load_balance.h"
 #include "corpc/net/abstract_service_register.h"
+#include "corpc/net/service_register.h"
 
 #include "corpc/net/http/http_codec.h"
 #include "corpc/net/http/http_define.h"

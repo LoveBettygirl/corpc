@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <vector>
 #include <string>
+#include <memory>
 #include "corpc/net/abstract_data.h"
 
 namespace corpc {
