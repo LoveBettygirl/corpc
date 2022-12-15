@@ -17,7 +17,7 @@ echo "Shutdown corpc project, name: ${PROJECT_NAME}, path: ${PROJECT_BIN_FILE}"
 # check bin file exist
 if [ ! -e ${PROJECT_BIN_FILE} ]
 then
-    echo "Shutdown corpc eror, file: ${PROJECT_BIN_FILE} not exist, please check file"
+    echo "Shutdown corpc error, file: ${PROJECT_BIN_FILE} not exist, please check file"
     exit -1
 fi
 

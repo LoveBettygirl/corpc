@@ -18,7 +18,7 @@ fi
 # check bin file exist
 if [ ! -e ${PROJECT_BIN_FILE} ]
 then
-    echo "Run corpc eror, file: ${PROJECT_BIN_FILE} not exist, please check file"
+    echo "Run corpc error, file: ${PROJECT_BIN_FILE} not exist, please check file"
     exit -1
 fi
 
