@@ -27,7 +27,7 @@ public:
     void run(); // Business implementation
 
 private:
-    const ${REQUEST_TYPE}& request_;      // request object fron client
+    const ${REQUEST_TYPE}& request_;      // request object from client
     ${RESPONSE_TYPE}& response_;          // response object that reply to client
 };
 
