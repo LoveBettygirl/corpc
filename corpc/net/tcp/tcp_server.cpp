@@ -176,6 +176,11 @@ void TcpServer::mainAcceptCorFunc()
         TcpConnection::ptr conn = addClient(ioThread, fd);
         // 为刚才给tcp连接分配的新（子）协程，设置子协程执行的主函数（主函数中需要读连接的数据，处理读到的数据，生成要写的数据，将数据发送出去）
         conn->initServer();
+        if (connectionCallback_) {
+            connectionCallback_(conn);
+        }
+        conn->setConnectionCallback(connectionCallback_);
+        conn->setMessageCallback(messageCallback_);
         LOG_DEBUG << "tcpconnection address is " << conn.get() << ", and fd is" << fd;
 
         // 先在分配的io线程对应loop中开始执行子协程的主函数（如果这个io线程未唤醒，需要先唤醒再执行子协程），以执行到read_hook或write_hook
@@ -238,14 +243,12 @@ TcpConnection::ptr TcpServer::addClient(IOThread *ioThread, int fd)
         // set new Tcpconnection
         LOG_DEBUG << "fd " << fd << "have exist, reset it";
         it->second = std::make_shared<TcpConnection>(this, ioThread, fd, 128, getPeerAddr());
-        connectionCallback_(it->second);
         return it->second;
     }
     else {
         LOG_DEBUG << "fd " << fd << "did't exist, new it";
         TcpConnection::ptr conn = std::make_shared<TcpConnection>(this, ioThread, fd, 128, getPeerAddr());
         clients_.insert(std::make_pair(fd, conn));
-        connectionCallback_(conn);
         return conn;
     }
 }

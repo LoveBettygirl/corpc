@@ -241,7 +241,7 @@ void PbCodeC::decode(TcpBuffer *buf, AbstractData *data)
     }
     LOG_DEBUG << "serviceNameLen = " << pbStruct->serviceNameLen;
 
-    char serviceName[512] = {0};
+    char serviceName[1024] = {0};
 
     memcpy(&serviceName[0], &temp[serviceNameIndex], pbStruct->serviceNameLen);
     pbStruct->serviceFullName = std::string(serviceName);
@@ -261,7 +261,7 @@ void PbCodeC::decode(TcpBuffer *buf, AbstractData *data)
     LOG_DEBUG << "errInfoLen = " << pbStruct->errInfoLen;
     int errInfoIndex = errInfoLenIndex + sizeof(int32_t);
 
-    char errInfo[512] = {0};
+    char errInfo[1024] = {0};
 
     memcpy(&errInfo[0], &temp[errInfoIndex], pbStruct->errInfoLen);
     pbStruct->errInfo = std::string(errInfo);

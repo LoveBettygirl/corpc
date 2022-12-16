@@ -56,8 +56,10 @@ void TcpConnection::setUpServer()
 void TcpConnection::registerToTimeWheel()
 {
     auto cb = [this](TcpConnection::ptr conn) {
-        conn->connectionCallback_(conn);
         conn->shutdownConnection();
+        if (conn->connectionCallback_) {
+            conn->connectionCallback_(conn);
+        }
     };
     TcpTimeWheel::TcpConnectionSlot::ptr temp = std::make_shared<AbstractSlot<TcpConnection>>(shared_from_this(), cb);
     weakSlot_ = temp;
@@ -90,21 +92,35 @@ void TcpConnection::mainServerLoopCorFunc()
     while (!stop_) {
         input(); // 读数据
         execute(); // 处理数据
-        output(); // 写数据
+        // output(); // 写数据
+        // fix: 是否写数据完全取决于服务端的协议设计，服务端不一定就要一来一回
     }
     LOG_INFO << "this connection has already end loop";
 }
 
-void TcpConnection::sendData(const std::string &data)
+void TcpConnection::send(const std::string &data)
 {
-    writeBuffer_->writeToBuffer(data.c_str(), data.size());
+    writeBuffer_->writeToBuffer(&*data.begin(), data.size());
     output();
 }
 
-void TcpConnection::send(const std::string &data)
+void TcpConnection::send(const char *buf, int size)
+{
+    writeBuffer_->writeToBuffer(buf, size);
+    output();
+}
+
+void TcpConnection::sendInCor(const std::string &data)
 {
     Coroutine::ptr cor = getCoroutinePool()->getCoroutineInstanse();
-    cor->setCallBack(std::bind(&TcpConnection::sendData, this, data));
+    cor->setCallBack(std::bind(static_cast<void(TcpConnection::*)(const std::string &)>(&TcpConnection::send), this, data));
+    loop_->addCoroutine(cor);
+}
+
+void TcpConnection::sendInCor(const char *buf, int size)
+{
+    Coroutine::ptr cor = getCoroutinePool()->getCoroutineInstanse();
+    cor->setCallBack(std::bind(static_cast<void(TcpConnection::*)(const char *, int)>(&TcpConnection::send), this, buf, size));
     loop_->addCoroutine(cor);
 }
 
@@ -191,7 +207,9 @@ void TcpConnection::execute()
 {
     if (connectionType_ == ServerConnection) {
         if (tcpServer_->getServerType() == Common_Server) {
-            messageCallback_(shared_from_this());
+            if (messageCallback_) {
+                messageCallback_(shared_from_this());
+            }
             return;
         }
     }
@@ -215,6 +233,7 @@ void TcpConnection::execute()
         if (connectionType_ == ServerConnection) {
             LOG_DEBUG << "to dispatch this package";
             tcpServer_->getDispatcher()->dispatch(data.get(), this);
+            output();
             LOG_DEBUG << "continue parse next package";
         }
         else if (connectionType_ == ClientConnection) {
@@ -283,7 +302,9 @@ void TcpConnection::clearClient()
     stop_ = true;
     setState(Closed);
 
-    connectionCallback_(shared_from_this());
+    if (connectionCallback_) {
+        connectionCallback_(shared_from_this());
+    }
 
     close(channel_->getFd());
 }

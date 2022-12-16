@@ -75,7 +75,7 @@ void HttpCodeC::decode(TcpBuffer *buf, AbstractData *data)
             // 请求行内容还没完全读到应用层缓冲区中
             if (i == temp.size() - 2) {
                 LOG_DEBUG << "need to read more data";
-                break;
+                return;
             }
             isParseRequestLine = parseHttpRequestLine(request, temp.substr(0, i));
             if (!isParseRequestLine) {

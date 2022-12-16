@@ -170,8 +170,9 @@ void Config::readConf()
 
     if (!serverNode["ip"] || !serverNode["ip"].IsScalar() || 
         !serverNode["port"] || !serverNode["port"].IsScalar() || 
-        !serverNode["protocol"] || !serverNode["protocol"].IsScalar()) {
-        printf("start corpc server error! read config file [%s] error, cannot read [server.ip] or [server.port] or [server.protocol] yaml node\n", filePath_.c_str());
+        !serverNode["server_type"] || !serverNode["server_type"].IsScalar() || 
+        !serverNode["rpc_protocol"] || !serverNode["rpc_protocol"].IsScalar()) {
+        printf("start corpc server error! read config file [%s] error, cannot read [server.ip] or [server.port] or [server.server_type] or [server.rpc_protocol] yaml node\n", filePath_.c_str());
         exit(0);
     }
     std::string ip = serverNode["ip"].as<std::string>();
@@ -203,7 +204,7 @@ void Config::readConf()
         gTcpServer = std::make_shared<TcpServer>(addr, Common_Server);
     }
 
-    char buff[512] = {0};
+    char buff[1024] = {0};
     sprintf(buff, "read config from file [%s]: [log_path: %s], [log_prefix: %s], [log_max_size: %d MB], [log_level: %s], [user_log_level: %s], "
                     "[coroutine_stack_size: %d KB], [coroutine_pool_size: %d], "
                     "[msg_seq_len: %d], [max_connect_timeout: %d s], "

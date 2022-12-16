@@ -45,7 +45,7 @@ public:
 
         if (rpcController.ErrorCode() != 0) {
             USER_LOG_DEBUG << "failed to call QueryServer rpc server";
-            char buf[512] = {0};
+            char buf[1024] = {0};
             sprintf(buf, html, "failed to call QueryServer rpc server");
             setHttpBody(res, std::string(buf));
             return;
@@ -55,7 +55,7 @@ public:
             std::stringstream ss;
             ss << "QueryServer rpc server return bad result, ret = " << rpcRes.ret_code() << ", and res_info = " << rpcRes.res_info();
             USER_LOG_DEBUG << ss.str();
-            char buf[512] = {0};
+            char buf[1024] = {0};
             sprintf(buf, html, ss.str().c_str());
             setHttpBody(res, std::string(buf));
             return;
@@ -64,7 +64,7 @@ public:
         std::stringstream ss;
         ss << "Success!! Your age is " << rpcRes.age() << " and Your id is " << rpcRes.id();
 
-        char buf[512] = {0};
+        char buf[1024] = {0};
         sprintf(buf, html, ss.str().c_str());
         setHttpBody(res, std::string(buf));
     }
@@ -116,7 +116,7 @@ public:
 
         if (rpcController->ErrorCode() != 0) {
             USER_LOG_DEBUG << "failed to call QueryServer rpc server";
-            char buf[512] = {0};
+            char buf[1024] = {0};
             sprintf(buf, html, "failed to call QueryServer rpc server");
             setHttpBody(res, std::string(buf));
             return;
@@ -126,7 +126,7 @@ public:
             std::stringstream ss;
             ss << "QueryServer rpc server return bad result, ret = " << rpcRes->ret_code() << ", and res_info = " << rpcRes->res_info();
             USER_LOG_DEBUG << ss.str();
-            char buf[512] = {0};
+            char buf[1024] = {0};
             sprintf(buf, html, ss.str().c_str());
             setHttpBody(res, std::string(buf));
             return;
@@ -135,7 +135,7 @@ public:
         std::stringstream ss;
         ss << "Success!! Your age is " << rpcRes->age() << " and Your id is " << rpcRes->id();
 
-        char buf[512] = {0};
+        char buf[1024] = {0};
         sprintf(buf, html, ss.str().c_str());
         setHttpBody(res, std::string(buf));
     }
@@ -157,7 +157,7 @@ public:
 
         std::stringstream ss;
         ss << "QPSHttpServlet Echo Success!! Your id is: " << req->queryMaps_["id"];
-        char buf[512] = {0};
+        char buf[1024] = {0};
         sprintf(buf, html, ss.str().c_str());
         setHttpBody(res, std::string(buf));
         USER_LOG_DEBUG << ss.str();

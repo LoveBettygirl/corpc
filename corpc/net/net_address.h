@@ -37,8 +37,8 @@ public:
     static bool checkValidIPAddr(const std::string &addr);
 
 private:
-    std::string ip_;
-    uint16_t port_;
+    std::string ip_ = "0.0.0.0";
+    uint16_t port_ = 0;
     sockaddr_in addr_;
 };
 

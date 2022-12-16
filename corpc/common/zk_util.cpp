@@ -69,7 +69,7 @@ void ZkClient::stop()
 // state: 表示永久性节点还是临时性节点，0是永久性节点。永久性节点的ephemeralOwner为0
 void ZkClient::create(const char *path, const char *data, int datalen, int state)
 {
-    char path_buffer[128] = {0};
+    char path_buffer[1024] = {0};
     int bufferlen = sizeof(path_buffer);
     int flag;
     // 先判断path表示的znode节点是否存在，如果存在，就不再重复创建了

@@ -87,7 +87,6 @@ int TcpClient::sendAndRecvPb(const std::string &msgNo, PbStruct::ptr &res)
             int ret = connect_hook(fd_, reinterpret_cast<sockaddr *>(peerAddr_->getSockAddr()), peerAddr_->getSockLen());
             if (ret == 0) {
                 LOG_DEBUG << "connect [" << peerAddr_->toString() << "] succ!";
-                std::cout << "connect [" << peerAddr_->toString() << "] succ!" << std::endl;
                 connection_->setUpClient(); // 设置状态为已连接
                 break;
             }
@@ -152,6 +151,106 @@ int TcpClient::sendAndRecvPb(const std::string &msgNo, PbStruct::ptr &res)
         }
 
         connection_->execute(); // 解码缓冲区中服务端响应，并将序列号和解码后的响应保存起来，避免乱序
+    }
+
+    loop_->getTimer()->delTimerEvent(event);
+    errInfo_ = "";
+    return 0;
+
+ERR_DEAL:
+    // connect error should close fd and reopen new one
+    ChannelContainer::getChannelContainer()->getChannel(fd_)->unregisterFromEventLoop();
+    close(fd_);
+    fd_ = socket(AF_INET, SOCK_STREAM, 0);
+    std::stringstream ss;
+    if (isTimeout) {
+        ss << "call rpc failed, over " << maxTimeout_ << " ms";
+        errInfo_ = ss.str();
+
+        connection_->setOverTimeFlag(false);
+        return ERROR_RPC_TIMEOUT;
+    }
+    else {
+        ss << "call rpc failed, peer closed [" << peerAddr_->toString() << "]";
+        errInfo_ = ss.str();
+        loop_->getTimer()->delTimerEvent(event);
+        return ERROR_PEER_CLOSED; // 数据收发过程中，出现了错误，如果不是超时错误，就默认是对方关闭了连接
+    }
+}
+
+int TcpClient::sendData(const std::string &data)
+{
+    bool isTimeout = false; // rpc是否超时的标记，rpc超时异常不进行重试
+    corpc::Coroutine *curCor = corpc::Coroutine::getCurrentCoroutine(); // 子协程
+    auto timercb = [this, &isTimeout, curCor]() {
+        LOG_INFO << "TcpClient timer out event occur";
+        isTimeout = true;
+        this->connection_->setOverTimeFlag(true);
+        corpc::Coroutine::resume(curCor);
+    };
+    TimerEvent::ptr event = std::make_shared<TimerEvent>(maxTimeout_, false, timercb);
+    if (maxTimeout_ <= 0) {
+        isTimeout = true;
+        goto ERR_DEAL;
+    }
+    loop_->getTimer()->addTimerEvent(event);
+
+    LOG_DEBUG << "add rpc timer event, timeout on " << event->arriveTime_;
+
+    while (!isTimeout) {
+        LOG_DEBUG << "begin to connect";
+        if (connection_->getState() != Connected) {
+            int ret = connect_hook(fd_, reinterpret_cast<sockaddr *>(peerAddr_->getSockAddr()), peerAddr_->getSockLen());
+            if (ret == 0) {
+                LOG_DEBUG << "connect [" << peerAddr_->toString() << "] succ!";
+                connection_->setUpClient(); // 设置状态为已连接
+                break;
+            }
+            resetFd();
+            if (isTimeout) {
+                LOG_INFO << "connect timeout, break";
+                goto ERR_DEAL;
+            }
+            if (errno == ECONNREFUSED) {
+                std::stringstream ss;
+                ss << "connect error, peer[ " << peerAddr_->toString() << " ] closed.";
+                errInfo_ = ss.str();
+                LOG_ERROR << "cancel overtime event, err info=" << errInfo_;
+                loop_->getTimer()->delTimerEvent(event);
+                return ERROR_PEER_CLOSED;
+            }
+            // 无意义的错误不重试
+            if (errno == EAFNOSUPPORT) {
+                std::stringstream ss;
+                ss << "connect cur sys ror, err info is " << std::string(strerror(errno)) << " ] closed.";
+                errInfo_ = ss.str();
+                LOG_ERROR << "cancel overtime event, err info=" << errInfo_;
+                loop_->getTimer()->delTimerEvent(event);
+                return ERROR_CONNECT_SYS_ERR;
+            }
+        }
+        else {
+            break;
+        }
+    }
+
+    if (connection_->getState() != Connected) {
+        std::stringstream ss;
+        ss << "connect peer addr[" << peerAddr_->toString() << "] error. sys error=" << strerror(errno);
+        errInfo_ = ss.str();
+        loop_->getTimer()->delTimerEvent(event);
+        return ERROR_FAILED_CONNECT;
+    }
+
+    connection_->setUpClient();
+
+    connection_->getOutBuffer()->writeToBuffer(data.c_str(), data.size());
+
+    connection_->output(); // 发送请求
+    if (connection_->getOverTimerFlag()) { // 数据发送超时
+        LOG_INFO << "send data over time";
+        isTimeout = true;
+        goto ERR_DEAL;
     }
 
     loop_->getTimer()->delTimerEvent(event);

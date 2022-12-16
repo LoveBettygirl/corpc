@@ -26,7 +26,7 @@ void HttpServlet::handleNotFound(HttpRequest *req, HttpResponse *res)
 {
     LOG_DEBUG << "return 404 html";
     setHttpCode(res, HTTP_NOTFOUND);
-    char buf[512] = {0};
+    char buf[1024] = {0};
     sprintf(buf, defaultHtmlTemplate, std::to_string(HTTP_NOTFOUND).c_str(), httpCodeToString(HTTP_NOTFOUND));
     setHttpContentType(res, contentTypeText);
     setHttpBody(res, std::string(buf));

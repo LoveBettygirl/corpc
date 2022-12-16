@@ -74,11 +74,13 @@ public:
     void setOverTimeFlag(bool value);
     bool getOverTimerFlag();
     void initServer();
-    void send(const std::string &data); // 开启一个协程，主动给对方发送消息
+    void sendInCor(const std::string &data);
+    void sendInCor(const char *buf, int size);
+    void send(const std::string &data);
+    void send(const char *buf, int size);
 
 private:
     void clearClient();
-    void sendData(const std::string &data);
 
 private:
     TcpServer *tcpServer_{nullptr};

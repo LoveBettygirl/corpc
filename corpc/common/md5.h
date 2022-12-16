@@ -62,10 +62,12 @@ private:
     void resetVector();	 // 重置字节流、加密结果初始向量
     bool judgeHexString(const std::string &src); // 判断是不是16进制字符串
     std::vector<uint8_t> genDigest(); // MD5值转字节数组
+    std::string genResultString(); // 生成MD5字符串
 
 public:
     MD5();
     std::vector<uint8_t> digest(const std::string &src); // MD5值转字节数组
+    std::string getResultString(const std::string &src); // 生成MD5字符串
 };
 
 }

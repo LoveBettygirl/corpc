@@ -1,4 +1,5 @@
 #include "corpc/common/md5.h"
+#include <arpa/inet.h>
 
 namespace corpc {
 
@@ -127,6 +128,19 @@ std::vector<uint8_t> MD5::genDigest()
     return result;
 }
 
+std::string MD5::genResultString()
+{
+    std::string result;
+    for (int i = 0; i < 4; i++) {
+        // trick: 由于先前的计算都是按照小端模式进行计算
+        // 因此转为字符串的时候要转换成大端模式
+        char temp[20] = {0};
+        sprintf(temp, "%08x", htonl(state[i]));
+        result += temp;
+    }
+    return result;
+}
+
 std::vector<uint8_t> MD5::digest(const std::string &src)
 {
     resetVector();
@@ -134,6 +148,15 @@ std::vector<uint8_t> MD5::digest(const std::string &src)
     padding();
     compute();
     return genDigest();
+}
+
+std::string MD5::getResultString(const std::string &src)
+{
+    resetVector();
+    string2BitStream(src);
+    padding();
+    compute();
+    return genResultString();
 }
 
 bool MD5::judgeHexString(const std::string &src)

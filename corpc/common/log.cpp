@@ -144,7 +144,7 @@ std::stringstream &LogEvent::getStringStream()
     localtime_r(&(timeval_.tv_sec), &time);
 
     const char *format = "%Y-%m-%d %H:%M:%S";
-    char buf[128] = {0};
+    char buf[1024] = {0};
     strftime(buf, sizeof(buf), format, &time);
 
     ss_ << "[" << buf << "." << timeval_.tv_usec << "] ";
@@ -355,7 +355,7 @@ void AsyncLogger::execute()
         localtime_r(&(now.tv_sec), &nowTime);
 
         const char *format = "%Y%m%d";
-        char date[32] = {0};
+        char date[1024] = {0};
         strftime(date, sizeof(date), format, &nowTime);
         if (date_ != std::string(date)) {
             // cross day

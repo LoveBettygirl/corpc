@@ -20,6 +20,7 @@ public:
 
     void resetFd();
     int sendAndRecvPb(const std::string &msgNo, PbStruct::ptr &res);
+    int sendData(const std::string &data);
     void stop();
 
     TcpConnection *getConnection();

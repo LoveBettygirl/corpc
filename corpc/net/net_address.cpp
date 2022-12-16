@@ -69,6 +69,7 @@ IPAddress::IPAddress(uint16_t port) : port_(port)
     addr_.sin_family = AF_INET;
     addr_.sin_addr.s_addr = INADDR_ANY;
     addr_.sin_port = htons(port_);
+    ip_ = "0.0.0.0";
 
     LOG_DEBUG << "create ipv4 address succ [" << toString() << "]";
 }
@@ -97,7 +98,6 @@ socklen_t IPAddress::getSockLen() const
 
 UnixDomainAddress::UnixDomainAddress(std::string &path) : path_(path)
 {
-
     memset(&addr_, 0, sizeof(addr_));
     unlink(path_.c_str());
     addr_.sun_family = AF_UNIX;
