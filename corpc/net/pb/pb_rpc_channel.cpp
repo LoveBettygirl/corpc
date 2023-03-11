@@ -77,6 +77,18 @@ void PbRpcChannel::CallMethod(const google::protobuf::MethodDescriptor *method,
 
     // 重试大循环，最多的重复调用次数为 1 + maxRetry
     for (int retryTimes = 0; retryTimes <= maxRetry; retryTimes++) {
+        if (addrs_.empty()) {
+            addrs_ = originAddrs_;
+            if (addrs_.empty()) {
+                rpcController->SetError(ERROR_SERVICE_NOT_FOUND, "not found address of service");
+                LOG_ERROR << pbStruct.msgSeq << "|call rpc occur client error, serviceFullName=" << pbStruct.serviceFullName << ", error_code="
+                        << ERROR_SERVICE_NOT_FOUND << ", errorInfo = not found address of service";
+                if (done) {
+                    done->Run();
+                }
+                return;
+            }
+        }
         NetAddress::ptr addr = loadBalancer_->select(addrs_, pbStruct); // 负载均衡器的选择
         LOG_INFO << "service full name: " << pbStruct.serviceFullName << " server addr: " << addr->toString();
         TcpClient::ptr client = std::make_shared<TcpClient>(addr);
@@ -117,9 +129,6 @@ void PbRpcChannel::CallMethod(const google::protobuf::MethodDescriptor *method,
             }
             if (it != addrs_.end()) {
                 addrs_.erase(it);
-            }
-            if (addrs_.empty()) {
-                addrs_ = originAddrs_;
             }
             LOG_ERROR << pbStruct.msgSeq << "|call rpc occur client error, serviceFullName=" << pbStruct.serviceFullName << ", error_code="
                         << ret << ", errorInfo = " << client->getErrInfo() << ", to retry......";

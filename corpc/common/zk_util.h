@@ -49,6 +49,8 @@ private:
     // zk的客户端句柄
     zhandle_t *zhandle_;
 
+    sem_t sem_;
+
     // 缓存路径对应的子节点，这样就不用总是遍历文件系统了
     std::unordered_map<std::string, std::vector<std::string>> childrenNodesMap_;
 

@@ -174,7 +174,7 @@ void TcpServer::mainAcceptCorFunc()
         // 将新连接的fd生成新的tcp连接对象，并加入已连接的客户端列表中
         // 生成新的tcp连接对象的过程中，要将fd封装成channel对象，为channel对象设置好对应的事件循环，初始化缓冲区长度，为tcp连接分配新的子协程，设置状态为已连接（Connected）
         TcpConnection::ptr conn = addClient(ioThread, fd);
-        // 为刚才给tcp连接分配的新（子）协程，设置子协程执行的主函数（主函数中需要读连接的数据，处理读到的数据，生成要写的数据，将数据发送出去）
+        // 为刚才给tcp连接注册时间轮，分配的新（子）协程，设置子协程执行的主函数（主函数中需要读连接的数据，处理读到的数据，生成要写的数据，将数据发送出去）
         conn->initServer();
         if (connectionCallback_) {
             connectionCallback_(conn);

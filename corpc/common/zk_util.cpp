@@ -11,8 +11,13 @@ void ZkClient::globalWatcher(zhandle_t *zh, int type, int state, const char *pat
 {
     if (type == ZOO_SESSION_EVENT) { // 回调的消息类型是和会话相关的消息类型
         if (state == ZOO_CONNECTED_STATE) { // zkclient和zkserver连接成功
-            sem_t *sem = (sem_t*)zoo_get_context(zh);
-            sem_post(sem); // 连接成功
+            ZkClient *cli = (ZkClient*)zoo_get_context(zh);
+            sem_post(&cli->sem_); // 连接成功
+        }
+        else if (state == ZOO_EXPIRED_SESSION_STATE) { // 会话超时，重新连接
+            LOG_ERROR << "Trying to reconnect zk......";
+            ZkClient *cli = (ZkClient*)zoo_get_context(zh);
+            cli->start();
         }
     }
 }
@@ -47,11 +52,10 @@ void ZkClient::start()
         Exit(0);
     }
 
-    sem_t sem;
-    sem_init(&sem, 0, 0);
-    zoo_set_context(zhandle_, &sem);
+    sem_init(&sem_, 0, 0);
+    zoo_set_context(zhandle_, this);
 
-    sem_wait(&sem); // 等待连接
+    sem_wait(&sem_); // 等待连接
     LOG_INFO << "zookeeper_init success!";
 }
 

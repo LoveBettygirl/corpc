@@ -1,5 +1,5 @@
-#ifndef CORPC_H
-#define CORPC_H
+#ifndef CORPC_CORPC_H
+#define CORPC_CORPC_H
 
 #include "corpc/common/config.h"
 #include "corpc/common/const.h"

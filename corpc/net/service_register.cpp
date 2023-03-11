@@ -6,15 +6,27 @@
 
 namespace corpc {
 
+AbstractServiceRegister::ptr ServiceRegister::s_noneServiceRegister;
+AbstractServiceRegister::ptr ServiceRegister::s_zkServiceRegister;
+
 AbstractServiceRegister::ptr ServiceRegister::queryRegister(ServiceRegisterCategory category)
 {
     switch (category) {
         case ServiceRegisterCategory::None:
-            return std::make_shared<NoneServiceRegister>();
+            if (!s_noneServiceRegister) {
+                s_noneServiceRegister = std::make_shared<NoneServiceRegister>();
+            }
+            return s_noneServiceRegister;
         case ServiceRegisterCategory::Zk:
-            return std::make_shared<ZkServiceRegister>();
+            if (!s_zkServiceRegister) {
+                s_zkServiceRegister = std::make_shared<ZkServiceRegister>();
+            }
+            return s_zkServiceRegister;
         default:
-            return std::make_shared<NoneServiceRegister>();
+            if (!s_noneServiceRegister) {
+                s_noneServiceRegister = std::make_shared<NoneServiceRegister>();
+            }
+            return s_noneServiceRegister;
     }
 }
 

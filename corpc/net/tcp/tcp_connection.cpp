@@ -45,6 +45,7 @@ TcpConnection::TcpConnection(corpc::TcpClient *tcpCli, corpc::EventLoop *loop, i
 
 void TcpConnection::initServer()
 {
+    registerToTimeWheel();
     loopCor_->setCallBack(std::bind(&TcpConnection::mainServerLoopCorFunc, this));
 }
 
@@ -93,7 +94,6 @@ void TcpConnection::mainServerLoopCorFunc()
         input(); // 读数据
         execute(); // 处理数据
         // output(); // 写数据
-        // fix: 是否写数据完全取决于服务端的协议设计，服务端不一定就要一来一回
     }
     LOG_INFO << "this connection has already end loop";
 }
