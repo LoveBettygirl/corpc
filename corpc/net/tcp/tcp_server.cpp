@@ -14,6 +14,8 @@
 #include "corpc/net/pb/pb_rpc_dispatcher.h"
 #include "corpc/net/pb/pb_codec.h"
 #include "corpc/net/service_register.h"
+#include "corpc/net/custom/custom_dispatcher.h"
+#include "corpc/net/custom/custom_codec.h"
 
 namespace corpc {
 
@@ -99,21 +101,22 @@ int TcpAcceptor::toAccept()
     return ret;
 }
 
-TcpServer::TcpServer(NetAddress::ptr addr, ServerType serverType /*= Rpc_Server*/, ProtocolType protocolType /*= Pb_Protocol*/) : addr_(addr)
+TcpServer::TcpServer(NetAddress::ptr addr, ProtocolType protocolType /*= Pb_Protocol*/) : addr_(addr)
 {
     ioPool_ = std::make_shared<IOThreadPool>(gConfig->iothreadNum);
-    if (serverType == Rpc_Server) {
-        if (protocolType == Http_Protocol) {
-            dispatcher_ = std::make_shared<HttpDispacther>();
-            codec_ = std::make_shared<HttpCodeC>();
-        }
-        else if (protocolType == Pb_Protocol) {
-            dispatcher_ = std::make_shared<PbRpcDispacther>();
-            codec_ = std::make_shared<PbCodeC>();
-        }
-        protocolType_ = protocolType;
+    if (protocolType == Http_Protocol) {
+        dispatcher_ = std::make_shared<HttpDispacther>();
+        codec_ = std::make_shared<HttpCodeC>();
     }
-    serverType_ = serverType;
+    else if (protocolType == Pb_Protocol) {
+        dispatcher_ = std::make_shared<PbRpcDispacther>();
+        codec_ = std::make_shared<PbCodeC>();
+    }
+    else {
+        dispatcher_ = std::make_shared<CustomDispatcher>();
+        codec_ = std::make_shared<CustomCodeC>();
+    }
+    protocolType_ = protocolType;
 
     // main loop对应主线程
     mainLoop_ = corpc::EventLoop::getEventLoop();
@@ -180,7 +183,6 @@ void TcpServer::mainAcceptCorFunc()
             connectionCallback_(conn);
         }
         conn->setConnectionCallback(connectionCallback_);
-        conn->setMessageCallback(messageCallback_);
         LOG_DEBUG << "tcpconnection address is " << conn.get() << ", and fd is" << fd;
 
         // 先在分配的io线程对应loop中开始执行子协程的主函数（如果这个io线程未唤醒，需要先唤醒再执行子协程），以执行到read_hook或write_hook
@@ -197,7 +199,7 @@ void TcpServer::addCoroutine(Coroutine::ptr cor)
 
 bool TcpServer::registerService(std::shared_ptr<google::protobuf::Service> service)
 {
-    if (serverType_ == Rpc_Server && protocolType_ == Pb_Protocol) {
+    if (protocolType_ == Pb_Protocol) {
         if (service) {
             dynamic_cast<PbRpcDispacther *>(dispatcher_.get())->registerService(service);
             if (!register_) {
@@ -211,7 +213,7 @@ bool TcpServer::registerService(std::shared_ptr<google::protobuf::Service> servi
         }
     }
     else {
-        LOG_ERROR << "register service error. Just PB protocol rpc server need to register Service";
+        LOG_ERROR << "register service error. Just PB protocol rpc server need to register google::protobuf::Service";
         return false;
     }
     return true;
@@ -219,7 +221,7 @@ bool TcpServer::registerService(std::shared_ptr<google::protobuf::Service> servi
 
 bool TcpServer::registerHttpServlet(const std::string &urlPath, HttpServlet::ptr servlet)
 {
-    if (serverType_ == Rpc_Server && protocolType_ == Http_Protocol) {
+    if (protocolType_ == Http_Protocol) {
         if (servlet) {
             dynamic_cast<HttpDispacther *>(dispatcher_.get())->registerServlet(urlPath, servlet);
         }
@@ -230,6 +232,27 @@ bool TcpServer::registerHttpServlet(const std::string &urlPath, HttpServlet::ptr
     }
     else {
         LOG_ERROR << "register http servlet error. Just Http protocol rpc server need to resgister HttpServlet";
+        return false;
+    }
+    return true;
+}
+
+bool TcpServer::registerService(std::shared_ptr<CustomService> service)
+{
+    if (protocolType_ == Custom_Protocol) {
+        if (service) {
+            if (!register_) {
+                register_ = ServiceRegister::queryRegister(gConfig->serviceRegister);
+            }
+            register_->registerService(service, addr_);
+        }
+        else {
+            LOG_ERROR << "register service error, service ptr is nullptr";
+            return false;
+        }
+    }
+    else {
+        LOG_ERROR << "register service error. Just Custom protocol rpc server need to register CustomService";
         return false;
     }
     return true;
@@ -303,6 +326,20 @@ AbstractDispatcher::ptr TcpServer::getDispatcher()
 AbstractCodeC::ptr TcpServer::getCodec()
 {
     return codec_;
+}
+
+void TcpServer::setCustomCodeC(CustomCodeC::ptr codec)
+{
+    if (protocolType_ == Custom_Protocol) {
+        codec_ = codec;
+    }
+}
+
+void TcpServer::setCustomDispatcher(CustomDispatcher::ptr dispatcher)
+{
+    if (protocolType_ == Custom_Protocol) {
+        dispatcher_ = dispatcher;
+    }
 }
 
 }

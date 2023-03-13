@@ -10,7 +10,7 @@ FILE_NAME=$1
 PROJECT_NAME=$(basename ${FILE_NAME})
 CURRENT_PATH=$(cd $(dirname $0); pwd)
 PROJECT_BIN_FILE="${CURRENT_PATH}"/"bin/${PROJECT_NAME}"
-PROJECT_CONF_FILE="./conf/${PROJECT_NAME}.xml"
+PROJECT_CONF_FILE="./conf/${PROJECT_NAME}.yml"
 
 echo "Shutdown corpc project, name: ${PROJECT_NAME}, path: ${PROJECT_BIN_FILE}"
 

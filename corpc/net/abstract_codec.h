@@ -11,6 +11,7 @@ namespace corpc {
 enum ProtocolType {
     Http_Protocol = 1,
     Pb_Protocol = 2,
+    Custom_Protocol = 10,
 };
 
 class AbstractCodeC {

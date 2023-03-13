@@ -22,7 +22,9 @@ void ZkClient::globalWatcher(zhandle_t *zh, int type, int state, const char *pat
     }
 }
 
-ZkClient::ZkClient() : zhandle_(nullptr) {}
+ZkClient::ZkClient(const std::string &ip, int port, int timeout) : connstr_(ip + ":" + std::to_string(port)), timeout_(timeout), zhandle_(nullptr) {}
+
+ZkClient::ZkClient() : connstr_(gConfig->zkIp + ":" + std::to_string(gConfig->zkPort)), timeout_(gConfig->zkTimeout), zhandle_(nullptr) {}
 
 ZkClient::~ZkClient()
 {
@@ -32,10 +34,6 @@ ZkClient::~ZkClient()
 // zkclient启动连接zkserver
 void ZkClient::start()
 {
-    std::string host = gConfig->zkIp;
-    std::string port = std::to_string(gConfig->zkPort);
-    std::string connstr = host + ":" + port;
-
     /*
     zookeeper_mt：多线程版本
     zookeeper的API客户端程序提供了三个线程
@@ -44,8 +42,7 @@ void ZkClient::start()
     watcher回调线程 pthread_create 给客户端通知
     */
     // 这是异步的连接
-    int timeout = gConfig->zkTimeout;
-    zhandle_ = zookeeper_init(connstr.c_str(), globalWatcher, timeout, nullptr, nullptr, 0);
+    zhandle_ = zookeeper_init(connstr_.c_str(), globalWatcher, timeout_, nullptr, nullptr, 0);
     // 返回表示句柄创建成功，不代表连接成功了
     if (nullptr == zhandle_) {
         LOG_ERROR << "zookeeper_init error!";

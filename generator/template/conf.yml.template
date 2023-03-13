@@ -43,5 +43,4 @@ zk_config:
 server:
   ip: ${IP}
   port: ${PORT}
-  server_type: rpc
-  rpc_protocol: PB
+  protocol: PB

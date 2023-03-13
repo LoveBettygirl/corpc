@@ -3,10 +3,9 @@
 
 #include <memory>
 #include "corpc/net/abstract_data.h"
+#include "corpc/net/tcp/tcp_connection.h"
 
 namespace corpc {
-
-class TcpConnection;
 
 class AbstractDispatcher {
 public:
@@ -15,7 +14,7 @@ public:
     AbstractDispatcher() {}
     virtual ~AbstractDispatcher() {}
 
-    virtual void dispatch(AbstractData *data, TcpConnection *conn) = 0;
+    virtual void dispatch(AbstractData *data, const TcpConnection::ptr &conn) = 0;
 };
 
 }

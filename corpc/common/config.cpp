@@ -170,9 +170,8 @@ void Config::readConf()
 
     if (!serverNode["ip"] || !serverNode["ip"].IsScalar() || 
         !serverNode["port"] || !serverNode["port"].IsScalar() || 
-        !serverNode["server_type"] || !serverNode["server_type"].IsScalar() || 
-        !serverNode["rpc_protocol"] || !serverNode["rpc_protocol"].IsScalar()) {
-        printf("start corpc server error! read config file [%s] error, cannot read [server.ip] or [server.port] or [server.server_type] or [server.rpc_protocol] yaml node\n", filePath_.c_str());
+        !serverNode["protocol"] || !serverNode["protocol"].IsScalar()) {
+        printf("start corpc server error! read config file [%s] error, cannot read [server.ip] or [server.port] or [server.protocol] yaml node\n", filePath_.c_str());
         exit(0);
     }
     std::string ip = serverNode["ip"].as<std::string>();
@@ -185,34 +184,30 @@ void Config::readConf()
         exit(0);
     }
 
-    std::string serverType = serverNode["server_type"].as<std::string>();
-    std::string rpcProtocol = serverNode["rpc_protocol"].as<std::string>();
-    std::transform(serverType.begin(), serverType.end(), serverType.begin(), tolower);
-    std::transform(rpcProtocol.begin(), rpcProtocol.end(), rpcProtocol.begin(), tolower);
+    std::string protocol = serverNode["protocol"].as<std::string>();
+    std::transform(protocol.begin(), protocol.end(), protocol.begin(), tolower);
 
     corpc::IPAddress::ptr addr = std::make_shared<corpc::IPAddress>(ip, port);
 
-    if (serverType == "rpc") {
-        if (rpcProtocol == "http") {
-            gTcpServer = std::make_shared<TcpServer>(addr, Rpc_Server, Http_Protocol);
-        }
-        else if (rpcProtocol == "pb") {
-            gTcpServer = std::make_shared<TcpServer>(addr, Rpc_Server, Pb_Protocol);
-        }
+    if (protocol == "http") {
+        gTcpServer = std::make_shared<TcpServer>(addr, Http_Protocol);
     }
-    else if (serverType == "common") {
-        gTcpServer = std::make_shared<TcpServer>(addr, Common_Server);
+    else if (protocol == "pb") {
+        gTcpServer = std::make_shared<TcpServer>(addr, Pb_Protocol);
+    }
+    else {
+        gTcpServer = std::make_shared<TcpServer>(addr, Custom_Protocol);
     }
 
     char buff[1024] = {0};
     sprintf(buff, "read config from file [%s]: [log_path: %s], [log_prefix: %s], [log_max_size: %d MB], [log_level: %s], [user_log_level: %s], "
                     "[coroutine_stack_size: %d KB], [coroutine_pool_size: %d], "
                     "[msg_seq_len: %d], [max_connect_timeout: %d s], "
-                    "[iothread_num: %d], [timewheel_bucket_num: %d], [timewheel_interval: %d s], [server_ip: %s], [server_port: %d], [server_type: %s], [server_protocol: %s], "
+                    "[iothread_num: %d], [timewheel_bucket_num: %d], [timewheel_interval: %d s], [server_ip: %s], [server_port: %d], [server_protocol: %s], "
                     "[service_register: %s], [zk_ip: %s], [zk_port: %d], [zk_timeout: %d]",
             filePath_.c_str(), logPath.c_str(), logPrefix.c_str(), logMaxSize / 1024 / 1024,
             levelToString(logLevel).c_str(), levelToString(userLogLevel).c_str(), corStackSize / 1024, corPoolSize, msgSeqLen,
-            maxConnectTimeout / 1000, iothreadNum, timewheelBucketNum, timewheelInterval, ip.c_str(), port, serverType.c_str(), rpcProtocol.c_str(),
+            maxConnectTimeout / 1000, iothreadNum, timewheelBucketNum, timewheelInterval, ip.c_str(), port, protocol.c_str(),
             serviceRegisterStr.c_str(), zkIp.c_str(), zkPort, zkTimeout);
 
     std::string s(buff);

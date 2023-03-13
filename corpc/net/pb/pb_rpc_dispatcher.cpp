@@ -15,7 +15,7 @@ namespace corpc {
 
 class TcpBuffer;
 
-void PbRpcDispacther::dispatch(AbstractData *data, TcpConnection *conn)
+void PbRpcDispacther::dispatch(AbstractData *data, const TcpConnection::ptr &conn)
 {
     PbStruct *temp = dynamic_cast<PbStruct *>(data);
 

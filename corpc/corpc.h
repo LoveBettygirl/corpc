@@ -60,4 +60,9 @@
 
 #include "corpc/net/register/zk_service_register.h"
 
+#include "corpc/net/custom/custom_codec.h"
+#include "corpc/net/custom/custom_data.h"
+#include "corpc/net/custom/custom_dispatcher.h"
+#include "corpc/net/custom/custom_service.h"
+
 #endif

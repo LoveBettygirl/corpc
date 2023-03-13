@@ -40,5 +40,4 @@ zk_config:
 server:
   ip: 127.0.0.1
   port: 10000
-  server_type: rpc
-  rpc_protocol: HTTP
+  protocol: HTTP

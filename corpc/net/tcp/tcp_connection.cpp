@@ -8,6 +8,8 @@
 #include "corpc/net/timer.h"
 #include "corpc/net/tcp/tcp_client.h"
 #include "corpc/net/pb/pb_codec.h"
+#include "corpc/net/custom/custom_codec.h"
+#include "corpc/net/custom/custom_dispatcher.h"
 
 namespace corpc {
 
@@ -19,6 +21,7 @@ TcpConnection::TcpConnection(corpc::TcpServer *tcpServer, corpc::IOThread *ioThr
     tcpServer_ = tcpServer;
 
     codec_ = tcpServer_->getCodec();
+    getCustomData_ = tcpServer_->getCustomData();
     channel_ = ChannelContainer::getChannelContainer()->getChannel(fd);
     channel_->setEventLoop(loop_);
     initBuffer(buffSize);
@@ -35,6 +38,7 @@ TcpConnection::TcpConnection(corpc::TcpClient *tcpCli, corpc::EventLoop *loop, i
     tcpClient_ = tcpCli;
 
     codec_ = tcpClient_->getCodeC();
+    getCustomData_ = tcpClient_->getCustomData();
 
     channel_ = ChannelContainer::getChannelContainer()->getChannel(fd);
     channel_->setEventLoop(loop_);
@@ -93,7 +97,7 @@ void TcpConnection::mainServerLoopCorFunc()
     while (!stop_) {
         input(); // 读数据
         execute(); // 处理数据
-        // output(); // 写数据
+        output(); // 写数据
     }
     LOG_INFO << "this connection has already end loop";
 }
@@ -205,22 +209,20 @@ void TcpConnection::input()
 
 void TcpConnection::execute()
 {
-    if (connectionType_ == ServerConnection) {
-        if (tcpServer_->getServerType() == Common_Server) {
-            if (messageCallback_) {
-                messageCallback_(shared_from_this());
-            }
-            return;
-        }
-    }
     // it only server do this
     while (readBuffer_->readAble() > 0) {
         std::shared_ptr<AbstractData> data;
         if (codec_->getProtocolType() == Pb_Protocol) {
             data = std::make_shared<PbStruct>();
         }
-        else {
+        else if (codec_->getProtocolType() == Http_Protocol) {
             data = std::make_shared<HttpRequest>();
+        }
+        else {
+            data = std::make_shared<CustomStruct>();
+            if (getCustomData_) {
+                data = getCustomData_();
+            }
         }
 
         codec_->decode(readBuffer_.get(), data.get());
@@ -232,8 +234,7 @@ void TcpConnection::execute()
 
         if (connectionType_ == ServerConnection) {
             LOG_DEBUG << "to dispatch this package";
-            tcpServer_->getDispatcher()->dispatch(data.get(), this);
-            output();
+            tcpServer_->getDispatcher()->dispatch(data.get(), shared_from_this());
             LOG_DEBUG << "continue parse next package";
         }
         else if (connectionType_ == ClientConnection) {
@@ -241,8 +242,12 @@ void TcpConnection::execute()
             // 需要用dynamic_pointer_cast，而不是dynamic_cast
             // 下面的逻辑是，如果是pb协议的，就将序列号和响应内容保存起来，避免乱序
             std::shared_ptr<PbStruct> temp = std::dynamic_pointer_cast<PbStruct>(data);
+            std::shared_ptr<CustomStruct> temp2 = std::dynamic_pointer_cast<CustomStruct>(data);
             if (temp) {
                 replyDatas_.insert(std::make_pair(temp->msgSeq, temp));
+            }
+            else if (temp2) {
+                replyCustomDatas_.push(temp2);
             }
         }
     }
@@ -346,6 +351,17 @@ bool TcpConnection::getResPackageData(const std::string &msgSeq, PbStruct::ptr &
         return true;
     }
     LOG_DEBUG << msgSeq << "|reply data not exist";
+    return false;
+}
+
+bool TcpConnection::getResPackageData(CustomStruct::ptr &customStruct)
+{
+    if (!replyCustomDatas_.empty()) {
+        customStruct = replyCustomDatas_.front();
+        replyCustomDatas_.pop();
+        return true;
+    }
+    LOG_DEBUG << "reply custom data not exist";
     return false;
 }
 

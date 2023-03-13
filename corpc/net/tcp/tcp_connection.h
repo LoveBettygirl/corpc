@@ -18,6 +18,8 @@
 #include "corpc/net/abstract_codec.h"
 #include "corpc/net/http/http_request.h"
 #include "corpc/net/pb/pb_codec.h"
+#include "corpc/net/custom/custom_data.h"
+#include "corpc/net/custom/custom_codec.h"
 
 namespace corpc {
 
@@ -36,7 +38,6 @@ class TcpConnection : public std::enable_shared_from_this<TcpConnection> {
 public:
     typedef std::shared_ptr<TcpConnection> ptr;
     using ConnectionCallback = std::function<void(const TcpConnection::ptr&)>;
-    using MessageCallback = std::function<void(const TcpConnection::ptr&)>;
 
     TcpConnection(corpc::TcpServer *tcpServer, corpc::IOThread *ioThread, int fd, int buffSize, NetAddress::ptr peerAddr);
     TcpConnection(corpc::TcpClient *tcpClient, corpc::EventLoop *loop, int fd, int buffSize, NetAddress::ptr peerAddr);
@@ -61,10 +62,12 @@ public:
     TcpBuffer *getOutBuffer();
     AbstractCodeC::ptr getCodec() const;
     bool getResPackageData(const std::string &msgSeq, PbStruct::ptr &pbStruct);
+    bool getResPackageData(CustomStruct::ptr &customStruct);
     void registerToTimeWheel();
     Coroutine::ptr getCoroutine();
     void setConnectionCallback(const ConnectionCallback &cb) { connectionCallback_ = cb; }
-    void setMessageCallback(const MessageCallback &cb) { messageCallback_ = cb; }
+    void setCustomCodeC(CustomCodeC::ptr codec) { codec_ = codec; }
+    void setCustomData(std::function<CustomStruct::ptr()> func) { getCustomData_ = func; }
 
 public:
     void mainServerLoopCorFunc();
@@ -107,13 +110,14 @@ private:
     bool isOverTime_{false};
 
     std::map<std::string, std::shared_ptr<PbStruct>> replyDatas_;
+    std::queue<std::shared_ptr<CustomStruct>> replyCustomDatas_;
 
     std::weak_ptr<AbstractSlot<TcpConnection>> weakSlot_;
 
     RWMutex mutex_;
 
     ConnectionCallback connectionCallback_; // 有新连接时的回调
-    MessageCallback messageCallback_; // 有读写消息时的回调
+    std::function<CustomStruct::ptr()> getCustomData_;
 };
 
 }

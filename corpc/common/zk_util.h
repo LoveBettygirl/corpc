@@ -17,6 +17,7 @@ static const char *ROOT_PATH = "/corpc";
 class ZkClient {
 public:
     ZkClient();
+    ZkClient(const std::string &ip, int port, int timeout);
     ~ZkClient();
 
     // zkclient启动连接zkserver
@@ -50,6 +51,10 @@ private:
     zhandle_t *zhandle_;
 
     sem_t sem_;
+
+    std::string connstr_;
+
+    int timeout_;
 
     // 缓存路径对应的子节点，这样就不用总是遍历文件系统了
     std::unordered_map<std::string, std::vector<std::string>> childrenNodesMap_;

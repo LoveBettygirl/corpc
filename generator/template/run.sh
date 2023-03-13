@@ -5,7 +5,7 @@ PROJECT_NAME=$(basename ${FILE_NAME})
 CURRENT_PATH=$(cd $(dirname $0); pwd)
 PROJECT_ROOT_PATH=$(cd $(dirname $0); cd ..; pwd)
 PROJECT_BIN_FILE="${CURRENT_PATH}"/"bin/${PROJECT_NAME}"
-PROJECT_CONF_FILE="./conf/${PROJECT_NAME}.xml"
+PROJECT_CONF_FILE="./conf/${PROJECT_NAME}.yml"
 
 
 echo "Run corpc project, name: ${PROJECT_NAME}, path: ${PROJECT_BIN_FILE}"
@@ -22,7 +22,7 @@ then
     exit -1
 fi
 
-# check config xml file exist
+# check config yml file exist
 if [ ! -e ${PROJECT_CONF_FILE} ]
 then
     echo "Run corpc error, file: ${PROJECT_CONF_FILE} not exist, please check config file"

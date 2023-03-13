@@ -6,6 +6,16 @@ namespace corpc {
 
 ZkServiceRegister::ZkServiceRegister()
 {
+    init();
+}
+
+ZkServiceRegister::ZkServiceRegister(const std::string &ip, int port, int timeout) : zkCli_(ip, port, timeout)
+{
+    init();
+}
+
+void ZkServiceRegister::init()
+{
     zkCli_.closeLog();
     // 启动zkclient客户端
     zkCli_.start();
@@ -16,6 +26,19 @@ ZkServiceRegister::ZkServiceRegister()
 void ZkServiceRegister::registerService(std::shared_ptr<google::protobuf::Service> service, NetAddress::ptr addr)
 {
     std::string serviceName = service->GetDescriptor()->full_name();
+    serviceSet_.insert(serviceName);
+    // znode路径：/corpc/serviceName/ip:port
+    std::string servicePath = ROOT_PATH;
+    servicePath += "/" + serviceName;
+    zkCli_.create(servicePath.c_str(), nullptr, 0); // 不能递归注册节点，只能逐级注册
+    servicePath += "/" + addr->toString();
+    zkCli_.create(servicePath.c_str(), nullptr, 0);
+    pathSet_.insert(servicePath);
+}
+
+void ZkServiceRegister::registerService(std::shared_ptr<CustomService> service, NetAddress::ptr addr)
+{
+    std::string serviceName = service->getServiceName() + "_Custom";
     serviceSet_.insert(serviceName);
     // znode路径：/corpc/serviceName/ip:port
     std::string servicePath = ROOT_PATH;

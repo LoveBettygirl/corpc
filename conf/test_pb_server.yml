@@ -40,5 +40,4 @@ zk_config:
 server:
   ip: 127.0.0.1
   port: 20000
-  server_type: rpc
-  rpc_protocol: PB
+  protocol: PB

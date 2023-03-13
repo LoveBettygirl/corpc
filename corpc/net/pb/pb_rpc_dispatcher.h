@@ -19,7 +19,7 @@ public:
     PbRpcDispacther() = default;
     ~PbRpcDispacther() = default;
 
-    void dispatch(AbstractData *data, TcpConnection *conn) override;
+    void dispatch(AbstractData *data, const TcpConnection::ptr &conn) override;
     bool parseServiceFullName(const std::string &fullName, std::string &serviceName, std::string &methodName);
     void registerService(servicePtr service);
 

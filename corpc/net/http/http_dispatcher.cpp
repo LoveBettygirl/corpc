@@ -8,7 +8,7 @@
 
 namespace corpc {
 
-void HttpDispacther::dispatch(AbstractData *data, TcpConnection *conn)
+void HttpDispacther::dispatch(AbstractData *data, const TcpConnection::ptr &conn)
 {
     HttpRequest *request = dynamic_cast<HttpRequest *>(data);
     HttpResponse response;

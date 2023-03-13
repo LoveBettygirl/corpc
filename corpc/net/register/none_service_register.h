@@ -11,6 +11,7 @@ public:
     ~NoneServiceRegister() {}
 
     void registerService(std::shared_ptr<google::protobuf::Service> service, NetAddress::ptr addr) {}
+    void registerService(std::shared_ptr<CustomService> service, NetAddress::ptr addr) {}
     std::vector<NetAddress::ptr> discoverService(const std::string &serviceName) { return std::vector<NetAddress::ptr>(); }
     void clear() {}
 };
