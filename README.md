@@ -100,10 +100,10 @@ cd bin
 ./UserService ../conf/UserService.yml
 
 # 也可以通过该脚本来启动一个守护进程
-./run.sh
+./run.sh bin/UserService
 
 # 停止守护进程
-./shutdown.sh
+./shutdown.sh bin/UserService
 ```
 
 ### 定义自己的网络服务
@@ -217,6 +217,7 @@ int main()
 
 ## TODO
 
+- 项目可能还存在未知bug，需要修复，并修复在错误情况下会出现的bug，让错误提示对小白更友好（例如端口被占用等）
 - 加入对thrift等协议数据的支持
 - 加入对RPC长连接的支持
 - 加入服务熔断、降级、限流等其他服务治理功能

@@ -37,5 +37,5 @@ then
 fi
 
 sh shutdown.sh ${PROJECT_NAME}
-nohup ./${PROJECT_NAME} ${PROJECT_CONF_FILE} & > ${PROJECT_ROOT_PATH}/log/${PROJECT_NAME}.nohup_log
+nohup ${PROJECT_BIN_FILE} ${PROJECT_CONF_FILE} & > ${PROJECT_ROOT_PATH}/log/${PROJECT_NAME}.nohup_log
 echo "Start corpc server ${PROJECT_CONF_FILE} succ"
