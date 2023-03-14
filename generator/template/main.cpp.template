@@ -15,15 +15,15 @@ ${INCLUDE_SERVER_HEADER}
 int main(int argc, char* argv[])
 {
     if (argc != 2) {
-        printf("Start ${PROJECT_NAME} server error, input argc is not 2!");
-        printf("Start ${PROJECT_NAME} like this: \n");
-        printf("./${PROJECT_NAME} ${PROJECT_NAME}.yml\n");
+        printf("Start ${PROJECT_REAL_NAME} server error, input argc is not 2!");
+        printf("Start ${PROJECT_REAL_NAME} like this: \n");
+        printf("./${PROJECT_REAL_NAME} ${PROJECT_REAL_NAME}.yml\n");
         return 0;
     }
 
     corpc::initConfig(argv[1]);
 
-    REGISTER_SERVICE(${PROJECT_NAME}::${CLASS_NAME});
+    REGISTER_SERVICE(${PROJECT_REAL_NAME}::${CLASS_NAME});
 
     corpc::startServer();
     

@@ -73,7 +73,6 @@ void PbRpcClientAsyncChannel::CallMethod(const google::protobuf::MethodDescripto
                                     google::protobuf::Message *response,
                                     google::protobuf::Closure *done)
 {
-    PbRpcController *rpcController = dynamic_cast<PbRpcController *>(controller);
     if (!isPreSet_) {
         LOG_ERROR << "Error! must call [saveCallee()] function before [CallMethod()]";
         PbRpcController *rpcController = dynamic_cast<PbRpcController *>(controller);

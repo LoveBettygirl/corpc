@@ -80,7 +80,7 @@ def generate_framework_code():
         # generate business_exception.h
         exception_template = Template(open(generator_path + '/template/business_exception.h.template', 'r').read())
         exception_content = exception_template.safe_substitute(
-            PROJECT_NAME = project_name,
+            PROJECT_REAL_NAME = project_name,
             FILE_NAME = 'business_exception.cpp',
             HEADER_DEFINE = project_name.upper() + '_COMMON_BUSINESS_EXCEPTION_H',
             CREATE_TIME = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -103,7 +103,7 @@ def generate_framework_code():
     head_file_content = head_file_temlate.safe_substitute(
         HEADER_DEFINE = project_name.upper() + '_SERVICE_' + project_name.upper() + '_H',
         FILE_NAME = project_name + '.h',
-        PROJECT_NAME = project_name,
+        PROJECT_REAL_NAME = project_name,
         CLASS_NAME = class_name,
         SERVICE_NAME = service_name,
         PB_HEAD_FILE = project_name + '/pb/' + project_name + '.pb.h', 
@@ -134,7 +134,7 @@ def generate_framework_code():
     cc_file_temlate = Template(open(generator_path + '/template/server.cpp.template','r').read())
     cc_file_content = cc_file_temlate.safe_substitute(
         FILE_NAME = project_name + '.cpp',
-        PROJECT_NAME = project_name,
+        PROJECT_REAL_NAME = project_name,
         INCLUDE_PB_HEADER = '#include "' + project_name + '/pb/' + project_name + '.pb.h"', 
         INCLUDE_BUSINESS_EXCEPTION_HEADER = '#include "' + project_name + '/common/business_exception.h"',
         INCLUDE_SERVER_HEADER = '#include "' + project_name + '/service/' + project_name + '.h"', 
@@ -205,7 +205,7 @@ def generate_framework_code():
         main_file_temlate = Template(open(generator_path + '/template/main.cpp.template','r').read())
         main_file_content = main_file_temlate.safe_substitute(
             FILE_NAME = project_name + '.h',
-            PROJECT_NAME = project_name,
+            PROJECT_REAL_NAME = project_name,
             CLASS_NAME = class_name,
             INCLUDE_SERVER_HEADER = '#include "' + project_name + '/service/' + project_name + '.h"', 
             CREATE_TIME = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -233,7 +233,7 @@ def generate_framework_code():
         file = src_path + '/interface/' + each['interface_name'] + '.h'
         if not os.path.exists(file):
             header_content = interface_head_file_temlate.safe_substitute(
-                PROJECT_NAME = project_name,
+                PROJECT_REAL_NAME = project_name,
                 INCLUDE_PB_HEADER = '#include "' + project_name + '/pb/' + project_name + '.pb.h"', 
                 HEADER_DEFINE = project_name.upper() + '_INTERFACE_' + each['interface_name'].upper() + '_H',
                 CREATE_TIME = datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
@@ -252,7 +252,7 @@ def generate_framework_code():
         file = src_path + '/interface/' + each['interface_name'] + '.cpp'
         if not os.path.exists(file):
             cc_file_content = interface_cc_file_temlate.safe_substitute(
-                PROJECT_NAME = project_name,
+                PROJECT_REAL_NAME = project_name,
                 INCLUDE_PB_HEADER = '#include "' + project_name + '/pb/' + project_name + '.pb.h"', 
                 INCLUDE_INTERFACE_HEADER_FILE = '#include "' + project_name + '/interface/' + each['interface_name'] + '.h"',
                 CREATE_TIME = datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
@@ -280,7 +280,7 @@ def generate_framework_code():
                 FILE_NAME = 'test_' + each['interface_name'] + '_client.cpp',
                 IP = IP,
                 PORT = PORT,
-                PROJECT_NAME = project_name,
+                PROJECT_REAL_NAME = project_name,
                 EXE_NAME = 'test_' + each['interface_name'] + '_client',
             )
             out_interface_cc_file = open(file, 'w')
@@ -330,7 +330,7 @@ def gen_cmake_file():
         template_file = open(generator_path + '/template/CMakeLists_root.txt.template','r')
         tmpl = Template(template_file.read())
         content = tmpl.safe_substitute(
-            PROJECT_NAME = project_name,
+            PROJECT_REAL_NAME = project_name,
             CREATE_TIME = datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
         file = open(out_file, 'w')
         file.write(content)
@@ -349,7 +349,6 @@ def gen_cmake_file():
         template_file = open(generator_path + '/template/CMakeLists_server.txt.template','r')
         tmpl = Template(template_file.read())
         content = tmpl.safe_substitute(
-            PROJECT_NAME = project_name,
             CREATE_TIME = datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
         file = open(out_file, 'w')
         file.write(content)
@@ -405,7 +404,7 @@ def gen_conf_file():
     tmpl = Template(template_file.read())
 
     content = tmpl.safe_substitute(
-        PROJECT_NAME = project_name,
+        PROJECT_REAL_NAME = project_name,
         IP = IP,
         PORT = str(PORT),
         CREATE_TIME = datetime.now().strftime('%Y-%m-%d %H:%M:%S'))

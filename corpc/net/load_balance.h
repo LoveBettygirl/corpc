@@ -96,7 +96,7 @@ private:
         }
 
         std::map<size_t, NetAddress::ptr> virtualInvokers;
-        const int identityHashCode;
+        const size_t identityHashCode;
 
         static size_t hash(const std::vector<uint8_t> &digest, int number) {
             return (((size_t) (digest[3 + number * 4] & 0xFF) << 24)

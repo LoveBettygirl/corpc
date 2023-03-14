@@ -4,6 +4,8 @@
 
 namespace corpc {
 
+static const char *ROOT_PATH = "/corpc";
+
 ZkServiceRegister::ZkServiceRegister()
 {
     init();

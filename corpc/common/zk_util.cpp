@@ -6,6 +6,8 @@ namespace corpc {
 
 extern corpc::Config::ptr gConfig;
 
+static const char *ROOT_PATH = "/corpc";
+
 // 全局的watcher观察器   zkserver给zkclient的通知
 void ZkClient::globalWatcher(zhandle_t *zh, int type, int state, const char *path, void *watcherCtx)
 {
@@ -22,9 +24,9 @@ void ZkClient::globalWatcher(zhandle_t *zh, int type, int state, const char *pat
     }
 }
 
-ZkClient::ZkClient(const std::string &ip, int port, int timeout) : connstr_(ip + ":" + std::to_string(port)), timeout_(timeout), zhandle_(nullptr) {}
+ZkClient::ZkClient(const std::string &ip, int port, int timeout) : zhandle_(nullptr), connstr_(ip + ":" + std::to_string(port)), timeout_(timeout) {}
 
-ZkClient::ZkClient() : connstr_(gConfig->zkIp + ":" + std::to_string(gConfig->zkPort)), timeout_(gConfig->zkTimeout), zhandle_(nullptr) {}
+ZkClient::ZkClient() : zhandle_(nullptr), connstr_(gConfig->zkIp + ":" + std::to_string(gConfig->zkPort)), timeout_(gConfig->zkTimeout) {}
 
 ZkClient::~ZkClient()
 {

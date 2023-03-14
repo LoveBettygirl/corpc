@@ -4,7 +4,7 @@
 log:
   # identify path of log file
   log_path: ./log/
-  log_prefix: ${PROJECT_NAME}
+  log_prefix: ${PROJECT_REAL_NAME}
   # identify max size of single log file, MB
   log_max_file_size: 5
   # log level: DEBUG < INFO < WARN < ERROR < NONE (don't print log)

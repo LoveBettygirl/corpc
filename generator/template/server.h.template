@@ -12,7 +12,7 @@
 ${INCLUDE_PB_HEADER}
 
 
-namespace ${PROJECT_NAME} {
+namespace ${PROJECT_REAL_NAME} {
 
 class ${CLASS_NAME} : public ${SERVICE_NAME} {
 public:

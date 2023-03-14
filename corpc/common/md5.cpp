@@ -82,7 +82,7 @@ void MD5::calculateBlock(uint8_t *input)
 
 void MD5::string2BitStream(const std::string &src)
 {
-    for (int i = 0; i < src.length(); i++) {
+    for (size_t i = 0; i != src.length(); i++) {
         data.push_back((uint8_t)src[i]);
     }
 }
@@ -95,7 +95,7 @@ void MD5::padding()
     if (newSize % 512 != 448) {
         data.push_back((uint8_t)0x80);
         newSize += 8;
-        for (int i = newSize; newSize % 512 != 448; newSize += 8)
+        for (; newSize % 512 != 448; newSize += 8)
             data.push_back(0);
     }
     // 补充64位文件长度
@@ -108,7 +108,7 @@ void MD5::padding()
 
 void MD5::compute()
 {
-    for (int i = 0; i < data.size(); i += 64) {
+    for (size_t i = 0; i != data.size(); i += 64) {
         calculateBlock(&data[i]);
     }
 }
@@ -161,7 +161,7 @@ std::string MD5::getResultString(const std::string &src)
 
 bool MD5::judgeHexString(const std::string &src)
 {
-    for (int i = 0; i < src.size(); i++) {
+    for (size_t i = 0; i != src.size(); i++) {
         if (isalpha(src[i])) {
             char c = tolower(src[i]);
             if (c != 'a' && c != 'b' && c != 'c' && c != 'd' && c != 'e' && c != 'f')

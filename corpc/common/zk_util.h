@@ -11,8 +11,6 @@
 
 namespace corpc {
 
-static const char *ROOT_PATH = "/corpc";
-
 // 封装的zookeeper客户端类
 class ZkClient {
 public:

@@ -11,7 +11,7 @@ ${INCLUDE_INTERFACE_HEADER_FILE}
 ${INCLUDE_PB_HEADER}
 
 
-namespace ${PROJECT_NAME} {
+namespace ${PROJECT_REAL_NAME} {
 
 ${CLASS_NAME}::${CLASS_NAME}(const ${REQUEST_TYPE} &request, ${RESPONSE_TYPE} &response)
     : request_(request), 

@@ -1,4 +1,3 @@
 #!/bin/bash
-rm -rf /usr/local/include/corpc
-rm -f /usr/local/lib/libcorpc.a
+cd `pwd`/build/ && make uninstall
 ldconfig /usr/local/lib

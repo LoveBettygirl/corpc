@@ -15,7 +15,7 @@
 #include <sstream>
 #include <corpc/common/log.h>
 
-namespace ${PROJECT_NAME} {
+namespace ${PROJECT_REAL_NAME} {
 
 class BusinessException : public std::exception {
 public:
